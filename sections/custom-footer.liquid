@@ -1,0 +1,733 @@
+{% comment %}
+  Custom Footer Section with Wave Video Animation
+  Features: 4-column layout, newsletter signup, social links, contact info, quick links, policies
+{% endcomment %}
+
+{% assign section_settings = section.settings %}
+
+<footer class="custom-footer" data-section-id="{{ section.id }}">
+  {%- if section_settings.wave_video != blank -%}
+    <div class="custom-footer__wave-wrapper">
+      <video
+        class="custom-footer__wave-video"
+        autoplay
+        loop
+        muted
+        playsinline
+        aria-hidden="true"
+      >
+        <source src="{{ section_settings.wave_video }}" type="video/mp4">
+      </video>
+    </div>
+  {%- else -%}
+    <div class="custom-footer__wave-wrapper custom-footer__wave-wrapper--css">
+      <div class="custom-footer__wave">
+        <div class="custom-footer__wave-shape" data-parallax="true"></div>
+        <div class="custom-footer__wave-shape" data-parallax="true" data-delay="2000"></div>
+        <div class="custom-footer__wave-shape" data-parallax="true" data-delay="4000"></div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="custom-footer__container">
+    <div class="custom-footer__inner">
+      <!-- Column 1: Logo + Newsletter -->
+      <div class="custom-footer__column custom-footer__column--newsletter">
+        <div class="custom-footer__logo">
+          <div class="custom-footer__logo-icon">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="50" cy="50" r="45" fill="white" stroke="#8cc8b8" stroke-width="2"/>
+              <path d="M30 50 Q40 30, 50 50 T70 50" stroke="#8cc8b8" stroke-width="3" fill="none"/>
+              <circle cx="35" cy="45" r="3" fill="#8cc8b8"/>
+            </svg>
+          </div>
+          <div class="custom-footer__logo-text">
+            <span class="custom-footer__logo-main">{{ section_settings.logo_main_text }}</span>
+            <span class="custom-footer__logo-sub">{{ section_settings.logo_sub_text }}</span>
+          </div>
+        </div>
+
+        <div class="custom-footer__newsletter">
+          <p class="custom-footer__newsletter-text">{{ section_settings.newsletter_text }}</p>
+          <form class="custom-footer__newsletter-form">
+            <input
+              type="email"
+              class="custom-footer__newsletter-input"
+              placeholder="{{ section_settings.email_placeholder }}"
+              required
+            >
+            <button type="submit" class="custom-footer__newsletter-button">
+              {{ section_settings.button_text }}
+            </button>
+          </form>
+          <p class="custom-footer__legal">{{ section_settings.legal_text }}</p>
+        </div>
+      </div>
+
+      <!-- Column 2: Follow Us -->
+      <div class="custom-footer__column">
+        <h3 class="custom-footer__heading">{{ section_settings.follow_heading }}</h3>
+        <div class="custom-footer__social-links">
+          {% if section_settings.facebook_url != blank %}
+            <a href="{{ section_settings.facebook_url }}" target="_blank" rel="noopener noreferrer" class="custom-footer__social-link" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+          {% endif %}
+          {% if section_settings.instagram_url != blank %}
+            <a href="{{ section_settings.instagram_url }}" target="_blank" rel="noopener noreferrer" class="custom-footer__social-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+          {% endif %}
+          {% if section_settings.youtube_url != blank %}
+            <a href="{{ section_settings.youtube_url }}" target="_blank" rel="noopener noreferrer" class="custom-footer__social-link" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Column 3: Contact Us -->
+      <div class="custom-footer__column">
+        <h3 class="custom-footer__heading">{{ section_settings.contact_heading }}</h3>
+        <div class="custom-footer__contact-links">
+          {% if section_settings.phone_number != blank %}
+            <a href="tel:{{ section_settings.phone_number | replace: ' ', '' }}" class="custom-footer__contact-link">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+              </svg>
+              <span>{{ section_settings.phone_label }}</span>
+            </a>
+          {% endif %}
+          {% if section_settings.whatsapp_number != blank %}
+            <a href="https://wa.me/{{ section_settings.whatsapp_number | replace: ' ', '' }}" target="_blank" rel="noopener noreferrer" class="custom-footer__contact-link">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              <span>WhatsApp</span>
+            </a>
+          {% endif %}
+          {% if section_settings.contact_email != blank %}
+            <a href="mailto:{{ section_settings.contact_email }}" class="custom-footer__contact-link">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+              </svg>
+              <span>{{ section_settings.email_label }}</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Column 4: Quick Links + Policies -->
+      <div class="custom-footer__column custom-footer__column--links">
+        <div class="custom-footer__links-section">
+          <h3 class="custom-footer__heading">{{ section_settings.quick_links_heading }}</h3>
+          <div class="custom-footer__button-grid">
+            {% for link in linklists[section_settings.quick_links_menu].links limit: 4 %}
+              <a href="{{ link.url }}" class="custom-footer__link-button">{{ link.title }}</a>
+            {% else %}
+              {% assign quick_links = section_settings.quick_links_manual | split: '|' %}
+              {% for link in quick_links limit: 4 %}
+                {% assign link_parts = link | split: '::' %}
+                <a href="{{ link_parts[1] | strip }}" class="custom-footer__link-button">{{ link_parts[0] | strip }}</a>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="custom-footer__links-section custom-footer__links-section--policies">
+          <h3 class="custom-footer__heading">{{ section_settings.policies_heading }}</h3>
+          <div class="custom-footer__button-grid custom-footer__button-grid--policies">
+            {% for link in linklists[section_settings.policies_menu].links limit: 6 %}
+              <a href="{{ link.url }}" class="custom-footer__link-button">{{ link.title }}</a>
+            {% else %}
+              {% assign policy_links = section_settings.policies_manual | split: '|' %}
+              {% for link in policy_links limit: 6 %}
+                {% assign link_parts = link | split: '::' %}
+                <a href="{{ link_parts[1] | strip }}" class="custom-footer__link-button">{{ link_parts[0] | strip }}</a>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% stylesheet %}
+  .custom-footer {
+    --footer-bg: #f8f0e3;
+    --footer-border: #8cc8b8;
+    --footer-text: #333333;
+    --footer-text-secondary: #666666;
+    --footer-button-bg: #ffc107;
+    --footer-button-text: #333333;
+    --footer-button-hover: #e0b000;
+    --footer-link-hover-bg: #f0f8f8;
+    --footer-social-hover: #8cc8b8;
+
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    width: 100%;
+  }
+
+  /* Wave Video */
+  .custom-footer__wave-wrapper {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .custom-footer__wave-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* CSS Wave Animation Fallback */
+  .custom-footer__wave-wrapper--css {
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #8cc8b8 0%, #a8e0e0 100%);
+  }
+
+  .custom-footer__wave {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-footer__wave-shape {
+    position: absolute;
+    width: 200%;
+    height: 100%;
+    background-repeat: repeat-x;
+    background-position: 0 bottom;
+    transform-origin: center bottom;
+  }
+
+  .custom-footer__wave-shape:nth-child(1) {
+    left: 0;
+    bottom: 0;
+    opacity: 0.7;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z' fill='%238cc8b8'/%3E%3C/svg%3E");
+    background-size: 50% 100%;
+    animation: wave 8s ease-in-out infinite;
+  }
+
+  .custom-footer__wave-shape:nth-child(2) {
+    left: -50%;
+    bottom: 0;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C200,120 400,0 600,60 C800,120 1000,0 1200,60 L1200,120 L0,120 Z' fill='%2398d4c4'/%3E%3C/svg%3E");
+    background-size: 50% 100%;
+    animation: wave 10s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .custom-footer__wave-shape:nth-child(3) {
+    left: -25%;
+    bottom: 0;
+    opacity: 0.3;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C100,120 300,0 600,60 C900,120 1100,0 1200,60 L1200,120 L0,120 Z' fill='%23a8e0e0'/%3E%3C/svg%3E");
+    background-size: 50% 100%;
+    animation: wave 12s ease-in-out infinite;
+    animation-delay: 4s;
+  }
+
+  @keyframes wave {
+    0% {
+      transform: translateX(0) translateZ(0) scaleY(1);
+    }
+    50% {
+      transform: translateX(-25%) translateZ(0) scaleY(0.8);
+    }
+    100% {
+      transform: translateX(-50%) translateZ(0) scaleY(1);
+    }
+  }
+
+  /* Smooth transitions for interactive elements */
+  .custom-footer__link-button,
+  .custom-footer__social-link,
+  .custom-footer__contact-link,
+  .custom-footer__newsletter-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Focus styles for accessibility */
+  .custom-footer__social-link:focus-visible,
+  .custom-footer__contact-link:focus-visible,
+  .custom-footer__link-button:focus-visible,
+  .custom-footer__newsletter-button:focus-visible,
+  .custom-footer__newsletter-input:focus-visible {
+    outline: 2px solid var(--footer-border);
+    outline-offset: 2px;
+  }
+
+  /* Container with border */
+  .custom-footer__container {
+    border: 2px solid var(--footer-border);
+    margin: 2% 5%;
+    border-radius: 8px;
+    background-color: var(--footer-bg);
+  }
+
+  .custom-footer__inner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    padding: 24px;
+  }
+
+  /* Columns */
+  .custom-footer__column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Logo */
+  .custom-footer__logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .custom-footer__logo-icon {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+  }
+
+  .custom-footer__logo-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-footer__logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .custom-footer__logo-main {
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.2;
+  }
+
+  .custom-footer__logo-sub {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  /* Newsletter */
+  .custom-footer__newsletter-text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--footer-text);
+    margin: 0 0 16px 0;
+  }
+
+  .custom-footer__newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .custom-footer__newsletter-input {
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    color: var(--footer-text);
+    font-family: inherit;
+  }
+
+  .custom-footer__newsletter-input::placeholder {
+    color: var(--footer-text-secondary);
+  }
+
+  .custom-footer__newsletter-input:focus {
+    outline: none;
+    border-color: var(--footer-border);
+  }
+
+  .custom-footer__newsletter-button {
+    padding: 12px 24px;
+    background-color: var(--footer-button-bg);
+    color: var(--footer-button-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .custom-footer__newsletter-button:hover {
+    background-color: var(--footer-button-hover);
+  }
+
+  .custom-footer__legal {
+    font-size: 12px;
+    color: var(--footer-text-secondary);
+    margin: 16px 0 0 0;
+  }
+
+  /* Headings */
+  .custom-footer__heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--footer-text);
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .custom-footer__links-section .custom-footer__heading {
+    font-size: 16px;
+  }
+
+  /* Social Links */
+  .custom-footer__social-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .custom-footer__social-link {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--footer-text);
+    transition: color 0.2s ease;
+  }
+
+  .custom-footer__social-link:hover {
+    color: var(--footer-social-hover);
+  }
+
+  .custom-footer__social-link svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  /* Contact Links */
+  .custom-footer__contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .custom-footer__contact-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--footer-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+
+  .custom-footer__contact-link:hover {
+    color: var(--footer-social-hover);
+  }
+
+  .custom-footer__contact-link svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Button Grid */
+  .custom-footer__button-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .custom-footer__link-button {
+    display: inline-block;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    color: var(--footer-text);
+    text-decoration: none;
+    font-size: 14px;
+    text-align: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .custom-footer__link-button:hover {
+    background-color: var(--footer-link-hover-bg);
+    border-color: var(--footer-border);
+  }
+
+  /* Links Section */
+  .custom-footer__links-section {
+    margin-bottom: 20px;
+  }
+
+  .custom-footer__links-section:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Desktop Layout */
+  @media screen and (min-width: 990px) {
+    .custom-footer__inner {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      padding: 40px 48px;
+    }
+
+    .custom-footer__newsletter-form {
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .custom-footer__newsletter-input {
+      flex: 1;
+    }
+
+    .custom-footer__newsletter-button {
+      white-space: nowrap;
+    }
+
+    .custom-footer__button-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .custom-footer__button-grid--policies {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Tablet */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .custom-footer__inner {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .custom-footer__column--newsletter {
+      grid-column: span 2;
+    }
+  }
+
+  /* Mobile */
+  @media screen and (max-width: 749px) {
+    .custom-footer__container {
+      margin: 4% 3%;
+    }
+
+    .custom-footer__inner {
+      padding: 20px;
+      gap: 24px;
+    }
+
+    .custom-footer__button-grid--policies {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom Footer with Waves",
+  "class": "section-wrapper",
+  "tag": "footer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Wave Video"
+    },
+    {
+      "type": "url",
+      "id": "wave_video",
+      "label": "Wave Video URL",
+      "info": "Upload a video file and paste its URL here for the wave animation at the top of the footer. Leave blank to use CSS wave animation."
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "text",
+      "id": "logo_main_text",
+      "label": "Main Logo Text",
+      "default": "CABRAL"
+    },
+    {
+      "type": "text",
+      "id": "logo_sub_text",
+      "label": "Sub Logo Text",
+      "default": "OUTDOORS"
+    },
+    {
+      "type": "header",
+      "content": "Newsletter"
+    },
+    {
+      "type": "textarea",
+      "id": "newsletter_text",
+      "label": "Newsletter Description",
+      "default": "Be the first to know about new drops, deals and fishing tips."
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "Email Placeholder",
+      "default": "Email address"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Sign up"
+    },
+    {
+      "type": "text",
+      "id": "legal_text",
+      "label": "Legal Text",
+      "default": "Terms of Service © 2026 Cabral Outdoors"
+    },
+    {
+      "type": "header",
+      "content": "Follow Us"
+    },
+    {
+      "type": "text",
+      "id": "follow_heading",
+      "label": "Heading",
+      "default": "FOLLOW US"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "url",
+      "id": "youtube_url",
+      "label": "YouTube URL"
+    },
+    {
+      "type": "header",
+      "content": "Contact Us"
+    },
+    {
+      "type": "text",
+      "id": "contact_heading",
+      "label": "Heading",
+      "default": "CONTACT US"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "label": "Phone Number",
+      "default": "+1 234 567 8900"
+    },
+    {
+      "type": "text",
+      "id": "phone_label",
+      "label": "Phone Label",
+      "default": "Call Us"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "WhatsApp Number",
+      "default": "+1 234 567 8900"
+    },
+    {
+      "type": "text",
+      "id": "contact_email",
+      "label": "Contact Email",
+      "default": "info@cabraloutdoors.com"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "label": "Email Label",
+      "default": "Email Us"
+    },
+    {
+      "type": "header",
+      "content": "Quick Links"
+    },
+    {
+      "type": "text",
+      "id": "quick_links_heading",
+      "label": "Heading",
+      "default": "QUICK LINKS"
+    },
+    {
+      "type": "link_list",
+      "id": "quick_links_menu",
+      "label": "Quick Links Menu",
+      "info": "Select a menu for quick links. If no menu is selected, manual links will be used."
+    },
+    {
+      "type": "textarea",
+      "id": "quick_links_manual",
+      "label": "Manual Quick Links",
+      "default": "Tackle Points::/pages/tackle | FAQ::/pages/faq | Contact::/pages/contact | Sitemap::/sitemap",
+      "info": "Format: Link Title::URL | Link Title::URL (used if no menu is selected)"
+    },
+    {
+      "type": "header",
+      "content": "Policies"
+    },
+    {
+      "type": "text",
+      "id": "policies_heading",
+      "label": "Heading",
+      "default": "POLICIES"
+    },
+    {
+      "type": "link_list",
+      "id": "policies_menu",
+      "label": "Policies Menu",
+      "info": "Select a menu for policies. If no menu is selected, manual links will be used."
+    },
+    {
+      "type": "textarea",
+      "id": "policies_manual",
+      "label": "Manual Policy Links",
+      "default": "Privacy Policy::/policies/privacy-policy | Shipping Policy::/policies/shipping-policy | Refund Policy::/policies/refund-policy | Disclaimer::/pages/disclaimer | Terms::/policies/terms-of-service | Delivery::/policies/shipping-policy",
+      "info": "Format: Link Title::URL | Link Title::URL (used if no menu is selected)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Footer with Waves",
+      "category": "Footer"
+    }
+  ]
+}
+{% endschema %}

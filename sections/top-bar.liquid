@@ -76,10 +76,11 @@
 
 {% stylesheet %}
 .top-bar {
-  padding: 10px 0;
+  padding: 12px 0;
   color: #ffffff;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 .top-bar__content {
   display: flex;
@@ -93,12 +94,12 @@
 .top-bar__text {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .top-bar__right {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 35px;
 }
 .top-bar__link {
   color: #ffffff;
@@ -106,7 +107,7 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .top-bar__link:hover {
   text-decoration: underline;
@@ -118,6 +119,8 @@
 .top-bar__localization .localization-form {
   padding: 0;
   margin: 0;
+  display: flex;
+  align-items: center;
 }
 .top-bar__localization .localization-selector {
   color: #ffffff;
@@ -125,17 +128,19 @@
   border: none;
   padding: 0;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
 }
 .top-bar__localization .localization-selector:hover {
   text-decoration: underline;
 }
 .top-bar__localization .icon-caret {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
+  display: flex;
+  align-items: center;
 }
 {% endstylesheet %}
