@@ -6,29 +6,6 @@
 {% assign section_settings = section.settings %}
 
 <footer class="custom-footer" data-section-id="{{ section.id }}">
-  {%- if section_settings.wave_video != blank -%}
-    <div class="custom-footer__wave-wrapper">
-      <video
-        class="custom-footer__wave-video"
-        autoplay
-        loop
-        muted
-        playsinline
-        aria-hidden="true"
-      >
-        <source src="{{ section_settings.wave_video }}" type="video/mp4">
-      </video>
-    </div>
-  {%- else -%}
-    <div class="custom-footer__wave-wrapper custom-footer__wave-wrapper--css">
-      <div class="custom-footer__wave">
-        <div class="custom-footer__wave-shape" data-parallax="true"></div>
-        <div class="custom-footer__wave-shape" data-parallax="true" data-delay="2000"></div>
-        <div class="custom-footer__wave-shape" data-parallax="true" data-delay="4000"></div>
-      </div>
-    </div>
-  {%- endif -%}
-
   <div class="custom-footer__container">
     <div class="custom-footer__inner">
       <!-- Column 1: Logo + Newsletter -->
@@ -157,6 +134,20 @@
       </div>
     </div>
   </div>
+
+  {%- if section_settings.enable_wave_animation -%}
+    <div class="waveWrapper waveAnimation">
+      <div class="waveWrapperInner bgTop">
+        <div class="wave waveTop"></div>
+      </div>
+      <div class="waveWrapperInner bgMiddle">
+        <div class="wave waveMiddle"></div>
+      </div>
+      <div class="waveWrapperInner bgBottom">
+        <div class="wave waveBottom"></div>
+      </div>
+    </div>
+  {%- endif -%}
 </footer>
 
 {% stylesheet %}
@@ -192,22 +183,62 @@
     object-fit: cover;
   }
 
-  /* CSS Wave Animation Fallback */
-  .custom-footer__wave-wrapper--css {
-    height: 120px;
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(180deg, #8cc8b8 0%, #a8e0e0 100%);
+  /* Custom Wave Animation - Inspired by wave.md */
+  @keyframes move_wave {
+    0% {
+      transform: translateX(0) translateZ(0) scaleY(1);
+    }
+    50% {
+      transform: translateX(-25%) translateZ(0) scaleY(0.55);
+    }
+    100% {
+      transform: translateX(-50%) translateZ(0) scaleY(1);
+    }
   }
 
-  .custom-footer__wave {
+  @keyframes move-wave {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .waveWrapper {
+    overflow: hidden;
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100px;
+    margin-top: -1px;
   }
 
-  .custom-footer__wave-shape {
+  .waveWrapperInner {
     position: absolute;
+    width: 100%;
+    overflow: hidden;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+  }
+
+  .bgTop {
+    z-index: 15;
+    opacity: 0.5;
+  }
+
+  .bgMiddle {
+    z-index: 10;
+    opacity: 0.75;
+  }
+
+  .bgBottom {
+    z-index: 5;
+  }
+
+  .wave {
+    position: absolute;
+    left: 0;
     width: 200%;
     height: 100%;
     background-repeat: repeat-x;
@@ -215,45 +246,45 @@
     transform-origin: center bottom;
   }
 
-  .custom-footer__wave-shape:nth-child(1) {
-    left: 0;
-    bottom: 0;
-    opacity: 0.7;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z' fill='%238cc8b8'/%3E%3C/svg%3E");
-    background-size: 50% 100%;
-    animation: wave 8s ease-in-out infinite;
+  .waveTop {
+    background-size: 50% 100px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z' fill='%238cc8b8'/%3E%3C/svg%3E");
   }
 
-  .custom-footer__wave-shape:nth-child(2) {
-    left: -50%;
-    bottom: 0;
-    opacity: 0.5;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C200,120 400,0 600,60 C800,120 1000,0 1200,60 L1200,120 L0,120 Z' fill='%2398d4c4'/%3E%3C/svg%3E");
-    background-size: 50% 100%;
-    animation: wave 10s ease-in-out infinite;
-    animation-delay: 2s;
+  .waveAnimation .waveTop {
+    animation: move-wave 3s linear infinite;
   }
 
-  .custom-footer__wave-shape:nth-child(3) {
-    left: -25%;
-    bottom: 0;
-    opacity: 0.3;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C100,120 300,0 600,60 C900,120 1100,0 1200,60 L1200,120 L0,120 Z' fill='%23a8e0e0'/%3E%3C/svg%3E");
-    background-size: 50% 100%;
-    animation: wave 12s ease-in-out infinite;
-    animation-delay: 4s;
+  .waveMiddle {
+    background-size: 50% 120px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C57.84,85.09,114.09,65.78,172,54,226.41,43.05,280.43,45.55,321.39,56.44Z' fill='%2398d4c4'/%3E%3C/svg%3E");
   }
 
-  @keyframes wave {
-    0% {
-      transform: translateX(0) translateZ(0) scaleY(1);
-    }
-    50% {
-      transform: translateX(-25%) translateZ(0) scaleY(0.8);
-    }
-    100% {
-      transform: translateX(-50%) translateZ(0) scaleY(1);
-    }
+  .waveAnimation .waveMiddle {
+    animation: move_wave 10s linear infinite;
+  }
+
+  .waveBottom {
+    background-size: 50% 100px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V120H0Z' fill='%23a8e0e0'/%3E%3C/svg%3E");
+  }
+
+  .waveAnimation .waveBottom {
+    animation: move_wave 15s linear infinite;
+  }
+
+  /* Wave Video fallback styles */
+  .custom-footer__wave-wrapper {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .custom-footer__wave-video {
+    width: 100%;
+    height: 100px;
+    display: block;
+    object-fit: cover;
   }
 
   /* Smooth transitions for interactive elements */
@@ -559,13 +590,18 @@
   "settings": [
     {
       "type": "header",
-      "content": "Wave Video"
+      "content": "Wave Animation"
     },
     {
-      "type": "url",
-      "id": "wave_video",
-      "label": "Wave Video URL",
-      "info": "Upload a video file and paste its URL here for the wave animation at the top of the footer. Leave blank to use CSS wave animation."
+      "type": "paragraph",
+      "content": "The footer includes a beautiful animated wave effect at the bottom using pure CSS. No video needed!"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_wave_animation",
+      "label": "Enable Wave Animation",
+      "default": true,
+      "info": "Show the animated wave effect at the bottom of the footer."
     },
     {
       "type": "header",
