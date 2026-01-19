@@ -11,9 +11,9 @@
       <!-- Column 1: Logo + Newsletter -->
       <div class="custom-footer__column custom-footer__column--newsletter">
         <div class="custom-footer__logo">
-          {%- if section_settings.logo_image != blank -%}
+          {%- if section.settings.logo_image != blank -%}
             <div class="custom-footer__logo-image">
-              <img src="{{ section_settings.logo_image | image_url: width: 400 }}" alt="{{ section.settings.logo_image.alt | default: shop.name }}" loading="lazy">
+              {{ section.settings.logo_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: section.settings.logo_image.alt | default: shop.name }}
             </div>
           {%- else -%}
             <div class="custom-footer__logo-icon">
@@ -24,8 +24,8 @@
               </svg>
             </div>
             <div class="custom-footer__logo-text">
-              <span class="custom-footer__logo-main">{{ section_settings.logo_main_text }}</span>
-              <span class="custom-footer__logo-sub">{{ section_settings.logo_sub_text }}</span>
+              <span class="custom-footer__logo-main">{{ section.settings.logo_main_text }}</span>
+              <span class="custom-footer__logo-sub">{{ section.settings.logo_sub_text }}</span>
             </div>
           {%- endif -%}
         </div>
@@ -635,19 +635,19 @@
     {
       "type": "image_picker",
       "id": "logo_image",
-      "label": "Logo Image"
+      "label": "Logo"
     },
     {
       "type": "text",
       "id": "logo_main_text",
-      "label": "Main Logo Text",
+      "label": "Logo Main Text",
       "default": "CABRAL",
       "info": "Used if no logo image is uploaded"
     },
     {
       "type": "text",
       "id": "logo_sub_text",
-      "label": "Sub Logo Text",
+      "label": "Logo Sub Text",
       "default": "OUTDOORS",
       "info": "Used if no logo image is uploaded"
     },
