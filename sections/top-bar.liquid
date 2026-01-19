@@ -63,7 +63,11 @@
       
       {% if section.settings.show_language %}
         <div class="top-bar__localization">
-           <span class="top-bar__link">English <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg></span>
+          {% render 'localization-form',
+            show_country: false,
+            show_language: true,
+            localization_style: 'dropdown'
+          %}
         </div>
       {% endif %}
     </div>
@@ -72,7 +76,7 @@
 
 {% stylesheet %}
 .top-bar {
-  padding: 8px 0;
+  padding: 10px 0;
   color: #ffffff;
   font-size: 13px;
   font-weight: 500;
@@ -89,12 +93,12 @@
 .top-bar__text {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .top-bar__right {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 30px;
 }
 .top-bar__link {
   color: #ffffff;
@@ -110,5 +114,28 @@
 .icon-shield {
     display: flex;
     align-items: center;
+}
+.top-bar__localization .localization-form {
+  padding: 0;
+  margin: 0;
+}
+.top-bar__localization .localization-selector {
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.top-bar__localization .localization-selector:hover {
+  text-decoration: underline;
+}
+.top-bar__localization .icon-caret {
+  width: 12px;
+  height: 12px;
 }
 {% endstylesheet %}
