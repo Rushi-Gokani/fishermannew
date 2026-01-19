@@ -11,17 +11,23 @@
       <!-- Column 1: Logo + Newsletter -->
       <div class="custom-footer__column custom-footer__column--newsletter">
         <div class="custom-footer__logo">
-          <div class="custom-footer__logo-icon">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="50" cy="50" r="45" fill="white" stroke="#8cc8b8" stroke-width="2"/>
-              <path d="M30 50 Q40 30, 50 50 T70 50" stroke="#8cc8b8" stroke-width="3" fill="none"/>
-              <circle cx="35" cy="45" r="3" fill="#8cc8b8"/>
-            </svg>
-          </div>
-          <div class="custom-footer__logo-text">
-            <span class="custom-footer__logo-main">{{ section_settings.logo_main_text }}</span>
-            <span class="custom-footer__logo-sub">{{ section_settings.logo_sub_text }}</span>
-          </div>
+          {%- if section_settings.logo_image != blank -%}
+            <div class="custom-footer__logo-image">
+              <img src="{{ section_settings.logo_image | image_url: width: 400 }}" alt="{{ section.settings.logo_image.alt | default: shop.name }}" loading="lazy">
+            </div>
+          {%- else -%}
+            <div class="custom-footer__logo-icon">
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="50" cy="50" r="45" fill="white" stroke="#8cc8b8" stroke-width="2"/>
+                <path d="M30 50 Q40 30, 50 50 T70 50" stroke="#8cc8b8" stroke-width="3" fill="none"/>
+                <circle cx="35" cy="45" r="3" fill="#8cc8b8"/>
+              </svg>
+            </div>
+            <div class="custom-footer__logo-text">
+              <span class="custom-footer__logo-main">{{ section_settings.logo_main_text }}</span>
+              <span class="custom-footer__logo-sub">{{ section_settings.logo_sub_text }}</span>
+            </div>
+          {%- endif -%}
         </div>
 
         <div class="custom-footer__newsletter">
@@ -152,7 +158,7 @@
 
 {% stylesheet %}
   .custom-footer {
-    --footer-bg: #f8f0e3;
+    --footer-bg: #ffffff;
     --footer-border: #8cc8b8;
     --footer-text: #333333;
     --footer-text-secondary: #666666;
@@ -209,8 +215,8 @@
     overflow: hidden;
     position: relative;
     width: 100%;
-    height: 100px;
-    margin-top: -1px;
+    height: 80px;
+    margin-top: 0;
   }
 
   .waveWrapperInner {
@@ -224,21 +230,23 @@
 
   .bgTop {
     z-index: 15;
-    opacity: 0.5;
+    opacity: 0.6;
   }
 
   .bgMiddle {
     z-index: 10;
-    opacity: 0.75;
+    opacity: 0.8;
   }
 
   .bgBottom {
     z-index: 5;
+    opacity: 1;
   }
 
   .wave {
     position: absolute;
     left: 0;
+    bottom: 0;
     width: 200%;
     height: 100%;
     background-repeat: repeat-x;
@@ -247,30 +255,32 @@
   }
 
   .waveTop {
-    background-size: 50% 100px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z' fill='%238cc8b8'/%3E%3C/svg%3E");
+    background-size: 50% 80px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 80' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C150,10 350,70 500,40 C650,10 850,70 1000,40 C1100,20 1150,40 1200,40 L1200,80 L0,80 Z' fill='%238cc8b8'/%3E%3C/svg%3E");
   }
 
   .waveAnimation .waveTop {
-    animation: move-wave 3s linear infinite;
+    animation: move_wave 5s linear infinite;
   }
 
   .waveMiddle {
-    background-size: 50% 120px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C57.84,85.09,114.09,65.78,172,54,226.41,43.05,280.43,45.55,321.39,56.44Z' fill='%2398d4c4'/%3E%3C/svg%3E");
+    background-size: 50% 80px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 80' preserveAspectRatio='none'%3E%3Cpath d='M0,50 C200,20 400,70 600,50 C800,30 1000,70 1200,50 L1200,80 L0,80 Z' fill='%2398d4c4'/%3E%3C/svg%3E");
   }
 
   .waveAnimation .waveMiddle {
-    animation: move_wave 10s linear infinite;
+    animation: move_wave 7s linear infinite;
+    animation-delay: -2s;
   }
 
   .waveBottom {
-    background-size: 50% 100px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V120H0Z' fill='%23a8e0e0'/%3E%3C/svg%3E");
+    background-size: 50% 80px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 80' preserveAspectRatio='none'%3E%3Cpath d='M0,45 C100,15 300,75 500,45 C700,15 900,75 1100,45 L1200,80 L0,80 Z' fill='%23a8e0e0'/%3E%3C/svg%3E");
   }
 
   .waveAnimation .waveBottom {
-    animation: move_wave 15s linear infinite;
+    animation: move_wave 10s linear infinite;
+    animation-delay: -4s;
   }
 
   /* Wave Video fallback styles */
@@ -305,11 +315,11 @@
     outline-offset: 2px;
   }
 
-  /* Container with border */
+  /* Container */
   .custom-footer__container {
-    border: 2px solid var(--footer-border);
-    margin: 2% 5%;
-    border-radius: 8px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 5%;
     background-color: var(--footer-bg);
   }
 
@@ -333,6 +343,17 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 16px;
+  }
+
+  .custom-footer__logo-image {
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  .custom-footer__logo-image img {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
   .custom-footer__logo-icon {
@@ -568,16 +589,20 @@
   /* Mobile */
   @media screen and (max-width: 749px) {
     .custom-footer__container {
-      margin: 4% 3%;
+      padding: 0 3%;
     }
 
     .custom-footer__inner {
-      padding: 20px;
+      padding: 20px 0;
       gap: 24px;
     }
 
     .custom-footer__button-grid--policies {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    .custom-footer__logo-image {
+      width: 140px;
     }
   }
 {% endstylesheet %}
@@ -608,16 +633,23 @@
       "content": "Logo"
     },
     {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo Image"
+    },
+    {
       "type": "text",
       "id": "logo_main_text",
       "label": "Main Logo Text",
-      "default": "CABRAL"
+      "default": "CABRAL",
+      "info": "Used if no logo image is uploaded"
     },
     {
       "type": "text",
       "id": "logo_sub_text",
       "label": "Sub Logo Text",
-      "default": "OUTDOORS"
+      "default": "OUTDOORS",
+      "info": "Used if no logo image is uploaded"
     },
     {
       "type": "header",

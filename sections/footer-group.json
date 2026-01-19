@@ -18,6 +18,7 @@
       "name": "Custom Footer with Waves",
       "settings": {
         "enable_wave_animation": true,
+        "logo_image": "",
         "logo_main_text": "CABRAL",
         "logo_sub_text": "OUTDOORS",
         "newsletter_text": "Be the first to know about new drops, deals and fishing tips.",
