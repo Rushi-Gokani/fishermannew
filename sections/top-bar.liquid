@@ -1,0 +1,114 @@
+{% schema %}
+{
+  "name": "Top Bar",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#40C4FF"
+    },
+    {
+      "type": "text",
+      "id": "announcement_text",
+      "label": "Announcement Text",
+      "default": "Always confirm payments via our official WhatsApp before paying"
+    },
+    {
+      "type": "url",
+      "id": "track_order_link",
+      "label": "Track Order Link"
+    },
+    {
+      "type": "url",
+      "id": "support_link",
+      "label": "Support Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_language",
+      "label": "Show Language Selector",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Top Bar"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="top-bar" style="background-color: {{ section.settings.background_color }};">
+  <div class="page-width top-bar__content">
+    <div class="top-bar__left">
+      {% if section.settings.announcement_text != blank %}
+        <span class="top-bar__text">
+            <span class="icon-shield">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.352-.272-2.636-.759-3.801a.75.75 0 00-.722-.515 11.209 11.209 0 01-7.877-3.08zM12 13.314l-2.489 2.49a.75.75 0 01-1.06-1.061l2.489-2.49-2.489-2.489a.75.75 0 011.06-1.06L12 11.193l2.489-2.49a.75.75 0 011.06 1.061L13.061 12.25l2.489 2.49a.75.75 0 11-1.06 1.06L12 13.313z" clip-rule="evenodd" />
+              </svg>
+            </span>
+            {{ section.settings.announcement_text }}
+        </span>
+      {% endif %}
+    </div>
+    <div class="top-bar__right">
+      {% if section.settings.track_order_link %}
+        <a href="{{ section.settings.track_order_link }}" class="top-bar__link">Track Order</a>
+      {% endif %}
+      {% if section.settings.support_link %}
+        <a href="{{ section.settings.support_link }}" class="top-bar__link">Support</a>
+      {% endif %}
+      
+      {% if section.settings.show_language %}
+        <div class="top-bar__localization">
+           <span class="top-bar__link">English <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg></span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+.top-bar {
+  padding: 8px 0;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+}
+.top-bar__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.top-bar__left {
+  display: flex;
+  align-items: center;
+}
+.top-bar__text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.top-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.top-bar__link {
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.top-bar__link:hover {
+  text-decoration: underline;
+}
+.icon-shield {
+    display: flex;
+    align-items: center;
+}
+{% endstylesheet %}
