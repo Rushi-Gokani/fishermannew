@@ -1,6 +1,742 @@
+{% doc %}
+  @prompt
+    You are an expert Shopify theme (OS 2.0) developer.
+    Using the attached reference screenshot, create a custom Shopify section called “Latest Gear” that visually and functionally matches the design exactly.
+    
+    Section Layout:
+    
+    Section heading: “Latest Gear” aligned left
+    
+    Below the heading, display a horizontal product carousel
+    
+    Show 4 products per row on desktop
+    
+    On tablet/mobile, allow horizontal swipe scrolling
+    
+    Left and right navigation arrows should appear on the sides
+    
+    Product Card Design:
+    
+    Each product card must include:
+    
+    Product image centered inside a light gray background container
+    
+    Image must maintain aspect ratio (object-fit: contain)
+    
+    Product title below image
+    
+    Vendor name below title (smaller text)
+    
+    Price below vendor (formatted with currency)
+    
+    Clean spacing and modern ecommerce look (Shopify Dawn-style)
+    
+    Functional Requirements:
+    
+    Products should be pulled dynamically using:
+    
+    Selected collection OR
+    
+    Manual product picker (configurable)
+    
+    Arrows should scroll the carousel smoothly
+    
+    No page reloads
+    
+    Touch/drag support on mobile
+    
+    Shopify Section Requirements:
+    
+    Use Liquid + schema settings
+    
+    Section settings should include:
+    
+    Section heading text
+    
+    Collection selector
+    
+    Products per row (desktop)
+    
+    Enable/disable arrows
+    
+    Must be compatible with Shopify OS 2.0
+    
+    Use pure CSS + minimal JS (only for slider logic)
+    
+    Code Output Rules:
+    
+    Provide complete Shopify section code
+    
+    Include:
+    
+    Liquid HTML
+    
+    CSS inside {% style %} tags
+    
+    JavaScript inside {% javascript %} tags
+    
+    JSON schema
+    
+    Code must be copy-paste ready
+    
+    Follow Shopify best practices for performance & accessibility
+    
+    Recreate spacing, sizing, colors, and alignment as close as possible to the reference image.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% liquid
+  if block.settings.collection != blank
+    assign products = block.settings.collection.products
+  elsif block.settings.product_list != blank
+    assign products = block.settings.product_list
+  else
+    assign products = blank
+  endif
+%}
+
+{% style %}
+  .ai-latest-gear-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.section_padding_top }}px 0 {{ block.settings.section_padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-latest-gear-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-latest-gear-header-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: {{ block.settings.heading_spacing }}px;
+  }
+
+  .ai-latest-gear-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.heading_color }};
+    margin: 0;
+    font-family: var(--font-heading-family);
+  }
+
+  .ai-latest-gear-nav-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+  }
+
+  .ai-latest-gear-nav-button-{{ ai_gen_id }} {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: {{ block.settings.arrow_background }};
+    border: 1px solid {{ block.settings.arrow_border }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .ai-latest-gear-nav-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.arrow_hover_background }};
+    border-color: {{ block.settings.arrow_hover_border }};
+  }
+
+  .ai-latest-gear-nav-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .ai-latest-gear-nav-button-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+    stroke: {{ block.settings.arrow_color }};
+  }
+
+  .ai-latest-gear-carousel-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-latest-gear-carousel-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.product_gap }}px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .ai-latest-gear-carousel-{{ ai_gen_id }}::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-latest-gear-product-card-{{ ai_gen_id }} {
+    flex: 0 0 calc((100% - ({{ block.settings.products_per_row_desktop | minus: 1 }} * {{ block.settings.product_gap }}px)) / {{ block.settings.products_per_row_desktop }});
+    min-width: 0;
+  }
+
+  .ai-latest-gear-product-link-{{ ai_gen_id }} {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .ai-latest-gear-image-container-{{ ai_gen_id }} {
+    background-color: {{ block.settings.image_background }};
+    border-radius: {{ block.settings.image_border_radius }}px;
+    padding: {{ block.settings.image_padding }}px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+  }
+
+  .ai-latest-gear-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .ai-latest-gear-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ block.settings.image_background }};
+  }
+
+  .ai-latest-gear-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-latest-gear-product-info-{{ ai_gen_id }} {
+    text-align: left;
+  }
+
+  .ai-latest-gear-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .ai-latest-gear-product-vendor-{{ ai_gen_id }} {
+    font-size: {{ block.settings.vendor_size }}px;
+    color: {{ block.settings.vendor_color }};
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-latest-gear-product-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.price_color }};
+    margin: 0;
+  }
+
+  .ai-latest-gear-empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .ai-latest-gear-empty-state-{{ ai_gen_id }} p {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 989px) {
+    .ai-latest-gear-product-card-{{ ai_gen_id }} {
+      flex: 0 0 calc((100% - ({{ block.settings.products_per_row_tablet | minus: 1 }} * {{ block.settings.product_gap }}px)) / {{ block.settings.products_per_row_tablet }});
+    }
+
+    .ai-latest-gear-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.8 }}px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-latest-gear-product-card-{{ ai_gen_id }} {
+      flex: 0 0 calc((100% - ({{ block.settings.products_per_row_mobile | minus: 1 }} * {{ block.settings.product_gap }}px)) / {{ block.settings.products_per_row_mobile }});
+    }
+
+    .ai-latest-gear-nav-{{ ai_gen_id }} {
+      {% if block.settings.show_arrows_mobile == false %}
+        display: none;
+      {% endif %}
+    }
+
+    .ai-latest-gear-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+    }
+  }
+{% endstyle %}
+
+<latest-gear-carousel-{{ ai_gen_id }} class="ai-latest-gear-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-latest-gear-container-{{ ai_gen_id }}">
+    <div class="ai-latest-gear-header-{{ ai_gen_id }}">
+      <h2 class="ai-latest-gear-title-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+      {% if block.settings.show_arrows %}
+        <div class="ai-latest-gear-nav-{{ ai_gen_id }}">
+          <button
+            class="ai-latest-gear-nav-button-{{ ai_gen_id }} ai-latest-gear-prev-{{ ai_gen_id }}"
+            aria-label="Previous products"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <button
+            class="ai-latest-gear-nav-button-{{ ai_gen_id }} ai-latest-gear-next-{{ ai_gen_id }}"
+            aria-label="Next products"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if products != blank and products.size > 0 %}
+      <div class="ai-latest-gear-carousel-wrapper-{{ ai_gen_id }}">
+        <div class="ai-latest-gear-carousel-{{ ai_gen_id }}">
+          {% for product in products limit: block.settings.products_limit %}
+            <div class="ai-latest-gear-product-card-{{ ai_gen_id }}">
+              <a href="{{ product.url }}" class="ai-latest-gear-product-link-{{ ai_gen_id }}">
+                <div class="ai-latest-gear-image-container-{{ ai_gen_id }}">
+                  {% if product.featured_image %}
+                    <img
+                      src="{{ product.featured_image | image_url: width: 600 }}"
+                      alt="{{ product.featured_image.alt | escape }}"
+                      loading="lazy"
+                      width="600"
+                      height="600"
+                      class="ai-latest-gear-image-{{ ai_gen_id }}"
+                    >
+                  {% else %}
+                    <div class="ai-latest-gear-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="ai-latest-gear-product-info-{{ ai_gen_id }}">
+                  {% if block.settings.show_vendor and product.vendor != blank %}
+                    <div class="ai-latest-gear-product-vendor-{{ ai_gen_id }}">{{ product.vendor }}</div>
+                  {% endif %}
+                  <h3 class="ai-latest-gear-product-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                  {% if block.settings.show_price %}
+                    <div class="ai-latest-gear-product-price-{{ ai_gen_id }}">
+                      {{ product.price | money }}
+                    </div>
+                  {% endif %}
+                </div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="ai-latest-gear-empty-state-{{ ai_gen_id }}">
+        <p>Next, select a collection or add products to display</p>
+      </div>
+    {% endif %}
+  </div>
+</latest-gear-carousel-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class LatestGearCarousel{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.carousel = this.querySelector('.ai-latest-gear-carousel-{{ ai_gen_id }}');
+        this.prevButton = this.querySelector('.ai-latest-gear-prev-{{ ai_gen_id }}');
+        this.nextButton = this.querySelector('.ai-latest-gear-next-{{ ai_gen_id }}');
+        this.cards = this.querySelectorAll('.ai-latest-gear-product-card-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        if (!this.carousel || this.cards.length === 0) return;
+
+        this.setupNavigation();
+        this.setupTouchScroll();
+        this.updateButtonStates();
+
+        this.carousel.addEventListener('scroll', () => {
+          this.updateButtonStates();
+        });
+
+        window.addEventListener('resize', () => {
+          this.updateButtonStates();
+        });
+      }
+
+      setupNavigation() {
+        if (this.prevButton) {
+          this.prevButton.addEventListener('click', () => {
+            this.scrollCarousel('prev');
+          });
+        }
+
+        if (this.nextButton) {
+          this.nextButton.addEventListener('click', () => {
+            this.scrollCarousel('next');
+          });
+        }
+      }
+
+      setupTouchScroll() {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        this.carousel.addEventListener('mousedown', (e) => {
+          isDown = true;
+          this.carousel.style.cursor = 'grabbing';
+          startX = e.pageX - this.carousel.offsetLeft;
+          scrollLeft = this.carousel.scrollLeft;
+        });
+
+        this.carousel.addEventListener('mouseleave', () => {
+          isDown = false;
+          this.carousel.style.cursor = 'grab';
+        });
+
+        this.carousel.addEventListener('mouseup', () => {
+          isDown = false;
+          this.carousel.style.cursor = 'grab';
+        });
+
+        this.carousel.addEventListener('mousemove', (e) => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - this.carousel.offsetLeft;
+          const walk = (x - startX) * 2;
+          this.carousel.scrollLeft = scrollLeft - walk;
+        });
+      }
+
+      scrollCarousel(direction) {
+        const cardWidth = this.cards[0].offsetWidth;
+        const gap = parseInt(getComputedStyle(this.carousel).gap) || 0;
+        const scrollAmount = cardWidth + gap;
+
+        if (direction === 'next') {
+          this.carousel.scrollLeft += scrollAmount;
+        } else {
+          this.carousel.scrollLeft -= scrollAmount;
+        }
+      }
+
+      updateButtonStates() {
+        if (!this.prevButton || !this.nextButton) return;
+
+        const isAtStart = this.carousel.scrollLeft <= 0;
+        const isAtEnd = this.carousel.scrollLeft + this.carousel.offsetWidth >= this.carousel.scrollWidth - 1;
+
+        this.prevButton.disabled = isAtStart;
+        this.nextButton.disabled = isAtEnd;
+      }
+    }
+
+    customElements.define('latest-gear-carousel-{{ ai_gen_id }}', LatestGearCarousel{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Latest gear",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Latest Gear"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Products",
+      "limit": 12
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "label": "Maximum products to show",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_per_row_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "label": "Products per row on desktop",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "products_per_row_tablet",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Products per row on tablet",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "products_per_row_mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "label": "Products per row on mobile",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "product_gap",
+      "min": 8,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Space between products",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Navigation arrows"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show navigation arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows_mobile",
+      "label": "Show arrows on mobile",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "arrow_background",
+      "label": "Arrow background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_background",
+      "label": "Arrow hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "arrow_border",
+      "label": "Arrow border",
+      "default": "#e6e6e6"
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_border",
+      "label": "Arrow hover border",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Product card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "image_background",
+      "label": "Image background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_padding",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Image padding",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 16,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Heading spacing",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Product title size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Product title color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "vendor_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Vendor size",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "vendor_color",
+      "label": "Vendor color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Price size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 60
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Latest gear"
+    }
+  ]
+}
 {% endschema %}
