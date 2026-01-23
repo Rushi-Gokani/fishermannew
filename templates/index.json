@@ -117,6 +117,8 @@
       "name": "Hero Slider",
       "settings": {
         "slide_height": "medium",
+        "desktop_height": 600,
+        "mobile_height": 400,
         "autoplay": false,
         "change_slides_speed": 5,
         "padding_top": 0,
@@ -391,6 +393,47 @@
         "padding-block-end": 48
       }
     },
+    "marquee_QXzHMY": {
+      "type": "marquee",
+      "blocks": {
+        "text_VF8aVM": {
+          "type": "text",
+          "settings": {
+            "text": "<p>We make things that work better and last longer.</p>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "custom",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "tight",
+            "letter_spacing": "tight",
+            "case": "none",
+            "wrap": "nowrap",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_VF8aVM"
+      ],
+      "name": "t:names.marquee_section",
+      "settings": {
+        "movement_direction": "normal",
+        "color_scheme": "",
+        "padding-block-start": 24,
+        "padding-block-end": 24,
+        "gap_between_elements": 24
+      }
+    },
     "176916634157ac5daa": {
       "type": "_blocks",
       "blocks": {
@@ -631,14 +674,14 @@
             "header_spacing": 30,
             "circle_size": 170,
             "circle_size_mobile": 100,
-            "circle_background": "#FFFFFF",
+            "circle_background": "#ffffff",
             "image_padding": 10,
             "item_spacing": 20,
             "label_spacing": 12,
             "label_size": 14,
             "label_color": "#000000",
             "label_hover_color": "#666666",
-            "background_color": "#F5F5F5",
+            "background_color": "#f5f5f5",
             "section_padding_top": 50,
             "section_padding_bottom": 50,
             "collection_1": "",
@@ -845,7 +888,7 @@
             "shadow_horizontal": 0,
             "shadow_vertical": 2,
             "shadow_blur": 8,
-            "shadow_color": "#00000010",
+            "shadow_color": "#0000000f",
             "question_padding": 24,
             "question_background": "#f8f8f8",
             "question_hover_background": "#f0f0f0",
@@ -939,7 +982,7 @@
             "category_color": "#666666",
             "meta_color": "#999999",
             "link_color": "#000000",
-            "card_background": "#FFFFFF"
+            "card_background": "#ffffff"
           },
           "blocks": {}
         }
@@ -982,6 +1025,7 @@
     "1769171605a59eb342",
     "product_list_fa6P9H",
     "176916634157ac5daa",
+    "marquee_QXzHMY",
     "17691670799b55aa29",
     "1769168307e3df31f9",
     "1769169291dfcb3d53",
