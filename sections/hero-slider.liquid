@@ -18,7 +18,9 @@
   .hero-slider {
     position: relative;
     display: block;
-    width: 100%;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
     /* Default height to prevent collapse */
     min-height: 450px; 
   }
@@ -36,6 +38,9 @@
     min-height: 56rem; /* Fallback */
     height: auto;
   }
+  .hero-slider .slideshow.banner--custom {
+    min-height: {{ section.settings.desktop_height }}px;
+  }
 
   @media screen and (max-width: 749px) {
     .hero-slider {
@@ -45,6 +50,9 @@
     .hero-slider .slideshow.banner--medium,
     .hero-slider .slideshow.banner--large {
       min-height: 39rem;
+    }
+    .hero-slider .slideshow.banner--custom {
+      min-height: {{ section.settings.mobile_height }}px;
     }
   }
 
@@ -276,10 +284,34 @@
         {
           "value": "large",
           "label": "Large"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
         }
       ],
       "default": "medium",
       "label": "Slide height"
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "min": 400,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop Height (Custom)",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "min": 300,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Height (Custom)",
+      "default": 400
     },
     {
       "type": "checkbox",
@@ -346,7 +378,7 @@
           "step": 10,
           "unit": "%",
           "label": "Overlay opacity",
-          "default": 0
+          "default": 30
         },
         {
           "type": "header",
