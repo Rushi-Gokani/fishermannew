@@ -13,12 +13,10 @@
   "sections": {
     "custom_footer_waves": {
       "type": "custom-footer",
-      "blocks": {},
-      "block_order": [],
       "name": "Custom Footer with Waves",
       "settings": {
         "enable_wave_animation": true,
-        "logo_image": "",
+        "logo_image": "shopify://shop_images/Fishermanshub_logo_-_1800_pixels_x_1800_pixels_Square_-_PNG_53dfb563-724f-46c7-be5f-e1b85037d74c.png",
         "logo_main_text": "CABRAL",
         "logo_sub_text": "OUTDOORS",
         "newsletter_text": "Be the first to know about new drops, deals and fishing tips.",

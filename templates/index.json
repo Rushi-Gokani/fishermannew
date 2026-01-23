@@ -315,11 +315,95 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "176916634157ac5daa": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_7290003_H7pTMQ": {
+          "type": "ai_gen_block_7290003",
+          "settings": {
+            "section_title": "Shop by Categories",
+            "title_size": 28,
+            "title_color": "#000000",
+            "see_all_text": "See All",
+            "see_all_link": "",
+            "see_all_size": 14,
+            "see_all_color": "#000000",
+            "header_spacing": 30,
+            "card_width": 230,
+            "card_width_mobile": 140,
+            "card_spacing": 16,
+            "image_border_radius": 8,
+            "image_text_spacing": 12,
+            "category_title_size": 14,
+            "category_title_color": "#000000",
+            "sale_text_color": "#ff0000",
+            "category_1_title": "Fishing Rods",
+            "category_1_link": "",
+            "category_1_is_sale": false,
+            "category_2_title": "Reels",
+            "category_2_link": "",
+            "category_2_is_sale": false,
+            "category_3_title": "Lures",
+            "category_3_link": "",
+            "category_3_is_sale": false,
+            "category_4_title": "Tackle Boxes",
+            "category_4_link": "",
+            "category_4_is_sale": false,
+            "category_5_title": "Sale",
+            "category_5_link": "",
+            "category_5_is_sale": true,
+            "category_6_title": "",
+            "category_6_link": "",
+            "category_6_is_sale": false,
+            "category_7_title": "",
+            "category_7_link": "",
+            "category_7_is_sale": false,
+            "category_8_title": "",
+            "category_8_link": "",
+            "category_8_is_sale": false,
+            "section_padding_top": 40,
+            "section_padding_bottom": 40
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_7290003_H7pTMQ"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
     "hero_slider_HY7jkX",
-    "product_list_fa6P9H"
+    "product_list_fa6P9H",
+    "176916634157ac5daa"
   ]
 }
