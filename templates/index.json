@@ -94,29 +94,24 @@
     "hero_slider_HY7jkX": {
       "type": "hero-slider",
       "blocks": {
-        "slide_nBzWBi": {
+        "slide_kt99bU": {
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/Fishermanshub_Banner_Desktop.png",
-            "heading": "Tested for the Outdoors, Ready for You",
-            "subheading": "Durable, high-performance gear built for tough trails and extreme weather.",
-            "button_label": "SHOP NOW",
-            "link": ""
-          }
-        },
-        "slide_a7Cbe4": {
-          "type": "slide",
-          "settings": {
-            "heading": "Tested for the Outdoors, Ready for You",
-            "subheading": "Durable, high-performance gear built for tough trails and extreme weather.",
-            "button_label": "SHOP NOW",
-            "link": ""
+            "overlay_opacity": 30,
+            "heading": "",
+            "subheading": "",
+            "text_alignment": "center",
+            "text_color": "#ffffff",
+            "button_label": "",
+            "link": "",
+            "button_bg_color": "#1e2d5a",
+            "button_text_color": "#ffffff"
           }
         }
       },
       "block_order": [
-        "slide_nBzWBi",
-        "slide_a7Cbe4"
+        "slide_kt99bU"
       ],
       "name": "Hero Slider",
       "settings": {
