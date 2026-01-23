@@ -472,6 +472,73 @@
         "padding-block-start": 0,
         "padding-block-end": 0
       }
+    },
+    "1769168307e3df31f9": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_7180a73_JLtFNh": {
+          "type": "ai_gen_block_7180a73",
+          "settings": {
+            "icon_1": "delivery",
+            "title_1": "Delivery All Over India",
+            "subtitle_1": "Get door step delivery all over India",
+            "icon_2": "cod",
+            "title_2": "COD Available*",
+            "subtitle_2": "COD facility to be available at select pin codes",
+            "icon_3": "whatsapp",
+            "title_3": "Whatsapp Support",
+            "subtitle_3": "Available on 9209176799",
+            "icon_4": "secure",
+            "title_4": "Secure payments",
+            "subtitle_4": "With our Payment Partners",
+            "item_spacing": 30,
+            "icon_text_gap": 12,
+            "mobile_layout": "scroll",
+            "padding_top": 20,
+            "padding_bottom": 20,
+            "icon_size": 32,
+            "icon_color": "#000000",
+            "title_size": 14,
+            "title_color": "#000000",
+            "subtitle_size": 12,
+            "subtitle_color": "#666666",
+            "background_color": "#ffffff",
+            "border_width": 1,
+            "border_color": "#e6e6e6"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_7180a73_JLtFNh"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 50,
+        "padding-block-end": 50
+      }
     }
   },
   "order": [
@@ -479,6 +546,7 @@
     "hero_slider_HY7jkX",
     "product_list_fa6P9H",
     "176916634157ac5daa",
-    "17691670799b55aa29"
+    "17691670799b55aa29",
+    "1769168307e3df31f9"
   ]
 }
