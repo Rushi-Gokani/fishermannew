@@ -1,14 +1,14 @@
-
-
 {% liquid
   assign product = closest.product
+  assign block = closest.block
 -%}
 
-{% capture children %}
-  {% content_for 'blocks', closest.product: product %}
-{% endcapture %}
+{%- comment -%}
+  Product Card Block - New Design
+  Renders a product card with Best Seller badge, heart icon, image dots, and Buy Now button (#E1EDF5)
+{%- endcomment -%}
 
-{% render 'product-card', children: children, product: product %}
+{% render 'product-card', product: product, block: block %}
 
 {% schema %}
 {
@@ -55,7 +55,11 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "t:content.resource_reference_product_card"
+      "content": "New Product Card Design - Features Best Seller badge, heart icon, image dots, and Buy Now button."
+    },
+    {
+      "type": "header",
+      "content": "Card Style"
     },
     {
       "type": "range",
@@ -129,7 +133,7 @@
       "min": 0,
       "max": 32,
       "step": 1,
-      "default": 0
+      "default": 16
     },
     {
       "type": "header",
@@ -174,6 +178,70 @@
       "step": 1,
       "unit": "px",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Card Colors (New Design)"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border",
+      "default": "#F0F0F0"
+    },
+    {
+      "type": "header",
+      "content": "Badge Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show Best Seller badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "Best Seller"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg_color",
+      "label": "Badge background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Buy Now Button"
+    },
+    {
+      "type": "paragraph",
+      "content": "Button color is set to #E1EDF5 (light blue) as requested."
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button background",
+      "default": "#E1EDF5"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button text",
+      "default": "#000000"
     }
   ]
 }
