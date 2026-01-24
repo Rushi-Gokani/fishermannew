@@ -270,15 +270,22 @@
 %}
 
 {% style %}
+  .shopify-section > .chroma-header {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   .chroma-header {
     position: sticky;
     top: 0;
     z-index: 1000;
     width: 100%;
+    max-width: 100%;
   }
 
   .chroma-header-wrapper {
     position: relative;
+    width: 100%;
   }
 
   .chroma-announcement-bar {
@@ -289,6 +296,7 @@
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
+    width: 100%;
   }
 
   .chroma-announcement-left {
@@ -344,6 +352,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
   }
 
   .chroma-header-left {
@@ -450,7 +459,8 @@
     position: absolute;
     top: 100%;
     left: 0;
-    width: 100%;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
     background-color: {{ mega_menu_bg }};
     color: {{ mega_menu_text }};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -956,126 +966,146 @@
 
 <script>
   (function() {
-    class ChromaHeader extends HTMLElement {
-      constructor() {
-        super();
-        this.categoriesBtn = this.querySelector('#categories-btn');
-        this.megaMenu = this.querySelector('#mega-menu');
-        this.mobileMenuBtn = this.querySelector('#mobile-menu-btn');
-        this.mobileMenu = this.querySelector('#mobile-menu');
-        this.mobileOverlay = this.querySelector('#mobile-overlay');
-        this.mobileMenuClose = this.querySelector('#mobile-menu-close');
-        this.accordionBtns = this.querySelectorAll('.chroma-mobile-accordion-btn');
-        this.isMegaMenuOpen = false;
-      }
+    // Unique ID for this instance
+    const instanceId = 'chroma-header-' + Math.random().toString(36).substr(2, 9);
 
-      connectedCallback() {
-        this.setupMegaMenu();
-        this.setupMobileMenu();
-        this.setupAccordions();
-      }
+    // Initialize when DOM is ready
+    function initChromaHeader() {
+      const categoriesBtn = document.querySelector('#categories-btn');
+      const megaMenu = document.querySelector('#mega-menu');
+      const mobileMenuBtn = document.querySelector('#mobile-menu-btn');
+      const mobileMenu = document.querySelector('#mobile-menu');
+      const mobileOverlay = document.querySelector('#mobile-overlay');
+      const mobileMenuClose = document.querySelector('#mobile-menu-close');
+      const accordionBtns = document.querySelectorAll('.chroma-mobile-accordion-btn');
+      const header = document.querySelector('.chroma-header');
 
-      setupMegaMenu() {
-        if (!this.categoriesBtn || !this.megaMenu) return;
+      if (!header) return;
 
-        this.categoriesBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.toggleMegaMenu();
-        });
+      let isMegaMenuOpen = false;
 
-        document.addEventListener('click', (e) => {
-          if (this.isMegaMenuOpen && 
-              !this.megaMenu.contains(e.target) && 
-              !this.categoriesBtn.contains(e.target)) {
-            this.closeMegaMenu();
-          }
-        });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.isMegaMenuOpen) {
-            this.closeMegaMenu();
-          }
-        });
-
-        this.megaMenu.addEventListener('click', (e) => {
-          if (e.target.tagName === 'A') {
-            this.closeMegaMenu();
-          }
-        });
-      }
-
-      toggleMegaMenu() {
-        if (this.isMegaMenuOpen) {
-          this.closeMegaMenu();
+      // Mega Menu Functions
+      function toggleMegaMenu() {
+        if (isMegaMenuOpen) {
+          closeMegaMenu();
         } else {
-          this.openMegaMenu();
+          openMegaMenu();
         }
       }
 
-      openMegaMenu() {
-        this.megaMenu.classList.add('active');
-        this.isMegaMenuOpen = true;
+      function openMegaMenu() {
+        if (megaMenu) {
+          megaMenu.classList.add('active');
+          isMegaMenuOpen = true;
+        }
       }
 
-      closeMegaMenu() {
-        this.megaMenu.classList.remove('active');
-        this.isMegaMenuOpen = false;
+      function closeMegaMenu() {
+        if (megaMenu) {
+          megaMenu.classList.remove('active');
+          isMegaMenuOpen = false;
+        }
       }
 
-      setupMobileMenu() {
-        if (!this.mobileMenuBtn || !this.mobileMenu) return;
-
-        this.mobileMenuBtn.addEventListener('click', () => {
-          this.openMobileMenu();
+      // Setup Mega Menu
+      if (categoriesBtn && megaMenu) {
+        categoriesBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleMegaMenu();
         });
 
-        this.mobileMenuClose.addEventListener('click', () => {
-          this.closeMobileMenu();
+        // Close on click outside
+        document.addEventListener('click', function(e) {
+          if (isMegaMenuOpen &&
+              !megaMenu.contains(e.target) &&
+              !categoriesBtn.contains(e.target)) {
+            closeMegaMenu();
+          }
         });
 
-        this.mobileOverlay.addEventListener('click', () => {
-          this.closeMobileMenu();
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && isMegaMenuOpen) {
+            closeMegaMenu();
+          }
+        });
+
+        // Close on link click
+        megaMenu.addEventListener('click', function(e) {
+          if (e.target.tagName === 'A') {
+            closeMegaMenu();
+          }
         });
       }
 
-      openMobileMenu() {
-        this.mobileMenu.classList.add('active');
-        this.mobileOverlay.classList.add('active');
+      // Mobile Menu Functions
+      function openMobileMenu() {
+        if (mobileMenu) mobileMenu.classList.add('active');
+        if (mobileOverlay) mobileOverlay.classList.add('active');
         document.body.style.overflow = 'hidden';
       }
 
-      closeMobileMenu() {
-        this.mobileMenu.classList.remove('active');
-        this.mobileOverlay.classList.remove('active');
+      function closeMobileMenu() {
+        if (mobileMenu) mobileMenu.classList.remove('active');
+        if (mobileOverlay) mobileOverlay.classList.remove('active');
         document.body.style.overflow = '';
       }
 
-      setupAccordions() {
-        this.accordionBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const index = btn.getAttribute('data-accordion');
-            const content = this.querySelector(`[data-accordion-content="${index}"]`);
-            const icon = btn.querySelector('.chroma-mobile-accordion-icon');
-
-            const isOpen = content.classList.contains('open');
-
-            this.querySelectorAll('.chroma-mobile-accordion-content').forEach(c => {
-              c.classList.remove('open');
-            });
-            this.querySelectorAll('.chroma-mobile-accordion-icon').forEach(i => {
-              i.classList.remove('open');
-            });
-
-            if (!isOpen) {
-              content.classList.add('open');
-              icon.classList.add('open');
-            }
-          });
+      // Setup Mobile Menu
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          openMobileMenu();
         });
       }
+
+      if (mobileMenuClose) {
+        mobileMenuClose.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeMobileMenu();
+        });
+      }
+
+      if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeMobileMenu();
+        });
+      }
+
+      // Setup Accordions
+      accordionBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const index = btn.getAttribute('data-accordion');
+          const content = document.querySelector('[data-accordion-content="' + index + '"]');
+          const icon = btn.querySelector('.chroma-mobile-accordion-icon');
+
+          const isOpen = content && content.classList.contains('open');
+
+          // Close all accordions
+          document.querySelectorAll('.chroma-mobile-accordion-content').forEach(function(c) {
+            c.classList.remove('open');
+          });
+          document.querySelectorAll('.chroma-mobile-accordion-icon').forEach(function(i) {
+            i.classList.remove('open');
+          });
+
+          // Open clicked accordion if it was closed
+          if (!isOpen && content) {
+            content.classList.add('open');
+            if (icon) icon.classList.add('open');
+          }
+        });
+      });
     }
 
-    customElements.define('chroma-header', ChromaHeader);
+    // Run on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initChromaHeader);
+    } else {
+      initChromaHeader();
+    }
   })();
 </script>
 
