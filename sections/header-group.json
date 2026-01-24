@@ -95,24 +95,26 @@
     "custom_header_WQdpTn": {
       "type": "custom-header",
       "blocks": {
-        "category_column_rtHc3Q": {
-          "type": "category_column",
+        "category_group_jqjy7H": {
+          "type": "category_group",
           "settings": {
-            "heading": "New",
-            "menu": "new"
-          }
-        },
-        "category_column_dtdUgA": {
-          "type": "category_column",
-          "settings": {
-            "heading": "",
-            "menu": ""
+            "heading": "Accessories",
+            "link": "",
+            "menu_1_heading": "",
+            "menu_1": "main-menu",
+            "menu_2_heading": "",
+            "menu_2": "",
+            "menu_3_heading": "",
+            "menu_3": "",
+            "promo_image": "shopify://shop_images/Daiwa20-BG-MQ-8000-H.webp",
+            "promo_title": "TVs & Home Theater",
+            "promo_subtitle": "Up to 30% off!",
+            "promo_link": ""
           }
         }
       },
       "block_order": [
-        "category_column_rtHc3Q",
-        "category_column_dtdUgA"
+        "category_group_jqjy7H"
       ],
       "name": "Custom Header",
       "settings": {
@@ -127,8 +129,8 @@
         "logo": "shopify://shop_images/fisher3_1.png",
         "logo_width": 150,
         "categories_label": "Categories",
-        "categories_bg": "#2563eb",
-        "categories_text": "#ffffff",
+        "categories_bg": "#e1edf5",
+        "categories_text": "#000000",
         "main_menu": "menu1",
         "badge_items": "Offers, Sale",
         "badge_text": "HOT!",
