@@ -124,12 +124,16 @@
     Match spacing, typography, overlay style, arrow placement, and animation as closely as possible to the reference screenshot., the image should cover whole section please check that 
 {% enddoc %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+{% assign first_image = block.settings.slide_1_image %}
+{% assign first_mobile_image = block.settings.slide_1_mobile_image %}
+{% assign desktop_aspect_ratio = first_image.aspect_ratio | default: 1.77 %}
+{% assign mobile_aspect_ratio = first_mobile_image.aspect_ratio | default: desktop_aspect_ratio %}
 
 {% style %}
   .ai-hero-slider-{{ ai_gen_id }} {
     position: relative;
     width: 100%;
-    height: {{ block.settings.section_height }}vh;
+    aspect-ratio: {{ desktop_aspect_ratio }};
     overflow: hidden;
     display: block;
   }
@@ -337,7 +341,7 @@
 
   @media screen and (max-width: 749px) {
     .ai-hero-slider-{{ ai_gen_id }} {
-      height: {{ block.settings.mobile_section_height }}vh;
+      aspect-ratio: {{ mobile_aspect_ratio }};
     }
 
     .ai-hero-slider__heading-{{ ai_gen_id }} {
