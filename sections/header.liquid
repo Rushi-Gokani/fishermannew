@@ -1,9 +1,9 @@
 
 
 {% liquid
-  assign order = 'logo,menu,search,header_search_inline,mobile_search,actions'
+  assign order = 'logo,categories,menu,search,header_search_inline,mobile_search,actions'
   if shop.customer_accounts_enabled
-    assign order = 'mobile_search,logo,menu,search,header_search_inline,actions'
+    assign order = 'mobile_search,logo,categories,menu,search,header_search_inline,actions'
   endif
 
   assign rows = 'top,bottom' | split: ','
@@ -44,6 +44,12 @@
 
   capture logo
     content_for 'block', type: '_header-logo', id: 'header-logo'
+  endcapture
+
+  capture categories
+    if section.settings.categories_button_text != blank
+      render 'header-categories', section: section
+    endif
   endcapture
 
   capture menu
@@ -327,6 +333,7 @@
         settings: section.settings,
         first: first,
         logo: logo,
+        categories: categories,
         menu: menu,
         actions: actions,
         localization: localization_markup,
@@ -373,6 +380,9 @@
     --header-height: 60px;
     --header-group-height: var(--header-height);
     --transparent-header-offset-boolean: 0; /* stylelint-disable-line declaration-property-value-disallowed-list */
+    --header-bg-color: {{ section.settings.header_bg_color }};
+    --color-foreground: {{ section.settings.header_text_color.red }}, {{ section.settings.header_text_color.green }}, {{ section.settings.header_text_color.blue }};
+    --color-background: {{ section.settings.header_bg_color.red }}, {{ section.settings.header_bg_color.green }}, {{ section.settings.header_bg_color.blue }};
   }
 
   .header {
@@ -767,6 +777,29 @@
     {
       "type": "header",
       "content": "t:content.logo"
+    },
+    {
+      "type": "text",
+      "id": "categories_button_text",
+      "label": "Categories Button Text",
+      "default": "Categories"
+    },
+    {
+      "type": "url",
+      "id": "categories_button_url",
+      "label": "Categories Button Link"
+    },
+    {
+      "type": "color",
+      "id": "header_bg_color",
+      "label": "Header Background Color",
+      "default": "#1e293b"
+    },
+    {
+      "type": "color",
+      "id": "header_text_color",
+      "label": "Header Text Color",
+      "default": "#ffffff"
     },
     {
       "type": "select",
@@ -1188,6 +1221,29 @@
       ],
       "default": "default",
       "visible_if": "{{ section.settings.enable_transparent_header_collection }}"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category_menu",
+      "name": "Category Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
     }
   ],
   "presets": []

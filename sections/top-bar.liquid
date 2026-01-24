@@ -6,29 +6,48 @@
       "type": "color",
       "id": "background_color",
       "label": "Background Color",
-      "default": "#40C4FF"
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#ffffff"
     },
     {
       "type": "text",
       "id": "announcement_text",
       "label": "Announcement Text",
-      "default": "Always confirm payments via our official WhatsApp before paying"
+      "default": "Free shipping on orders over €50"
     },
     {
       "type": "url",
-      "id": "track_order_link",
-      "label": "Track Order Link"
-    },
-    {
-      "type": "url",
-      "id": "support_link",
-      "label": "Support Link"
+      "id": "announcement_link",
+      "label": "Announcement Link"
     },
     {
       "type": "checkbox",
-      "id": "show_language",
-      "label": "Show Language Selector",
+      "id": "show_social",
+      "label": "Show Social Icons",
       "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        }
+      ]
     }
   ],
   "presets": [
@@ -39,108 +58,143 @@
 }
 {% endschema %}
 
-<div class="top-bar" style="background-color: {{ section.settings.background_color }};">
+<div class="top-bar" style="background-color: {{ section.settings.background_color }}; color: {{ section.settings.text_color }};">
   <div class="page-width top-bar__content">
     <div class="top-bar__left">
       {% if section.settings.announcement_text != blank %}
-        <span class="top-bar__text">
-            <span class="icon-shield">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.352-.272-2.636-.759-3.801a.75.75 0 00-.722-.515 11.209 11.209 0 01-7.877-3.08zM12 13.314l-2.489 2.49a.75.75 0 01-1.06-1.061l2.489-2.49-2.489-2.489a.75.75 0 011.06-1.06L12 11.193l2.489-2.49a.75.75 0 011.06 1.061L13.061 12.25l2.489 2.49a.75.75 0 11-1.06 1.06L12 13.313z" clip-rule="evenodd" />
-              </svg>
-            </span>
-            {{ section.settings.announcement_text }}
-        </span>
+        <a href="{{ section.settings.announcement_link }}" class="top-bar__announcement link link--text">
+          {{ section.settings.announcement_text }}
+        </a>
       {% endif %}
     </div>
     <div class="top-bar__right">
-      {% if section.settings.track_order_link %}
-        <a href="{{ section.settings.track_order_link }}" class="top-bar__link">Track Order</a>
-      {% endif %}
-      {% if section.settings.support_link %}
-        <a href="{{ section.settings.support_link }}" class="top-bar__link">Support</a>
-      {% endif %}
-      
-      {% if section.settings.show_language %}
-        <div class="top-bar__localization">
-          {% render 'localization-form',
-            show_country: false,
-            show_language: true,
-            localization_style: 'dropdown'
-          %}
-        </div>
+      <div class="top-bar__links">
+        {% for block in section.blocks %}
+          <a href="{{ block.settings.url }}" class="link link--text">{{ block.settings.text }}</a>
+        {% endfor %}
+      </div>
+      {% if section.settings.show_social %}
+        <ul class="list-social list-unstyled" role="list">
+          {%- if settings.social_facebook_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_facebook_link }}" class="link list-social__link">
+                {%- render 'icon-facebook' -%}
+                <span class="visually-hidden">{{ 'general.social.links.facebook' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_instagram_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_instagram_link }}" class="link list-social__link">
+                {%- render 'icon-instagram' -%}
+                <span class="visually-hidden">{{ 'general.social.links.instagram' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_youtube_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_youtube_link }}" class="link list-social__link">
+                {%- render 'icon-youtube' -%}
+                <span class="visually-hidden">{{ 'general.social.links.youtube' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_tiktok_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_tiktok_link }}" class="link list-social__link">
+                {%- render 'icon-tiktok' -%}
+                <span class="visually-hidden">{{ 'general.social.links.tiktok' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_twitter_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_twitter_link }}" class="link list-social__link">
+                {%- render 'icon-twitter' -%}
+                <span class="visually-hidden">{{ 'general.social.links.twitter' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_pinterest_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_pinterest_link }}" class="link list-social__link">
+                {%- render 'icon-pinterest' -%}
+                <span class="visually-hidden">{{ 'general.social.links.pinterest' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_snapchat_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_snapchat_link }}" class="link list-social__link">
+                {%- render 'icon-snapchat' -%}
+                <span class="visually-hidden">{{ 'general.social.links.snapchat' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_tumblr_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_tumblr_link }}" class="link list-social__link">
+                {%- render 'icon-tumblr' -%}
+                <span class="visually-hidden">{{ 'general.social.links.tumblr' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if settings.social_vimeo_link != blank -%}
+            <li class="list-social__item">
+              <a href="{{ settings.social_vimeo_link }}" class="link list-social__link">
+                {%- render 'icon-vimeo' -%}
+                <span class="visually-hidden">{{ 'general.social.links.vimeo' | t }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+        </ul>
       {% endif %}
     </div>
   </div>
 </div>
 
-{% stylesheet %}
-.top-bar {
-  padding: 12px 0;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-.top-bar__content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.top-bar__left {
-  display: flex;
-  align-items: center;
-}
-.top-bar__text {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.top-bar__right {
-  display: flex;
-  align-items: center;
-  gap: 35px;
-}
-.top-bar__link {
-  color: #ffffff;
-  text-decoration: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.top-bar__link:hover {
-  text-decoration: underline;
-}
-.icon-shield {
+{% style %}
+  .top-bar {
+    padding: 10px 0;
+    font-size: 13px;
+  }
+  .top-bar__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .top-bar__right {
     display: flex;
     align-items: center;
-}
-.top-bar__localization .localization-form {
-  padding: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-}
-.top-bar__localization .localization-selector {
-  color: #ffffff;
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-.top-bar__localization .localization-selector:hover {
-  text-decoration: underline;
-}
-.top-bar__localization .icon-caret {
-  width: 10px;
-  height: 10px;
-  display: flex;
-  align-items: center;
-}
-{% endstylesheet %}
+    gap: 20px;
+  }
+  .top-bar__links {
+    display: flex;
+    gap: 15px;
+  }
+  .top-bar a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .top-bar .list-social {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+  }
+  .top-bar .list-social__item .icon {
+    height: 1.4rem;
+    width: 1.4rem;
+  }
+  @media screen and (max-width: 749px) {
+    .top-bar__content {
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+    .top-bar__right {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+{% endstyle %}

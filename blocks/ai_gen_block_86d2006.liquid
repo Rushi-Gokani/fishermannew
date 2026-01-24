@@ -1,112 +1,9 @@
-{% doc %}
-  @prompt
-    You are an expert Shopify OS 2.0 theme developer.
-    Using the attached reference screenshot, create a custom Shopify section called “Trending Collections” that matches the design and behavior exactly.
-    
-    Section Layout:
-    
-    Section heading: “Trending Collections” aligned left
-    
-    A “View all” link aligned right (configurable URL)
-    
-    Below the heading, display a horizontal row of circular category items
-    
-    Category Item Design:
-    
-    Each item must include:
-    
-    A perfect circular image
-    
-    Image centered inside a circular container
-    
-    Image should use object-fit: contain
-    
-    Category/collection name below the circle
-    
-    Text centered and clickable
-    
-    Example items:
-    
-    Lucana fishing Rods
-    
-    Penn Reels
-    
-    Rapala
-    
-    Daiwa Reels
-    
-    Fishing Rods
-    
-    Shimano Reels
-    
-    Behavior & Responsiveness:
-    
-    Desktop:
-    
-    All items in one horizontal row
-    
-    Mobile & Tablet:
-    
-    Horizontal swipe scrolling
-    
-    Smooth scrolling (scroll-snap preferred)
-    
-    No vertical wrapping on desktop
-    
-    Design Requirements:
-    
-    Light gray background for the section
-    
-    White circular image background
-    
-    Consistent circle size across all items
-    
-    Even spacing between circles
-    
-    Clean, minimal, modern ecommerce style (Dawn-like)
-    
-    Shopify Section Requirements:
-    
-    Use Liquid + JSON schema
-    
-    Section settings:
-    
-    Section title
-    
-    “View all” link URL
-    
-    Background color
-    
-    Use repeatable blocks
-    
-    Each block should allow:
-    
-    Collection selector OR image picker
-    
-    Custom label text
-    
-    Link URL
-    
-    Code Output Rules:
-    
-    Provide complete Shopify section code
-    
-    Include:
-    
-    HTML (Liquid)
-    
-    CSS inside {% style %} tags
-    
-    JSON schema
-    
-    Code must be copy-paste ready
-    
-    Use pure CSS (no JS unless required)
-    
-    Follow Shopify OS 2.0 best practices
-    
-    Recreate spacing, alignment, circle sizes, and typography as closely as possible to the reference image.
-{% enddoc %}
+{% comment %}
+  Trending Collections Section
+  - Displays 6 fixed collection items in circular format
+  - Items expand to fill section width on desktop
+  - Mobile swipe with navigation arrows
+{% endcomment %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -118,9 +15,8 @@
   }
 
   .trending-collections-container-{{ ai_gen_id }} {
-  
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 {{ block.settings.container_padding }}px;
   }
 
   .trending-collections-header-{{ ai_gen_id }} {
@@ -148,6 +44,10 @@
     color: {{ block.settings.link_hover_color }};
   }
 
+  .trending-collections-wrapper-{{ ai_gen_id }} {
+    position: relative;
+  }
+
   .trending-collections-grid-{{ ai_gen_id }} {
     display: flex;
     gap: {{ block.settings.item_spacing }}px;
@@ -157,6 +57,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    scroll-behavior: smooth;
   }
 
   .trending-collections-grid-{{ ai_gen_id }}::-webkit-scrollbar {
@@ -164,10 +65,10 @@
   }
 
   .trending-collections-item-{{ ai_gen_id }} {
-    flex: 0 0 auto;
+    flex: 1;
+    min-width: 0;
     scroll-snap-align: start;
     text-align: center;
-    width: {{ block.settings.circle_size }}px;
   }
 
   .trending-collections-image-wrapper-{{ ai_gen_id }} {
@@ -179,7 +80,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    margin-bottom: {{ block.settings.label_spacing }}px;
+    margin: 0 auto {{ block.settings.label_spacing }}px;
     transition: transform 0.3s ease;
   }
 
@@ -218,7 +119,6 @@
     color: {{ block.settings.label_color }};
     font-weight: 500;
     line-height: 1.3;
-    word-wrap: break-word;
     transition: color 0.3s ease;
   }
 
@@ -226,15 +126,65 @@
     color: {{ block.settings.label_hover_color }};
   }
 
+  /* Navigation arrows */
+  .trending-collections-nav-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: {{ block.settings.arrow_button_size }}px;
+    height: {{ block.settings.arrow_button_size }}px;
+    border-radius: 50%;
+    background-color: {{ block.settings.arrow_bg_color }};
+    border: 1px solid {{ block.settings.arrow_border_color }};
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .trending-collections-nav-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.arrow_bg_hover }};
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .trending-collections-nav-prev-{{ ai_gen_id }} {
+    left: {{ block.settings.arrow_offset }}px;
+  }
+
+  .trending-collections-nav-next-{{ ai_gen_id }} {
+    right: {{ block.settings.arrow_offset }}px;
+  }
+
+  .trending-collections-nav-{{ ai_gen_id }} svg {
+    width: {{ block.settings.arrow_size }}px;
+    height: {{ block.settings.arrow_size }}px;
+    color: {{ block.settings.arrow_color }};
+  }
+
+  .trending-collections-nav-disabled-{{ ai_gen_id }} {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   @media screen and (min-width: 750px) {
     .trending-collections-grid-{{ ai_gen_id }} {
       flex-wrap: nowrap;
       overflow-x: visible;
     }
+
+    .trending-collections-image-wrapper-{{ ai_gen_id }} {
+      width: {{ block.settings.circle_size }}px;
+      height: {{ block.settings.circle_size }}px;
+    }
   }
 
   @media screen and (max-width: 749px) {
     .trending-collections-item-{{ ai_gen_id }} {
+      flex: 0 0 auto;
       width: {{ block.settings.circle_size_mobile }}px;
     }
 
@@ -243,8 +193,20 @@
       height: {{ block.settings.circle_size_mobile }}px;
     }
 
+    .trending-collections-grid-{{ ai_gen_id }} {
+      padding: 0 {{ block.settings.arrow_button_size | plus: block.settings.arrow_offset | plus: 10 }}px;
+    }
+
+    .trending-collections-nav-{{ ai_gen_id }} {
+      display: flex;
+    }
+
     .trending-collections-title-{{ ai_gen_id }} {
-      font-size: {{ block.settings.heading_size | times: 0.8 }}px;
+      font-size: {{ block.settings.heading_size | times: 0.75 }}px;
+    }
+
+    .trending-collections-label-{{ ai_gen_id }} {
+      font-size: {{ block.settings.label_size | times: 0.9 }}px;
     }
   }
 {% endstyle %}
@@ -262,74 +224,144 @@
       {% endif %}
     </div>
 
-    <div class="trending-collections-grid-{{ ai_gen_id }}">
-      {% for i in (1..6) %}
-        {% liquid
-          assign collection_key = 'collection_' | append: i
-          assign image_key = 'custom_image_' | append: i
-          assign label_key = 'custom_label_' | append: i
-          assign link_key = 'custom_link_' | append: i
+    <div class="trending-collections-wrapper-{{ ai_gen_id }}">
+      <button
+        type="button"
+        class="trending-collections-nav-{{ ai_gen_id }} trending-collections-nav-prev-{{ ai_gen_id }} trending-collections-nav-disabled-{{ ai_gen_id }}"
+        aria-label="{{ 'accessibility.previous' | t }}"
+        id="prev-btn-{{ ai_gen_id }}"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
 
-          assign collection = block.settings[collection_key]
-          assign custom_image = block.settings[image_key]
-          assign custom_label = block.settings[label_key]
-          assign custom_link = block.settings[link_key]
-        %}
+      <div class="trending-collections-grid-{{ ai_gen_id }}" id="scroll-container-{{ ai_gen_id }}">
+        {% for i in (1..6) %}
+          {% liquid
+            assign collection_key = 'collection_' | append: i
+            assign image_key = 'custom_image_' | append: i
+            assign label_key = 'custom_label_' | append: i
+            assign link_key = 'custom_link_' | append: i
 
-        <div class="trending-collections-item-{{ ai_gen_id }}">
-          <a 
-            href="{% if custom_link != blank %}{{ custom_link }}{% elsif collection != blank %}{{ collection.url }}{% else %}#{% endif %}" 
-            class="trending-collections-link-{{ ai_gen_id }}"
-          >
-            <div class="trending-collections-image-wrapper-{{ ai_gen_id }}">
-              {% if custom_image != blank %}
-                <img
-                  src="{{ custom_image | image_url: width: 300 }}"
-                  alt="{{ custom_image.alt | escape }}"
-                  loading="lazy"
-                  width="300"
-                  height="300"
-                  class="trending-collections-image-{{ ai_gen_id }}"
-                >
-              {% elsif collection != blank and collection.image != blank %}
-                <img
-                  src="{{ collection.image | image_url: width: 300 }}"
-                  alt="{{ collection.image.alt | escape }}"
-                  loading="lazy"
-                  width="300"
-                  height="300"
-                  class="trending-collections-image-{{ ai_gen_id }}"
-                >
-              {% elsif collection != blank and collection.products.first.featured_image != blank %}
-                <img
-                  src="{{ collection.products.first.featured_image | image_url: width: 300 }}"
-                  alt="{{ collection.products.first.featured_image.alt | escape }}"
-                  loading="lazy"
-                  width="300"
-                  height="300"
-                  class="trending-collections-image-{{ ai_gen_id }}"
-                >
-              {% else %}
-                <div class="trending-collections-placeholder-{{ ai_gen_id }}">
-                  {{ 'collection-1' | placeholder_svg_tag }}
-                </div>
-              {% endif %}
-            </div>
-            <div class="trending-collections-label-{{ ai_gen_id }}">
-              {% if custom_label != blank %}
-                {{ custom_label }}
-              {% elsif collection != blank %}
-                {{ collection.title }}
-              {% else %}
-                Collection {{ i }}
-              {% endif %}
-            </div>
-          </a>
-        </div>
-      {% endfor %}
+            assign collection = block.settings[collection_key]
+            assign custom_image = block.settings[image_key]
+            assign custom_label = block.settings[label_key]
+            assign custom_link = block.settings[link_key]
+          %}
+
+          <div class="trending-collections-item-{{ ai_gen_id }}">
+            <a
+              href="{% if custom_link != blank %}{{ custom_link }}{% elsif collection != blank %}{{ collection.url }}{% else %}#{% endif %}"
+              class="trending-collections-link-{{ ai_gen_id }}"
+            >
+              <div class="trending-collections-image-wrapper-{{ ai_gen_id }}">
+                {% if custom_image != blank %}
+                  <img
+                    src="{{ custom_image | image_url: width: 300 }}"
+                    alt="{{ custom_image.alt | escape }}"
+                    loading="lazy"
+                    width="300"
+                    height="300"
+                    class="trending-collections-image-{{ ai_gen_id }}"
+                  >
+                {% elsif collection != blank and collection.image != blank %}
+                  <img
+                    src="{{ collection.image | image_url: width: 300 }}"
+                    alt="{{ collection.image.alt | escape }}"
+                    loading="lazy"
+                    width="300"
+                    height="300"
+                    class="trending-collections-image-{{ ai_gen_id }}"
+                  >
+                {% elsif collection != blank and collection.products.first.featured_image != blank %}
+                  <img
+                    src="{{ collection.products.first.featured_image | image_url: width: 300 }}"
+                    alt="{{ collection.products.first.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="300"
+                    height="300"
+                    class="trending-collections-image-{{ ai_gen_id }}"
+                  >
+                {% else %}
+                  <div class="trending-collections-placeholder-{{ ai_gen_id }}">
+                    {{ 'collection-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="trending-collections-label-{{ ai_gen_id }}">
+                {% if custom_label != blank %}
+                  {{ custom_label }}
+                {% elsif collection != blank %}
+                  {{ collection.title }}
+                {% else %}
+                  Collection {{ i }}
+                {% endif %}
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+
+      <button
+        type="button"
+        class="trending-collections-nav-{{ ai_gen_id }} trending-collections-nav-next-{{ ai_gen_id }}"
+        aria-label="{{ 'accessibility.next' | t }}"
+        id="next-btn-{{ ai_gen_id }}"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
+
+<script>
+  (function() {
+    const container = document.getElementById('scroll-container-{{ ai_gen_id }}');
+    const prevBtn = document.getElementById('prev-btn-{{ ai_gen_id }}');
+    const nextBtn = document.getElementById('next-btn-{{ ai_gen_id }}');
+
+    if (!container || !prevBtn || !nextBtn) return;
+
+    const scrollAmount = {{ block.settings.circle_size_mobile | plus: block.settings.item_spacing }};
+
+    function updateButtons() {
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+      if (container.scrollLeft <= 0) {
+        prevBtn.classList.add('trending-collections-nav-disabled-{{ ai_gen_id }}');
+      } else {
+        prevBtn.classList.remove('trending-collections-nav-disabled-{{ ai_gen_id }}');
+      }
+
+      if (container.scrollLeft >= maxScrollLeft - 1) {
+        nextBtn.classList.add('trending-collections-nav-disabled-{{ ai_gen_id }}');
+      } else {
+        nextBtn.classList.remove('trending-collections-nav-disabled-{{ ai_gen_id }}');
+      }
+    }
+
+    prevBtn.addEventListener('click', function() {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', function() {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+
+    container.addEventListener('scroll', updateButtons);
+
+    // Initial check - hide arrows if no scroll needed
+    if (container.scrollWidth <= container.clientWidth) {
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+    }
+
+    updateButtons();
+  })();
+</script>
 
 {% schema %}
 {
@@ -404,6 +436,16 @@
       "step": 5,
       "unit": "px",
       "default": 30
+    },
+    {
+      "type": "range",
+      "id": "container_padding",
+      "label": "Container padding",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
     },
     {
       "type": "header",
@@ -486,6 +528,64 @@
       "id": "label_hover_color",
       "label": "Label hover color",
       "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Navigation arrows (mobile)"
+    },
+    {
+      "type": "range",
+      "id": "arrow_button_size",
+      "label": "Arrow button size",
+      "min": 30,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Arrow icon size",
+      "min": 12,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "arrow_offset",
+      "label": "Arrow offset from edge",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_color",
+      "label": "Arrow background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_hover",
+      "label": "Arrow background hover",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "arrow_border_color",
+      "label": "Arrow border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow icon color",
+      "default": "#000000"
     },
     {
       "type": "header",
