@@ -1,86 +1,9 @@
-{% doc %}
-  @prompt
-    You are a senior Shopify theme developer.
-    Create a custom Shopify section that exactly matches the attached reference screenshot titled “Shop by Categories”.
-    
-    Functional Requirements:
-    
-    The section title should be “Shop by Categories” on the left
-    
-    A “See All >” link should appear on the right (configurable URL)
-    
-    Below the title, display a horizontal row of category cards
-    
-    Each card contains:
-    
-    An image (square, uniform size)
-    
-    A category title below the image (text link)
-    
-    Cards should be horizontally scrollable on mobile
-    
-    On desktop, cards should appear in one row without vertical stacking
-    
-    Design Requirements:
-    
-    Clean, minimal, modern layout (similar to Shopify Dawn style)
-    
-    Images should have:
-    
-    Slight border radius
-    
-    object-fit: cover
-    
-    Equal spacing between cards
-    
-    Text aligned center under each image
-    
-    Hover effect on desktop (slight zoom or opacity)
-    
-    “Sale” category text should be red
-    
-    Shopify Section Requirements:
-    
-    Use schema settings to allow:
-    
-    Section heading text
-    
-    “See All” link URL
-    
-    Repeating blocks for categories
-    
-    Each block should allow:
-    
-    Image picker
-    
-    Category title
-    
-    Category link
-    
-    Optional toggle to mark item as “Sale”
-    
-    Must be fully dynamic using Liquid
-    
-    Use pure CSS (no JS unless required)
-    
-    Mobile responsive
-    
-    Code Output Requirements:
-    
-    Provide complete section code:
-    
-    HTML (Liquid)
-    
-    CSS inside {% style %} tags
-    
-    JSON schema included
-    
-    Code should be copy-paste ready for Shopify
-    
-    Follow best practices for performance and accessibility
-    
-    Recreate the layout and spacing as close as possible to the reference screenshot.
-{% enddoc %}
+{% comment %}
+  Shop by Categories Section
+  - Displays 5 fixed category cards
+  - Cards expand to fill section width on desktop
+  - Mobile swipe with navigation arrows
+{% endcomment %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -95,7 +18,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: {{ block.settings.header_spacing }}px;
-    padding: 0 20px;
+    padding: 0 {{ block.settings.container_padding }}px;
   }
 
   .ai-shop-categories-title-{{ ai_gen_id }} {
@@ -119,12 +42,17 @@
     opacity: 0.7;
   }
 
+  .ai-shop-categories-wrapper-{{ ai_gen_id }} {
+    position: relative;
+  }
+
   .ai-shop-categories-container-{{ ai_gen_id }} {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    scroll-behavior: smooth;
   }
 
   .ai-shop-categories-container-{{ ai_gen_id }}::-webkit-scrollbar {
@@ -134,13 +62,13 @@
   .ai-shop-categories-grid-{{ ai_gen_id }} {
     display: flex;
     gap: {{ block.settings.card_spacing }}px;
-    padding: 0 20px;
-    min-width: min-content;
+    padding: 0 {{ block.settings.container_padding }}px;
+    width: 100%;
   }
 
   .ai-shop-category-card-{{ ai_gen_id }} {
-    flex: 0 0 auto;
-    width: {{ block.settings.card_width }}px;
+    flex: 1;
+    min-width: 0;
     text-align: center;
   }
 
@@ -186,6 +114,9 @@
     text-decoration: none;
     display: block;
     transition: opacity 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ai-shop-category-title-{{ ai_gen_id }}:hover {
@@ -196,13 +127,76 @@
     color: {{ block.settings.sale_text_color }};
   }
 
+  /* Navigation arrows */
+  .ai-shop-categories-nav-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: {{ block.settings.arrow_button_size }}px;
+    height: {{ block.settings.arrow_button_size }}px;
+    border-radius: 50%;
+    background-color: {{ block.settings.arrow_bg_color }};
+    border: 1px solid {{ block.settings.arrow_border_color }};
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-shop-categories-nav-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.arrow_bg_hover }};
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .ai-shop-categories-nav-prev-{{ ai_gen_id }} {
+    left: {{ block.settings.arrow_offset }}px;
+  }
+
+  .ai-shop-categories-nav-next-{{ ai_gen_id }} {
+    right: {{ block.settings.arrow_offset }}px;
+  }
+
+  .ai-shop-categories-nav-{{ ai_gen_id }} svg {
+    width: {{ block.settings.arrow_size }}px;
+    height: {{ block.settings.arrow_size }}px;
+    color: {{ block.settings.arrow_color }};
+  }
+
+  .ai-shop-categories-nav-disabled-{{ ai_gen_id }} {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   @media screen and (max-width: 749px) {
     .ai-shop-categories-title-{{ ai_gen_id }} {
-      font-size: {{ block.settings.title_size | times: 0.8 }}px;
+      font-size: {{ block.settings.title_size | times: 0.75 }}px;
+    }
+
+    .ai-shop-categories-grid-{{ ai_gen_id }} {
+      padding: 0 {{ block.settings.arrow_button_size | plus: block.settings.arrow_offset | plus: 10 }}px;
+    }
+
+    .ai-shop-categories-nav-{{ ai_gen_id }} {
+      display: flex;
     }
 
     .ai-shop-category-card-{{ ai_gen_id }} {
+      flex: 0 0 auto;
       width: {{ block.settings.card_width_mobile }}px;
+    }
+
+    .ai-shop-category-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.category_title_size | times: 0.9 }}px;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-shop-categories-container-{{ ai_gen_id }} {
+      overflow: visible;
     }
   }
 {% endstyle %}
@@ -222,258 +216,235 @@
     {% endif %}
   </div>
 
-  <div class="ai-shop-categories-container-{{ ai_gen_id }}">
-    <div class="ai-shop-categories-grid-{{ ai_gen_id }}">
-      {% assign category_1_title = block.settings.category_1_title %}
-      {% assign category_1_image = block.settings.category_1_image %}
-      {% assign category_1_link = block.settings.category_1_link %}
-      {% assign category_1_is_sale = block.settings.category_1_is_sale %}
+  <div class="ai-shop-categories-wrapper-{{ ai_gen_id }}">
+    <button
+      type="button"
+      class="ai-shop-categories-nav-{{ ai_gen_id }} ai-shop-categories-nav-prev-{{ ai_gen_id }} ai-shop-categories-nav-disabled-{{ ai_gen_id }}"
+      aria-label="{{ 'accessibility.previous' | t }}"
+      id="prev-btn-{{ ai_gen_id }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
 
-      {% if category_1_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_1_image != blank %}
-              <img
-                src="{{ category_1_image | image_url: width: 400 }}"
-                alt="{{ category_1_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
+    <div class="ai-shop-categories-container-{{ ai_gen_id }}" id="scroll-container-{{ ai_gen_id }}">
+      <div class="ai-shop-categories-grid-{{ ai_gen_id }}">
+        {% assign category_1_title = block.settings.category_1_title %}
+        {% assign category_1_image = block.settings.category_1_image %}
+        {% assign category_1_link = block.settings.category_1_link %}
+        {% assign category_1_is_sale = block.settings.category_1_is_sale %}
+
+        {% if category_1_title != blank %}
+          <div class="ai-shop-category-card-{{ ai_gen_id }}">
+            <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
+              {% if category_1_image != blank %}
+                <img
+                  src="{{ category_1_image | image_url: width: 400 }}"
+                  alt="{{ category_1_title | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'collection-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+            <a
+              href="{{ category_1_link }}"
+              class="ai-shop-category-title-{{ ai_gen_id }} {% if category_1_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
+            >
+              {{ category_1_title }}
+            </a>
           </div>
-          <a
-            href="{{ category_1_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_1_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_1_title }}
-          </a>
-        </div>
-      {% endif %}
+        {% endif %}
 
-      {% assign category_2_title = block.settings.category_2_title %}
-      {% assign category_2_image = block.settings.category_2_image %}
-      {% assign category_2_link = block.settings.category_2_link %}
-      {% assign category_2_is_sale = block.settings.category_2_is_sale %}
+        {% assign category_2_title = block.settings.category_2_title %}
+        {% assign category_2_image = block.settings.category_2_image %}
+        {% assign category_2_link = block.settings.category_2_link %}
+        {% assign category_2_is_sale = block.settings.category_2_is_sale %}
 
-      {% if category_2_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_2_image != blank %}
-              <img
-                src="{{ category_2_image | image_url: width: 400 }}"
-                alt="{{ category_2_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
+        {% if category_2_title != blank %}
+          <div class="ai-shop-category-card-{{ ai_gen_id }}">
+            <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
+              {% if category_2_image != blank %}
+                <img
+                  src="{{ category_2_image | image_url: width: 400 }}"
+                  alt="{{ category_2_title | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'collection-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+            <a
+              href="{{ category_2_link }}"
+              class="ai-shop-category-title-{{ ai_gen_id }} {% if category_2_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
+            >
+              {{ category_2_title }}
+            </a>
           </div>
-          <a
-            href="{{ category_2_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_2_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_2_title }}
-          </a>
-        </div>
-      {% endif %}
+        {% endif %}
 
-      {% assign category_3_title = block.settings.category_3_title %}
-      {% assign category_3_image = block.settings.category_3_image %}
-      {% assign category_3_link = block.settings.category_3_link %}
-      {% assign category_3_is_sale = block.settings.category_3_is_sale %}
+        {% assign category_3_title = block.settings.category_3_title %}
+        {% assign category_3_image = block.settings.category_3_image %}
+        {% assign category_3_link = block.settings.category_3_link %}
+        {% assign category_3_is_sale = block.settings.category_3_is_sale %}
 
-      {% if category_3_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_3_image != blank %}
-              <img
-                src="{{ category_3_image | image_url: width: 400 }}"
-                alt="{{ category_3_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
+        {% if category_3_title != blank %}
+          <div class="ai-shop-category-card-{{ ai_gen_id }}">
+            <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
+              {% if category_3_image != blank %}
+                <img
+                  src="{{ category_3_image | image_url: width: 400 }}"
+                  alt="{{ category_3_title | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'collection-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+            <a
+              href="{{ category_3_link }}"
+              class="ai-shop-category-title-{{ ai_gen_id }} {% if category_3_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
+            >
+              {{ category_3_title }}
+            </a>
           </div>
-          <a
-            href="{{ category_3_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_3_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_3_title }}
-          </a>
-        </div>
-      {% endif %}
+        {% endif %}
 
-      {% assign category_4_title = block.settings.category_4_title %}
-      {% assign category_4_image = block.settings.category_4_image %}
-      {% assign category_4_link = block.settings.category_4_link %}
-      {% assign category_4_is_sale = block.settings.category_4_is_sale %}
+        {% assign category_4_title = block.settings.category_4_title %}
+        {% assign category_4_image = block.settings.category_4_image %}
+        {% assign category_4_link = block.settings.category_4_link %}
+        {% assign category_4_is_sale = block.settings.category_4_is_sale %}
 
-      {% if category_4_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_4_image != blank %}
-              <img
-                src="{{ category_4_image | image_url: width: 400 }}"
-                alt="{{ category_4_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
+        {% if category_4_title != blank %}
+          <div class="ai-shop-category-card-{{ ai_gen_id }}">
+            <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
+              {% if category_4_image != blank %}
+                <img
+                  src="{{ category_4_image | image_url: width: 400 }}"
+                  alt="{{ category_4_title | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'collection-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+            <a
+              href="{{ category_4_link }}"
+              class="ai-shop-category-title-{{ ai_gen_id }} {% if category_4_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
+            >
+              {{ category_4_title }}
+            </a>
           </div>
-          <a
-            href="{{ category_4_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_4_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_4_title }}
-          </a>
-        </div>
-      {% endif %}
+        {% endif %}
 
-      {% assign category_5_title = block.settings.category_5_title %}
-      {% assign category_5_image = block.settings.category_5_image %}
-      {% assign category_5_link = block.settings.category_5_link %}
-      {% assign category_5_is_sale = block.settings.category_5_is_sale %}
+        {% assign category_5_title = block.settings.category_5_title %}
+        {% assign category_5_image = block.settings.category_5_image %}
+        {% assign category_5_link = block.settings.category_5_link %}
+        {% assign category_5_is_sale = block.settings.category_5_is_sale %}
 
-      {% if category_5_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_5_image != blank %}
-              <img
-                src="{{ category_5_image | image_url: width: 400 }}"
-                alt="{{ category_5_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
+        {% if category_5_title != blank %}
+          <div class="ai-shop-category-card-{{ ai_gen_id }}">
+            <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
+              {% if category_5_image != blank %}
+                <img
+                  src="{{ category_5_image | image_url: width: 400 }}"
+                  alt="{{ category_5_title | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'collection-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+            <a
+              href="{{ category_5_link }}"
+              class="ai-shop-category-title-{{ ai_gen_id }} {% if category_5_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
+            >
+              {{ category_5_title }}
+            </a>
           </div>
-          <a
-            href="{{ category_5_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_5_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_5_title }}
-          </a>
-        </div>
-      {% endif %}
-
-      {% assign category_6_title = block.settings.category_6_title %}
-      {% assign category_6_image = block.settings.category_6_image %}
-      {% assign category_6_link = block.settings.category_6_link %}
-      {% assign category_6_is_sale = block.settings.category_6_is_sale %}
-
-      {% if category_6_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_6_image != blank %}
-              <img
-                src="{{ category_6_image | image_url: width: 400 }}"
-                alt="{{ category_6_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
-          </div>
-          <a
-            href="{{ category_6_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_6_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_6_title }}
-          </a>
-        </div>
-      {% endif %}
-
-      {% assign category_7_title = block.settings.category_7_title %}
-      {% assign category_7_image = block.settings.category_7_image %}
-      {% assign category_7_link = block.settings.category_7_link %}
-      {% assign category_7_is_sale = block.settings.category_7_is_sale %}
-
-      {% if category_7_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_7_image != blank %}
-              <img
-                src="{{ category_7_image | image_url: width: 400 }}"
-                alt="{{ category_7_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
-          </div>
-          <a
-            href="{{ category_7_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_7_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_7_title }}
-          </a>
-        </div>
-      {% endif %}
-
-      {% assign category_8_title = block.settings.category_8_title %}
-      {% assign category_8_image = block.settings.category_8_image %}
-      {% assign category_8_link = block.settings.category_8_link %}
-      {% assign category_8_is_sale = block.settings.category_8_is_sale %}
-
-      {% if category_8_title != blank %}
-        <div class="ai-shop-category-card-{{ ai_gen_id }}">
-          <div class="ai-shop-category-image-wrapper-{{ ai_gen_id }}">
-            {% if category_8_image != blank %}
-              <img
-                src="{{ category_8_image | image_url: width: 400 }}"
-                alt="{{ category_8_title | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-              >
-            {% else %}
-              <div class="ai-shop-category-image-placeholder-{{ ai_gen_id }}">
-                {{ 'collection-1' | placeholder_svg_tag }}
-              </div>
-            {% endif %}
-          </div>
-          <a
-            href="{{ category_8_link }}"
-            class="ai-shop-category-title-{{ ai_gen_id }} {% if category_8_is_sale %}ai-shop-category-title-sale-{{ ai_gen_id }}{% endif %}"
-          >
-            {{ category_8_title }}
-          </a>
-        </div>
-      {% endif %}
+        {% endif %}
+      </div>
     </div>
+
+    <button
+      type="button"
+      class="ai-shop-categories-nav-{{ ai_gen_id }} ai-shop-categories-nav-next-{{ ai_gen_id }}"
+      aria-label="{{ 'accessibility.next' | t }}"
+      id="next-btn-{{ ai_gen_id }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 </div>
+
+<script>
+  (function() {
+    const container = document.getElementById('scroll-container-{{ ai_gen_id }}');
+    const prevBtn = document.getElementById('prev-btn-{{ ai_gen_id }}');
+    const nextBtn = document.getElementById('next-btn-{{ ai_gen_id }}');
+
+    if (!container || !prevBtn || !nextBtn) return;
+
+    const scrollAmount = {{ block.settings.card_width_mobile | plus: block.settings.card_spacing }};
+
+    function updateButtons() {
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+      if (container.scrollLeft <= 0) {
+        prevBtn.classList.add('ai-shop-categories-nav-disabled-{{ ai_gen_id }}');
+      } else {
+        prevBtn.classList.remove('ai-shop-categories-nav-disabled-{{ ai_gen_id }}');
+      }
+
+      if (container.scrollLeft >= maxScrollLeft - 1) {
+        nextBtn.classList.add('ai-shop-categories-nav-disabled-{{ ai_gen_id }}');
+      } else {
+        nextBtn.classList.remove('ai-shop-categories-nav-disabled-{{ ai_gen_id }}');
+      }
+    }
+
+    prevBtn.addEventListener('click', function() {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', function() {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+
+    container.addEventListener('scroll', updateButtons);
+
+    // Initial check
+    if (container.scrollWidth <= container.clientWidth) {
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+    }
+
+    updateButtons();
+  })();
+</script>
 
 {% schema %}
 {
@@ -550,16 +521,6 @@
     },
     {
       "type": "range",
-      "id": "card_width",
-      "label": "Card width (desktop)",
-      "min": 100,
-      "max": 300,
-      "step": 10,
-      "unit": "px",
-      "default": 180
-    },
-    {
-      "type": "range",
       "id": "card_width_mobile",
       "label": "Card width (mobile)",
       "min": 80,
@@ -619,6 +580,64 @@
       "id": "sale_text_color",
       "label": "Sale text color",
       "default": "#ff0000"
+    },
+    {
+      "type": "header",
+      "content": "Navigation arrows (mobile)"
+    },
+    {
+      "type": "range",
+      "id": "arrow_button_size",
+      "label": "Arrow button size",
+      "min": 30,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Arrow icon size",
+      "min": 12,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "arrow_offset",
+      "label": "Arrow offset from edge",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_color",
+      "label": "Arrow background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_hover",
+      "label": "Arrow background hover",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "arrow_border_color",
+      "label": "Arrow border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow icon color",
+      "default": "#000000"
     },
     {
       "type": "header",
@@ -752,82 +771,17 @@
     },
     {
       "type": "header",
-      "content": "Category 6"
+      "content": "Layout"
     },
     {
-      "type": "image_picker",
-      "id": "category_6_image",
-      "label": "Image"
-    },
-    {
-      "type": "text",
-      "id": "category_6_title",
-      "label": "Title"
-    },
-    {
-      "type": "url",
-      "id": "category_6_link",
-      "label": "Link"
-    },
-    {
-      "type": "checkbox",
-      "id": "category_6_is_sale",
-      "label": "Mark as Sale",
-      "default": false
-    },
-    {
-      "type": "header",
-      "content": "Category 7"
-    },
-    {
-      "type": "image_picker",
-      "id": "category_7_image",
-      "label": "Image"
-    },
-    {
-      "type": "text",
-      "id": "category_7_title",
-      "label": "Title"
-    },
-    {
-      "type": "url",
-      "id": "category_7_link",
-      "label": "Link"
-    },
-    {
-      "type": "checkbox",
-      "id": "category_7_is_sale",
-      "label": "Mark as Sale",
-      "default": false
-    },
-    {
-      "type": "header",
-      "content": "Category 8"
-    },
-    {
-      "type": "image_picker",
-      "id": "category_8_image",
-      "label": "Image"
-    },
-    {
-      "type": "text",
-      "id": "category_8_title",
-      "label": "Title"
-    },
-    {
-      "type": "url",
-      "id": "category_8_link",
-      "label": "Link"
-    },
-    {
-      "type": "checkbox",
-      "id": "category_8_is_sale",
-      "label": "Mark as Sale",
-      "default": false
-    },
-    {
-      "type": "header",
-      "content": "Spacing"
+      "type": "range",
+      "id": "container_padding",
+      "label": "Container padding",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
     },
     {
       "type": "range",
