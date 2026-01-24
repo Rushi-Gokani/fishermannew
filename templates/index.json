@@ -684,11 +684,16 @@
           "settings": {
             "show_sample_reviews": true,
             "reviews_selection": "all",
-            "products": [],
+            "products": [
+              "abu-garcia-ambassadeur-sx-level-wind-baitcasting-reel-right-handed-ambsx-5600",
+              "abu-garcia-ascalon-k-guide-light-spinning-rod-6-ft-l",
+              "abu-garcia-cardinal-bruiser-spinning-rod-reel-combo-8-ft-mh-9-ft-mh",
+              "abu-garcia-cardinal-iii-sx-spinning-reel-ultra-light-spare-spool-ag-sx-1000s"
+            ],
             "star_rating": "all",
             "show_review_media": true,
             "display_order": "media_first",
-            "no_image_fallback": "review_text_only",
+            "no_image_fallback": "product_image",
             "max_reviews": 20,
             "review_length": "medium",
             "text_size": "medium",
