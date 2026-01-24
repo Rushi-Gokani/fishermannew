@@ -1,0 +1,147 @@
+{% comment %}
+  Product Card Item Snippet
+  Renders a single product card matching the reference design
+{% endcomment %}
+
+{%- liquid
+  assign show_badge = show_badge | default: false
+  assign badge_text = badge_text | default: 'Best Seller'
+
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+
+  assign sold_out = false
+  unless product.available
+    assign sold_out = true
+  endunless
+-%}
+
+<div class="product-card-{{ section_id }}">
+  <!-- Top Section: Badge and Heart -->
+  <div class="product-card-top-{{ section_id }}">
+    {% if show_badge %}
+      <span class="product-card-badge-{{ section_id }}">{{ badge_text }}</span>
+    {% endif %}
+    <button
+      class="product-card-wishlist-{{ section_id }}"
+      aria-label="Add to wishlist"
+      data-product-handle="{{ product.handle }}"
+    >
+      <svg viewBox="0 0 24 24" fill="{{ section_settings.wishlist_fill }}" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Image Section -->
+  <div class="product-card-image-wrapper-{{ section_id }}">
+    {% if product.featured_image %}
+      <img
+        src="{{ product.featured_image | image_url: width: 400 }}"
+        alt="{{ product.featured_image.alt | escape }}"
+        loading="lazy"
+        width="400"
+        height="400"
+        class="product-card-image-{{ section_id }}"
+      >
+    {% else %}
+      {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: section_id }}
+    {% endif %}
+
+    <!-- Pagination Dots -->
+    {% if product.images.size > 1 %}
+      <div class="product-card-dots-{{ section_id }}" id="dots-{{ section_id }}-{{ product.id }}">
+        {% for image in product.images limit: 3 %}
+          <span class="product-card-dot-{{ section_id }}{% if forloop.first %} active{% endif %}" data-image-index="{{ forloop.index }}"></span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="product-card-dots-{{ section_id }}">
+        <span class="product-card-dot-{{ section_id }} active"></span>
+        <span class="product-card-dot-{{ section_id }}"></span>
+        <span class="product-card-dot-{{ section_id }}"></span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Bottom Section: Brand, Title, Price, Button -->
+  <div class="product-card-content-{{ section_id }}">
+    {% if product.vendor %}
+      <p class="product-card-brand-{{ section_id }}">{{ product.vendor }}</p>
+    {% endif %}
+
+    <h3 class="product-card-title-{{ section_id }}">
+      <a href="{{ product.url }}">{{ product.title }}</a>
+    </h3>
+
+    <p class="product-card-price-{{ section_id }}">
+      {% if on_sale %}
+        <span class="sale-price">{{ product.price | money }}</span>
+        <span class="compare-price">{{ product.compare_at_price | money }}</span>
+      {% else %}
+        {{ product.price | money }}
+      {% endif %}
+    </p>
+
+    <form method="post" action="/cart/add" class="product-card-form-{{ section_id }}" data-product-id="{{ product.id }}">
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" />
+      <button
+        type="submit"
+        class="product-card-buy-btn-{{ section_id }} {% if sold_out %}disabled{% endif %}"
+        {% if sold_out %}disabled{% endif %}
+      >
+        {% if sold_out %}
+          Sold Out
+        {% else %}
+          Buy Now
+        {% endif %}
+      </button>
+    </form>
+  </div>
+</div>
+
+{% comment %}
+  Image gallery JavaScript for this specific card
+{% endcomment %}
+<script>
+  (function() {
+    const dotsContainer = document.getElementById('dots-{{ section_id }}-{{ product.id }}');
+    const imageWrapper = dotsContainer?.closest('.product-card-image-wrapper-{{ section_id }}');
+    const image = imageWrapper?.querySelector('.product-card-image-{{ section_id }}');
+    const dots = dotsContainer?.querySelectorAll('.product-card-dot-{{ section_id }}');
+
+    if (dots && dots.length > 1 && image) {
+      const images = [
+        {{ product.featured_image | image_url: width: 400 | json }},
+        {% for image in product.images limit: 2 offset: 1 %}
+          {{ image | image_url: width: 400 | json }}{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ].filter(Boolean);
+
+      let currentIndex = 0;
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          if (images[index]) {
+            image.src = images[index];
+            dots.forEach(d => d.classList.remove('active'));
+            dot.classList.add('active');
+            currentIndex = index;
+          }
+        });
+      });
+
+      // Auto-advance images every 3 seconds
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % Math.min(images.length, 3);
+        if (images[currentIndex]) {
+          image.src = images[currentIndex];
+          dots.forEach(d => d.classList.remove('active'));
+          dots[currentIndex].classList.add('active');
+        }
+      }, 3000);
+    }
+  })();
+</script>
