@@ -803,20 +803,9 @@
             "arrow_border": "#e6e6e6",
             "arrow_hover_border": "#000000",
             "arrow_color": "#000000",
-            "show_vendor": true,
-            "show_price": true,
-            "image_background": "#f5f5f5",
-            "image_border_radius": 8,
-            "image_padding": 20,
             "heading_size": 32,
             "heading_spacing": 32,
             "heading_color": "#000000",
-            "title_size": 16,
-            "title_color": "#000000",
-            "vendor_size": 12,
-            "vendor_color": "#666666",
-            "price_size": 16,
-            "price_color": "#000000",
             "section_padding_top": 60,
             "section_padding_bottom": 60,
             "background_color": "#ffffff"
@@ -1175,6 +1164,80 @@
         "padding_bottom": 60
       }
     },
+    "reels_video_section_TBj3mU": {
+      "type": "reels-video-section",
+      "blocks": {
+        "video_reel_EQj9NR": {
+          "type": "video_reel",
+          "settings": {
+            "video_source": "uploaded",
+            "video": "shopify://files/videos/berkley treline mono line.mp4",
+            "video_alt": "",
+            "video_autoplay": false,
+            "video_loop": true,
+            "video_title": "",
+            "video_description": "",
+            "product": "abu-garcia-gen-ike-fishing-baitcasting-reel-left-handed-ag-genike-l"
+          }
+        },
+        "video_reel_7f6L7C": {
+          "type": "video_reel",
+          "settings": {
+            "video_source": "uploaded",
+            "video_alt": "",
+            "video_autoplay": false,
+            "video_loop": true,
+            "video_title": "",
+            "video_description": "",
+            "product": ""
+          }
+        },
+        "video_reel_q3mrVC": {
+          "type": "video_reel",
+          "settings": {
+            "video_source": "uploaded",
+            "video_alt": "",
+            "video_autoplay": false,
+            "video_loop": true,
+            "video_title": "",
+            "video_description": "",
+            "product": ""
+          }
+        },
+        "video_reel_biA9YQ": {
+          "type": "video_reel",
+          "settings": {
+            "video_source": "uploaded",
+            "video_url": "",
+            "video_alt": "",
+            "video_autoplay": false,
+            "video_loop": true,
+            "video_title": "",
+            "video_description": "",
+            "product": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_reel_EQj9NR",
+        "video_reel_7f6L7C",
+        "video_reel_q3mrVC",
+        "video_reel_biA9YQ"
+      ],
+      "name": "Reels Video Section",
+      "settings": {
+        "title": "Shop Our Reels",
+        "title_color": "#2b2b2b",
+        "description": "",
+        "color_scheme": "",
+        "video_aspect_ratio": "9/16",
+        "video_max_width": 600,
+        "padding-block-start": 64,
+        "padding-block-end": 64,
+        "padding-inline-start": 20,
+        "padding-inline-end": 20
+      }
+    },
     "17691699865190892f": {
       "type": "_blocks",
       "blocks": {
@@ -1204,6 +1267,7 @@
       "block_order": [
         "ai_gen_block_18853c7_GAgULc"
       ],
+      "disabled": true,
       "settings": {
         "content_direction": "column",
         "vertical_on_mobile": true,
@@ -1574,6 +1638,7 @@
     "17691670799b55aa29",
     "featured_product_information_mF4Kez",
     "testimonials_product_slider_7YAxB9",
+    "reels_video_section_TBj3mU",
     "17691699865190892f",
     "17691703828b952a51",
     "17692510956aa0c51c",
