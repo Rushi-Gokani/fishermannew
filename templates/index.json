@@ -91,40 +91,6 @@
         "padding-block-end": 72
       }
     },
-    "hero_slider_HY7jkX": {
-      "type": "hero-slider",
-      "blocks": {
-        "slide_kt99bU": {
-          "type": "slide",
-          "settings": {
-            "image": "shopify://shop_images/Fishermanshub_Banner_Desktop.png",
-            "overlay_opacity": 30,
-            "heading": "",
-            "subheading": "",
-            "text_alignment": "center",
-            "text_color": "#ffffff",
-            "button_label": "",
-            "link": "",
-            "button_bg_color": "#1e2d5a",
-            "button_text_color": "#ffffff"
-          }
-        }
-      },
-      "block_order": [
-        "slide_kt99bU"
-      ],
-      "disabled": true,
-      "name": "Hero Slider",
-      "settings": {
-        "slide_height": "medium",
-        "desktop_height": 600,
-        "mobile_height": 400,
-        "autoplay": false,
-        "change_slides_speed": 5,
-        "padding_top": 0,
-        "padding_bottom": 0
-      }
-    },
     "1769171605a59eb342": {
       "type": "_blocks",
       "blocks": {
@@ -722,6 +688,7 @@
       "block_order": [
         "judge_me_reviews_cards_carousel_ftMbwi"
       ],
+      "disabled": true,
       "settings": {
         "content_direction": "column",
         "vertical_on_mobile": true,
@@ -779,7 +746,6 @@
       "block_order": [
         "ai_gen_block_18853c7_GAgULc"
       ],
-      "disabled": true,
       "settings": {
         "content_direction": "column",
         "vertical_on_mobile": true,
@@ -1141,7 +1107,6 @@
   },
   "order": [
     "hero_jVaWmY",
-    "hero_slider_HY7jkX",
     "1769171605a59eb342",
     "product_list_fa6P9H",
     "176916634157ac5daa",
