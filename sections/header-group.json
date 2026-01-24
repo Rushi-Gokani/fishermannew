@@ -164,6 +164,7 @@
           }
         }
       },
+<<<<<<< HEAD
       "block_order": [
         "header-logo",
         "category_1",
@@ -188,11 +189,42 @@
         "ai_gen_block_1fdff55_HUkABJ"
       ],
       "settings": {}
+=======
+      "settings": {
+        "logo_position": "left",
+        "menu_position": "left",
+        "menu_row": "bottom",
+        "show_search": true,
+        "search_position": "center",
+        "search_row": "top",
+        "show_country": true,
+        "country_selector_style": false,
+        "show_language": true,
+        "localization_font": "heading",
+        "localization_font_size": "0.875rem",
+        "localization_position": "right",
+        "localization_row": "top",
+        "section_width": "page-width",
+        "section_height": "standard",
+        "enable_sticky_header": "always",
+        "divider_width": 0,
+        "divider_size": "page-width",
+        "border_width": 0,
+        "color_scheme_top": "scheme-1",
+        "color_scheme_bottom": "",
+        "color_scheme_transparent": "scheme-6",
+        "enable_transparent_header_home": false,
+        "home_color_scheme": "inverse",
+        "enable_transparent_header_product": false,
+        "product_color_scheme": "default",
+        "enable_transparent_header_collection": false,
+        "collection_color_scheme": "default"
+      }
+>>>>>>> 2ef950921b54ccc9f572f82367850bb31f77bc2f
     }
   },
   "order": [
     "top_bar_section",
-    "header_section",
-    "1769243977f63f5f66"
+    "header_section"
   ]
 }
