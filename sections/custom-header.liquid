@@ -344,7 +344,7 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     border-radius: 8px;
     display: none; /* Hidden by default */
-    min-width: 900px;
+    min-width: 1000px; /* Increased width */
     margin-top: 15px;
     z-index: 1001;
     overflow: hidden;
@@ -358,7 +358,7 @@
   /* Sidebar */
   .dropdown-sidebar {
     background-color: #f8f9fa;
-    width: 250px;
+    width: 280px; /* Slightly wider sidebar */
     flex-shrink: 0;
     padding: 10px 0;
     border-right: 1px solid #eee;
@@ -366,7 +366,7 @@
 
   .sidebar-item {
     display: block;
-    padding: 12px 20px;
+    padding: 15px 25px; /* Larger click area */
     font-size: 15px;
     font-weight: 600;
     color: #333;
@@ -393,16 +393,18 @@
     flex-grow: 1;
     background: white;
     position: relative;
-    min-height: 400px;
+    min-height: 500px; /* Increased height */
   }
 
   .content-panel {
     display: none;
-    padding: 30px;
+    padding: 40px; /* More padding */
     width: 100%;
     height: 100%;
-    grid-template-columns: 1fr 1fr 1fr 300px; /* 3 menu cols + 1 promo col */
-    gap: 30px;
+    /* Dynamic Grid Layout */
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 40px;
   }
 
   .content-panel.active {
@@ -410,9 +412,9 @@
   }
 
   .panel-column h4 {
-    font-size: 16px;
+    font-size: 18px; /* Larger heading */
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     color: #111;
   }
 
@@ -423,13 +425,13 @@
   }
 
   .panel-column li {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
   .panel-column a {
     text-decoration: none;
     color: #555;
-    font-size: 14px;
+    font-size: 15px; /* Larger text */
     transition: color 0.2s;
   }
 
@@ -442,7 +444,9 @@
     position: relative;
     border-radius: 8px;
     overflow: hidden;
-    height: 200px; /* Fixed height for consistency */
+    height: 100%; /* Fill available height in its column */
+    min-height: 250px;
+    max-height: 400px;
   }
 
   .promo-card img {
@@ -458,21 +462,21 @@
     left: 20px;
     right: 20px;
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 6px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   }
 
   .promo-title {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 18px;
     color: #111;
     margin-bottom: 5px;
     display: block;
   }
 
   .promo-subtitle {
-    font-size: 13px;
+    font-size: 14px;
     color: #666;
   }
 
@@ -640,6 +644,7 @@
               <div class="content-panel {% if forloop.first %}active{% endif %}" id="panel-{{ block.id }}">
                 
                 <!-- Column 1 -->
+                {% if block.settings.menu_1 != blank or block.settings.menu_1_heading != blank %}
                 <div class="panel-column">
                   {% if block.settings.menu_1_heading != blank %}
                     <h4>{{ block.settings.menu_1_heading }}</h4>
@@ -652,8 +657,10 @@
                     </ul>
                   {% endif %}
                 </div>
+                {% endif %}
 
                 <!-- Column 2 -->
+                {% if block.settings.menu_2 != blank or block.settings.menu_2_heading != blank %}
                 <div class="panel-column">
                   {% if block.settings.menu_2_heading != blank %}
                     <h4>{{ block.settings.menu_2_heading }}</h4>
@@ -666,8 +673,10 @@
                     </ul>
                   {% endif %}
                 </div>
+                {% endif %}
 
                 <!-- Column 3 -->
+                {% if block.settings.menu_3 != blank or block.settings.menu_3_heading != blank %}
                 <div class="panel-column">
                   {% if block.settings.menu_3_heading != blank %}
                     <h4>{{ block.settings.menu_3_heading }}</h4>
@@ -680,21 +689,22 @@
                     </ul>
                   {% endif %}
                 </div>
+                {% endif %}
 
                 <!-- Promo Card -->
+                {% if block.settings.promo_image != blank %}
                 <div class="panel-column">
-                  {% if block.settings.promo_image != blank %}
                     <a href="{{ block.settings.promo_link | default: '#' }}" class="promo-card-link">
                         <div class="promo-card">
-                        {{ block.settings.promo_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
+                        {{ block.settings.promo_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
                         <div class="promo-overlay">
                             <span class="promo-title">{{ block.settings.promo_title }}</span>
                             <span class="promo-subtitle">{{ block.settings.promo_subtitle }}</span>
                         </div>
                         </div>
                     </a>
-                  {% endif %}
                 </div>
+                {% endif %}
 
               </div>
             {% endif %}
