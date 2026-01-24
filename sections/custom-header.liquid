@@ -643,37 +643,45 @@
 
   .search-modal__close {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px;
+    right: 10px;
     background: none;
     border: none;
     cursor: pointer;
     font-size: 24px;
     color: #666;
     line-height: 1;
+    padding: 5px;
   }
 
   .search-modal__form {
     display: flex;
     gap: 10px;
+    align-items: stretch; /* Ensure equal height */
   }
 
   .search-modal__input {
     flex: 1;
-    padding: 12px 15px;
+    padding: 0 15px;
+    height: 46px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+    line-height: 46px; /* Vertically center text */
   }
 
   .search-modal__submit {
     background-color: {{ section.settings.categories_bg }};
     color: white;
     border: none;
-    padding: 12px 25px;
+    padding: 0 25px;
+    height: 46px;
     border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Predictive Search Results */
