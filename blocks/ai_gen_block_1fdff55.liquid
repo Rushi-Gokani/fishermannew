@@ -277,6 +277,10 @@
     width: 100%;
   }
 
+  .chroma-header-wrapper {
+    position: relative;
+  }
+
   .chroma-announcement-bar {
     background-color: {{ announcement_bg }};
     color: {{ announcement_text }};
@@ -468,8 +472,6 @@
     grid-template-columns: 250px 1fr 1fr 1fr 300px;
     gap: 30px;
     padding: 30px;
-    max-width: 1400px;
-    margin: 0 auto;
   }
 
   .chroma-category-list {
@@ -779,98 +781,100 @@
     </div>
   </div>
 
-  <div class="chroma-main-header">
-    <div class="chroma-header-left">
-      <a href="/" class="chroma-logo">{{ block.settings.logo_text }}</a>
-      <button class="chroma-categories-btn" id="categories-btn">
-        {{ block.settings.categories_button_text }}
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </button>
+  <div class="chroma-header-wrapper">
+    <div class="chroma-main-header">
+      <div class="chroma-header-left">
+        <a href="/" class="chroma-logo">{{ block.settings.logo_text }}</a>
+        <button class="chroma-categories-btn" id="categories-btn">
+          {{ block.settings.categories_button_text }}
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="chroma-header-center">
+        <a href="{{ block.settings.nav_link_1_url }}" class="chroma-nav-link">{{ block.settings.nav_link_1_text }}</a>
+        <a href="{{ block.settings.nav_link_2_url }}" class="chroma-nav-link">{{ block.settings.nav_link_2_text }}</a>
+        <a href="{{ block.settings.nav_link_3_url }}" class="chroma-nav-link">{{ block.settings.nav_link_3_text }}</a>
+        <a href="{{ block.settings.nav_link_4_url }}" class="chroma-nav-link">
+          {{ block.settings.nav_link_4_text }}
+          {% if block.settings.show_hot_badge %}
+            <span class="chroma-hot-badge">HOT</span>
+          {% endif %}
+        </a>
+        <a href="{{ block.settings.nav_link_5_url }}" class="chroma-nav-link">{{ block.settings.nav_link_5_text }}</a>
+        <a href="{{ block.settings.nav_link_6_url }}" class="chroma-nav-link">{{ block.settings.nav_link_6_text }}</a>
+      </nav>
+
+      <div class="chroma-header-right">
+        <div class="chroma-country-selector">
+          {{ block.settings.country_currency }}
+        </div>
+        <button class="chroma-icon-btn" aria-label="Search">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+        <a href="/account" class="chroma-icon-btn" aria-label="Account">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </a>
+        <a href="/cart" class="chroma-icon-btn" aria-label="Cart">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </a>
+      </div>
     </div>
 
-    <nav class="chroma-header-center">
-      <a href="{{ block.settings.nav_link_1_url }}" class="chroma-nav-link">{{ block.settings.nav_link_1_text }}</a>
-      <a href="{{ block.settings.nav_link_2_url }}" class="chroma-nav-link">{{ block.settings.nav_link_2_text }}</a>
-      <a href="{{ block.settings.nav_link_3_url }}" class="chroma-nav-link">{{ block.settings.nav_link_3_text }}</a>
-      <a href="{{ block.settings.nav_link_4_url }}" class="chroma-nav-link">
-        {{ block.settings.nav_link_4_text }}
-        {% if block.settings.show_hot_badge %}
-          <span class="chroma-hot-badge">HOT</span>
-        {% endif %}
-      </a>
-      <a href="{{ block.settings.nav_link_5_url }}" class="chroma-nav-link">{{ block.settings.nav_link_5_text }}</a>
-      <a href="{{ block.settings.nav_link_6_url }}" class="chroma-nav-link">{{ block.settings.nav_link_6_text }}</a>
-    </nav>
+    <div class="chroma-mega-menu" id="mega-menu">
+      <div class="chroma-mega-menu-content">
+        <div class="chroma-category-list">
+          <a href="{{ block.settings.cat_1_url }}" class="chroma-category-item active">{{ block.settings.cat_1_name }}</a>
+          <a href="{{ block.settings.cat_2_url }}" class="chroma-category-item">{{ block.settings.cat_2_name }}</a>
+          <a href="{{ block.settings.cat_3_url }}" class="chroma-category-item">{{ block.settings.cat_3_name }}</a>
+          <a href="{{ block.settings.cat_4_url }}" class="chroma-category-item">{{ block.settings.cat_4_name }}</a>
+          <a href="{{ block.settings.cat_5_url }}" class="chroma-category-item">{{ block.settings.cat_5_name }}</a>
+          <a href="{{ block.settings.cat_6_url }}" class="chroma-category-item">{{ block.settings.cat_6_name }}</a>
+        </div>
 
-    <div class="chroma-header-right">
-      <div class="chroma-country-selector">
-        {{ block.settings.country_currency }}
-      </div>
-      <button class="chroma-icon-btn" aria-label="Search">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-      </button>
-      <a href="/account" class="chroma-icon-btn" aria-label="Account">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
-      </a>
-      <a href="/cart" class="chroma-icon-btn" aria-label="Cart">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-      </a>
-    </div>
-  </div>
+        <div class="chroma-mega-column">
+          <h4>{{ block.settings.mega_column_1_title }}</h4>
+          <ul>
+            <li><a href="#">{{ block.settings.col1_link_1 }}</a></li>
+            <li><a href="#">{{ block.settings.col1_link_2 }}</a></li>
+            <li><a href="#">{{ block.settings.col1_link_3 }}</a></li>
+            <li><a href="#">{{ block.settings.col1_link_4 }}</a></li>
+          </ul>
+        </div>
 
-  <div class="chroma-mega-menu" id="mega-menu">
-    <div class="chroma-mega-menu-content">
-      <div class="chroma-category-list">
-        <a href="{{ block.settings.cat_1_url }}" class="chroma-category-item active">{{ block.settings.cat_1_name }}</a>
-        <a href="{{ block.settings.cat_2_url }}" class="chroma-category-item">{{ block.settings.cat_2_name }}</a>
-        <a href="{{ block.settings.cat_3_url }}" class="chroma-category-item">{{ block.settings.cat_3_name }}</a>
-        <a href="{{ block.settings.cat_4_url }}" class="chroma-category-item">{{ block.settings.cat_4_name }}</a>
-        <a href="{{ block.settings.cat_5_url }}" class="chroma-category-item">{{ block.settings.cat_5_name }}</a>
-        <a href="{{ block.settings.cat_6_url }}" class="chroma-category-item">{{ block.settings.cat_6_name }}</a>
-      </div>
+        <div class="chroma-mega-column">
+          <h4>{{ block.settings.mega_column_2_title }}</h4>
+          <ul>
+            <li><a href="#">{{ block.settings.col2_link_1 }}</a></li>
+            <li><a href="#">{{ block.settings.col2_link_2 }}</a></li>
+            <li><a href="#">{{ block.settings.col2_link_3 }}</a></li>
+            <li><a href="#">{{ block.settings.col2_link_4 }}</a></li>
+            <li><a href="#">{{ block.settings.col2_link_5 }}</a></li>
+          </ul>
+        </div>
 
-      <div class="chroma-mega-column">
-        <h4>{{ block.settings.mega_column_1_title }}</h4>
-        <ul>
-          <li><a href="#">{{ block.settings.col1_link_1 }}</a></li>
-          <li><a href="#">{{ block.settings.col1_link_2 }}</a></li>
-          <li><a href="#">{{ block.settings.col1_link_3 }}</a></li>
-          <li><a href="#">{{ block.settings.col1_link_4 }}</a></li>
-        </ul>
-      </div>
+        <div class="chroma-mega-column">
+          <h4>{{ block.settings.mega_column_3_title }}</h4>
+          <ul>
+            <li><a href="#">{{ block.settings.col3_link_1 }}</a></li>
+            <li><a href="#">{{ block.settings.col3_link_2 }}</a></li>
+            <li><a href="#">{{ block.settings.col3_link_3 }}</a></li>
+          </ul>
+        </div>
 
-      <div class="chroma-mega-column">
-        <h4>{{ block.settings.mega_column_2_title }}</h4>
-        <ul>
-          <li><a href="#">{{ block.settings.col2_link_1 }}</a></li>
-          <li><a href="#">{{ block.settings.col2_link_2 }}</a></li>
-          <li><a href="#">{{ block.settings.col2_link_3 }}</a></li>
-          <li><a href="#">{{ block.settings.col2_link_4 }}</a></li>
-          <li><a href="#">{{ block.settings.col2_link_5 }}</a></li>
-        </ul>
-      </div>
-
-      <div class="chroma-mega-column">
-        <h4>{{ block.settings.mega_column_3_title }}</h4>
-        <ul>
-          <li><a href="#">{{ block.settings.col3_link_1 }}</a></li>
-          <li><a href="#">{{ block.settings.col3_link_2 }}</a></li>
-          <li><a href="#">{{ block.settings.col3_link_3 }}</a></li>
-        </ul>
-      </div>
-
-      <div class="chroma-promo-card" style="background-image: url('{{ block.settings.promo_image | image_url: width: 600 }}');">
-        <div class="chroma-promo-card-content">
-          <h3>{{ block.settings.promo_title }}</h3>
-          <p>{{ block.settings.promo_subtitle }}</p>
+        <div class="chroma-promo-card" style="background-image: url('{{ block.settings.promo_image | image_url: width: 600 }}');">
+          <div class="chroma-promo-card-content">
+            <h3>{{ block.settings.promo_title }}</h3>
+            <p>{{ block.settings.promo_subtitle }}</p>
+          </div>
         </div>
       </div>
     </div>
