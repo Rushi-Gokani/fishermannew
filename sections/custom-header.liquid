@@ -675,6 +675,64 @@
     font-weight: 600;
     cursor: pointer;
   }
+
+  /* Predictive Search Results */
+  .predictive-search-results {
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+    display: none; /* Hidden by default */
+  }
+
+  .predictive-search-results.has-results {
+    display: block;
+  }
+
+  .predictive-search-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s;
+  }
+
+  .predictive-search-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .predictive-search-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .predictive-search-item__info {
+    flex: 1;
+  }
+
+  .predictive-search-item__title {
+    font-weight: 600;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .predictive-search-item__price {
+    font-size: 13px;
+    color: #666;
+  }
+
+  .predictive-search-loading {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-size: 14px;
+  }
 </style>
 
 {% if section.settings.show_top_bar %}
@@ -871,6 +929,7 @@
         <input type="hidden" name="type" value="product">
         <button type="submit" class="search-modal__submit">Search</button>
       </form>
+      <div id="predictive-search-results" class="predictive-search-results"></div>
     </div>
   </div>
 </div>
@@ -882,6 +941,7 @@
     const searchModal = document.getElementById('searchModal');
     const searchClose = document.querySelector('.search-modal__close');
     const searchInput = document.querySelector('.search-modal__input');
+    const predictiveSearchResults = document.getElementById('predictive-search-results');
 
     if (searchTrigger && searchModal) {
       searchTrigger.addEventListener('click', function(e) {
@@ -892,6 +952,9 @@
 
       const closeModal = () => {
         searchModal.classList.remove('active');
+        predictiveSearchResults.innerHTML = ''; // Clear results on close
+        predictiveSearchResults.classList.remove('has-results');
+        searchInput.value = '';
       };
 
       if (searchClose) {
@@ -911,6 +974,59 @@
           closeModal();
         }
       });
+
+      // Predictive Search Logic
+      let debounceTimer;
+      searchInput.addEventListener('input', function(e) {
+        const query = this.value.trim();
+        clearTimeout(debounceTimer);
+
+        if (query.length === 0) {
+          predictiveSearchResults.innerHTML = '';
+          predictiveSearchResults.classList.remove('has-results');
+          return;
+        }
+
+        debounceTimer = setTimeout(() => {
+          fetchSuggestions(query);
+        }, 300);
+      });
+
+      function fetchSuggestions(query) {
+        predictiveSearchResults.innerHTML = '<div class="predictive-search-loading">Loading...</div>';
+        predictiveSearchResults.classList.add('has-results');
+
+        fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=4`)
+          .then(response => response.json())
+          .then(data => {
+            const products = data.resources.results.products;
+            if (products.length > 0) {
+              renderResults(products);
+            } else {
+              predictiveSearchResults.innerHTML = '<div class="predictive-search-loading">No results found.</div>';
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching suggestions:', error);
+            predictiveSearchResults.innerHTML = '<div class="predictive-search-loading">Error loading results.</div>';
+          });
+      }
+
+      function renderResults(products) {
+        let html = '';
+        products.forEach(product => {
+          html += `
+            <a href="${product.url}" class="predictive-search-item">
+              ${product.image ? `<img src="${product.image}" alt="${product.title}">` : ''}
+              <div class="predictive-search-item__info">
+                <span class="predictive-search-item__title">${product.title}</span>
+                <span class="predictive-search-item__price">${product.price}</span>
+              </div>
+            </a>
+          `;
+        });
+        predictiveSearchResults.innerHTML = html;
+      }
     }
 
     const sidebarItems = document.querySelectorAll('.sidebar-item');
