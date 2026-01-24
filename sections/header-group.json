@@ -116,7 +116,7 @@
       ],
       "name": "Custom Header",
       "settings": {
-        "show_top_bar": true,
+        "show_top_bar": false,
         "top_bar_text": "Free shipping on orders over €50",
         "top_bar_menu": "",
         "show_social": true,
