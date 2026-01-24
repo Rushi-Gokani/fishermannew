@@ -1,6 +1,6 @@
 {%- comment -%}
   Product Card Snippet - New Design
-  Features: Best Seller badge, heart icon, image with dots, Buy Now button (#E1EDF5)
+  Features: Best Seller badge, heart icon, swipeable image dots, Buy Now button (#40C4FF)
 
   @param {object} product - The product object
   @param {object} children - The children of the product card
@@ -9,6 +9,7 @@
 
 {% assign block_settings = block.settings %}
 {% assign card_id = block.id | append: '-' | append: product.id %}
+{% assign accent_color = '#40C4FF' %}
 
 {% liquid
   assign on_sale = false
@@ -87,17 +88,36 @@
     fill: #FF0000;
   }
 
-  /* Image section */
+  /* Image section with swipeable slider */
   .product-card-image-wrapper-{{ card_id }} {
     position: relative;
     margin-bottom: 16px;
+  }
+
+  .product-card-slider-{{ card_id }} {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .product-card-slider-container-{{ card_id }} {
+    display: flex;
+    transition: transform 0.3s ease;
+    cursor: grab;
+  }
+
+  .product-card-slider-container-{{ card_id }}.dragging {
+    cursor: grabbing;
+    transition: none;
   }
 
   .product-card-image-{{ card_id }} {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: contain;
-    border-radius: 8px;
+    flex-shrink: 0;
+    user-select: none;
+    pointer-events: none;
   }
 
   /* Pagination dots */
@@ -119,7 +139,7 @@
   }
 
   .product-card-dot-{{ card_id }}.active {
-    background-color: #008000;
+    background-color: {{ accent_color }};
   }
 
   /* Bottom section */
@@ -132,7 +152,7 @@
   .product-card-brand-{{ card_id }} {
     font-size: 12px;
     font-weight: 400;
-    color: #008000;
+    color: {{ accent_color }};
     margin: 0;
   }
 
@@ -170,7 +190,7 @@
   /* Buy Now button */
   .product-card-buy-btn-{{ card_id }} {
     width: 100%;
-    background-color: #E1EDF5;
+    background-color: {{ accent_color }};
     color: #000000;
     font-size: 16px;
     font-weight: 700;
@@ -222,44 +242,54 @@
     </button>
   </div>
 
-  <!-- Image Section -->
+  <!-- Image Section with Swipeable Slider -->
   <div class="product-card-image-wrapper-{{ card_id }}">
-    {% if product.featured_image %}
-      <img
-        src="{{ product.featured_image | image_url: width: 400 }}"
-        alt="{{ product.featured_image.alt | escape }}"
-        loading="lazy"
-        width="400"
-        height="400"
-        class="product-card-image-{{ card_id }}"
-        id="product-image-{{ card_id }}"
-      >
-    {% else %}
-      {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
-    {% endif %}
+    <div class="product-card-slider-{{ card_id }}">
+      <div class="product-card-slider-container-{{ card_id }}" id="slider-{{ card_id }}">
+        {% if product.media.size > 0 %}
+          {% for media in product.media limit: 3 %}
+            {% if media.media_type == 'image' %}
+              <img
+                src="{{ media | image_url: width: 400 }}"
+                alt="{{ media.alt | escape }}"
+                loading="lazy"
+                width="400"
+                height="400"
+                class="product-card-image-{{ card_id }}"
+              >
+            {% elsif media.media_type == 'video' %}
+              <video
+                class="product-card-image-{{ card_id }}"
+                muted
+                loop
+                playsinline
+                onclick="this.paused ? this.play() : this.pause()"
+              >
+                <source src="{{ media.sources[1].url }}" type="video/mp4">
+              </video>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
+        {% endif %}
+      </div>
+    </div>
 
     <!-- Pagination Dots -->
-    {% if product.media.size > 1 %}
-      <div class="product-card-dots-{{ card_id }}" id="dots-{{ card_id }}">
+    <div class="product-card-dots-{{ card_id }}" id="dots-{{ card_id }}">
+      {% if product.media.size > 0 %}
         {% for media in product.media limit: 3 %}
           <span
             class="product-card-dot-{{ card_id }}{% if forloop.first %} active{% endif %}"
-            data-index="{{ forloop.index }}"
-            onclick="changeImage('{{ card_id }}', {{ forloop.index }}, [
-              {% for media in product.media limit: 3 %}
-                '{{ media | image_url: width: 400 }}'{% unless forloop.last %},{% endunless %}
-              {% endfor %}
-            ])"
+            data-index="{{ forloop.index | minus: 1 }}"
           ></span>
         {% endfor %}
-      </div>
-    {% else %}
-      <div class="product-card-dots-{{ card_id }}">
+      {% else %}
         <span class="product-card-dot-{{ card_id }} active"></span>
         <span class="product-card-dot-{{ card_id }}"></span>
         <span class="product-card-dot-{{ card_id }}"></span>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
   </div>
 
   <!-- Bottom Section: Brand, Title, Price, Button -->
@@ -299,31 +329,191 @@
 </div>
 
 <script>
-  // Image gallery for this card
-  function changeImage(cardId, index, images) {
-    const img = document.getElementById('product-image-' + cardId);
+  (function() {
+    const cardId = '{{ card_id }}';
+    const slider = document.getElementById('slider-' + cardId);
     const dotsContainer = document.getElementById('dots-' + cardId);
     const dots = dotsContainer?.querySelectorAll('.product-card-dot-' + cardId);
 
-    if (img && images[index - 1]) {
-      img.src = images[index - 1];
+    if (!slider) return;
+
+    let currentIndex = 0;
+    let isDragging = false;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationID;
+    let startTime = 0;
+
+    const totalSlides = {{ product.media.size | default: 1 | at_most: 3 }};
+
+    // Update dots
+    function updateDots(index) {
       if (dots) {
-        dots.forEach(d => d.classList.remove('active'));
-        dots[index - 1]?.classList.add('active');
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
       }
     }
-  }
 
-  // Wishlist toggle
+    // Slide to specific index
+    function slideTo(index) {
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+
+      currentIndex = index;
+      currentTranslate = index * -100;
+      slider.style.transform = `translateX(${currentTranslate}%)`;
+      updateDots(index);
+    }
+
+    // Touch events
+    slider.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      startPos = e.touches[0].clientX;
+      slider.classList.add('dragging');
+      animationID = requestAnimationFrame(animation);
+      startTime = Date.now();
+    }, { passive: true });
+
+    slider.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const currentPosition = e.touches[0].clientX;
+      const currentTranslate = currentTranslate;
+      const diff = currentPosition - startPos;
+    }, { passive: true });
+
+    slider.addEventListener('touchend', (e) => {
+      isDragging = false;
+      slider.classList.remove('dragging');
+      cancelAnimationFrame(animationID);
+
+      const endPos = e.changedTouches[0].clientX;
+      const diff = endPos - startPos;
+      const swiped = Math.abs(diff) > 50;
+      const timeDiff = Date.now() - startTime;
+
+      if (swiped && timeDiff < 300) {
+        if (diff < 0 && currentIndex < totalSlides - 1) {
+          slideTo(currentIndex + 1);
+        } else if (diff > 0 && currentIndex > 0) {
+          slideTo(currentIndex - 1);
+        } else {
+          slideTo(currentIndex);
+        }
+      } else {
+        slideTo(currentIndex);
+      }
+    });
+
+    // Mouse events for desktop
+    let mouseDown = false;
+    let mouseStartPos = 0;
+
+    slider.addEventListener('mousedown', (e) => {
+      mouseDown = true;
+      mouseStartPos = e.clientX;
+      slider.classList.add('dragging');
+      startTime = Date.now();
+      e.preventDefault();
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+      if (!mouseDown) return;
+      const currentPos = e.clientX;
+      const diff = currentPos - mouseStartPos;
+      const moveDiff = diff / slider.offsetWidth * 100;
+
+      if (Math.abs(moveDiff) < 100) {
+        slider.style.transform = `translateX(${currentTranslate + moveDiff}%)`;
+      }
+    });
+
+    slider.addEventListener('mouseup', (e) => {
+      if (!mouseDown) return;
+      mouseDown = false;
+      slider.classList.remove('dragging');
+
+      const endPos = e.clientX;
+      const diff = endPos - mouseStartPos;
+      const swiped = Math.abs(diff) > 50;
+      const timeDiff = Date.now() - startTime;
+
+      if (swiped && timeDiff < 300) {
+        if (diff < 0 && currentIndex < totalSlides - 1) {
+          slideTo(currentIndex + 1);
+        } else if (diff > 0 && currentIndex > 0) {
+          slideTo(currentIndex - 1);
+        } else {
+          slideTo(currentIndex);
+        }
+      } else {
+        slideTo(currentIndex);
+      }
+    });
+
+    slider.addEventListener('mouseleave', () => {
+      if (mouseDown) {
+        mouseDown = false;
+        slider.classList.remove('dragging');
+        slideTo(currentIndex);
+      }
+    });
+
+    // Dot clicks
+    if (dots) {
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          slideTo(index);
+        });
+      });
+    }
+
+    // Auto-advance images every 3 seconds
+    let autoSlideInterval = setInterval(() => {
+      if (!isDragging && !mouseDown) {
+        slideTo((currentIndex + 1) % totalSlides);
+      }
+    }, 3000);
+
+    // Pause auto-slide on hover
+    slider.addEventListener('mouseenter', () => {
+      clearInterval(autoSlideInterval);
+    });
+
+    slider.addEventListener('mouseleave', () => {
+      autoSlideInterval = setInterval(() => {
+        if (!isDragging && !mouseDown) {
+          slideTo((currentIndex + 1) % totalSlides);
+        }
+      }, 3000);
+    });
+
+    // Pause auto-slide when user starts interacting
+    slider.addEventListener('touchstart', () => {
+      clearInterval(autoSlideInterval);
+    });
+
+    slider.addEventListener('touchend', () => {
+      autoSlideInterval = setInterval(() => {
+        if (!isDragging && !mouseDown) {
+          slideTo((currentIndex + 1) % totalSlides);
+        }
+      }, 3000);
+    });
+
+    function animation() {
+      if (isDragging) requestAnimationFrame(animation);
+    }
+  })();
+
+  // Wishlist toggle (global function)
   function toggleWishlist(button, productHandle) {
     button.classList.toggle('active');
-    // You can add localStorage or API call here
     const isActive = button.classList.contains('active');
     if (isActive) {
-      // Add to wishlist logic
       console.log('Added to wishlist:', productHandle);
     } else {
-      // Remove from wishlist logic
       console.log('Removed from wishlist:', productHandle);
     }
   }
