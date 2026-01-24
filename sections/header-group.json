@@ -1,150 +1,45 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "header",
   "name": "Header",
   "sections": {
     "top_bar_section": {
       "type": "top-bar",
+      "disabled": true,
       "settings": {
-        "background_color": "#2563eb",
+        "background_color": "#40c4ff",
         "text_color": "#ffffff",
-        "announcement_text": "Free shipping on orders over €50",
+        "announcement_text": "Always confirm payments via our official WhatsApp before paying",
         "announcement_link": "",
         "show_social": true
-      },
-      "blocks": {
-        "link_1": {
-          "type": "link",
-          "settings": {
-            "text": "Support",
-            "url": ""
-          }
-        },
-        "link_2": {
-          "type": "link",
-          "settings": {
-            "text": "Track order",
-            "url": ""
-          }
-        },
-        "link_3": {
-          "type": "link",
-          "settings": {
-            "text": "Find a store",
-            "url": ""
-          }
-        },
-        "link_4": {
-          "type": "link",
-          "settings": {
-            "text": "Contact us",
-            "url": ""
-          }
-        }
-      },
-      "block_order": [
-        "link_1",
-        "link_2",
-        "link_3",
-        "link_4"
-      ]
+      }
     },
     "header_section": {
       "type": "header",
-      "settings": {
-        "logo_position": "left",
-        "menu_position": "center",
-        "menu_row": "top",
-        "show_search": true,
-        "search_position": "right",
-        "search_row": "top",
-        "show_country": true,
-        "country_selector_style": false,
-        "show_language": true,
-        "localization_font": "heading",
-        "localization_font_size": "0.875rem",
-        "localization_position": "right",
-        "localization_row": "top",
-        "section_width": "full-width",
-        "section_height": "standard",
-        "enable_sticky_header": "always",
-        "divider_width": 0,
-        "divider_size": "page-width",
-        "border_width": 0,
-        "color_scheme_top": "scheme-1",
-        "color_scheme_bottom": "",
-        "color_scheme_transparent": "scheme-6",
-        "enable_transparent_header_home": false,
-        "home_color_scheme": "inverse",
-        "enable_transparent_header_product": false,
-        "product_color_scheme": "default",
-        "enable_transparent_header_collection": false,
-        "collection_color_scheme": "default",
-        "categories_button_text": "Categories",
-        "categories_button_url": "",
-        "header_bg_color": "#1e293b",
-        "header_text_color": "#ffffff"
-      },
       "blocks": {
         "header-logo": {
           "type": "_header-logo",
+          "static": true,
           "settings": {
             "hide_logo_on_home_page": false,
             "padding-block-start": 0,
             "padding-block-end": 0,
             "padding-inline-start": 0,
             "padding-inline-end": 0
-          }
-        },
-        "category_1": {
-          "type": "category_menu",
-          "settings": {
-            "heading": "Accessories",
-            "link": "",
-            "menu": ""
-          }
-        },
-        "category_2": {
-          "type": "category_menu",
-          "settings": {
-            "heading": "Computers & Office",
-            "link": "",
-            "menu": ""
-          }
-        },
-        "category_3": {
-          "type": "category_menu",
-          "settings": {
-            "heading": "Gaming",
-            "link": "",
-            "menu": ""
-          }
-        },
-        "category_4": {
-          "type": "category_menu",
-          "settings": {
-            "heading": "Phones & Wearables",
-            "link": "",
-            "menu": ""
-          }
-        },
-        "category_5": {
-          "type": "category_menu",
-          "settings": {
-            "heading": "Smart Home",
-            "link": "",
-            "menu": ""
-          }
-        },
-        "category_6": {
-          "type": "category_menu",
-          "settings": {
-            "heading": "TVs & Home Theater",
-            "link": "",
-            "menu": ""
-          }
+          },
+          "blocks": {}
         },
         "header-menu": {
           "type": "_header-menu",
+          "static": true,
           "settings": {
             "menu": "main-menu",
             "color_scheme": "",
@@ -161,35 +56,11 @@
             "drawer_accordion": false,
             "drawer_accordion_expand_first": false,
             "drawer_dividers": false
-          }
+          },
+          "blocks": {}
         }
       },
-<<<<<<< HEAD
-      "block_order": [
-        "header-logo",
-        "category_1",
-        "category_2",
-        "category_3",
-        "category_4",
-        "category_5",
-        "category_6",
-        "header-menu"
-      ]
-    },
-    "1769243977f63f5f66": {
-      "type": "_blocks",
       "disabled": true,
-      "blocks": {
-        "ai_gen_block_1fdff55_HUkABJ": {
-          "type": "ai_gen_block_1fdff55",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_1fdff55_HUkABJ"
-      ],
-      "settings": {}
-=======
       "settings": {
         "logo_position": "left",
         "menu_position": "left",
@@ -220,11 +91,55 @@
         "enable_transparent_header_collection": false,
         "collection_color_scheme": "default"
       }
->>>>>>> 2ef950921b54ccc9f572f82367850bb31f77bc2f
+    },
+    "custom_header_WQdpTn": {
+      "type": "custom-header",
+      "blocks": {
+        "category_column_rtHc3Q": {
+          "type": "category_column",
+          "settings": {
+            "heading": "New",
+            "menu": "new"
+          }
+        },
+        "category_column_dtdUgA": {
+          "type": "category_column",
+          "settings": {
+            "heading": "",
+            "menu": ""
+          }
+        }
+      },
+      "block_order": [
+        "category_column_rtHc3Q",
+        "category_column_dtdUgA"
+      ],
+      "name": "Custom Header",
+      "settings": {
+        "show_top_bar": true,
+        "top_bar_text": "Free shipping on orders over €50",
+        "top_bar_menu": "",
+        "show_social": true,
+        "top_bar_bg": "#2563eb",
+        "top_bar_text_color": "#ffffff",
+        "header_bg": "#1e293b",
+        "header_text": "#ffffff",
+        "logo": "shopify://shop_images/fisher3_1.png",
+        "logo_width": 150,
+        "categories_label": "Categories",
+        "categories_bg": "#2563eb",
+        "categories_text": "#ffffff",
+        "main_menu": "main-menu",
+        "badge_items": "Offers, Sale",
+        "badge_text": "HOT!",
+        "badge_bg": "#ff4500",
+        "show_currency": true
+      }
     }
   },
   "order": [
     "top_bar_section",
-    "header_section"
+    "header_section",
+    "custom_header_WQdpTn"
   ]
 }
