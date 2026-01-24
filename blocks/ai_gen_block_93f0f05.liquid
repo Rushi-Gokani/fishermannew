@@ -1,88 +1,8 @@
-{% doc %}
-  @prompt
-    You are an expert Shopify theme (OS 2.0) developer.
-    Using the attached reference screenshot, create a custom Shopify section called “Latest Gear” that visually and functionally matches the design exactly.
-    
-    Section Layout:
-    
-    Section heading: “Latest Gear” aligned left
-    
-    Below the heading, display a horizontal product carousel
-    
-    Show 4 products per row on desktop
-    
-    On tablet/mobile, allow horizontal swipe scrolling
-    
-    Left and right navigation arrows should appear on the sides
-    
-    Product Card Design:
-    
-    Each product card must include:
-    
-    Product image centered inside a light gray background container
-    
-    Image must maintain aspect ratio (object-fit: contain)
-    
-    Product title below image
-    
-    Vendor name below title (smaller text)
-    
-    Price below vendor (formatted with currency)
-    
-    Clean spacing and modern ecommerce look (Shopify Dawn-style)
-    
-    Functional Requirements:
-    
-    Products should be pulled dynamically using:
-    
-    Selected collection OR
-    
-    Manual product picker (configurable)
-    
-    Arrows should scroll the carousel smoothly
-    
-    No page reloads
-    
-    Touch/drag support on mobile
-    
-    Shopify Section Requirements:
-    
-    Use Liquid + schema settings
-    
-    Section settings should include:
-    
-    Section heading text
-    
-    Collection selector
-    
-    Products per row (desktop)
-    
-    Enable/disable arrows
-    
-    Must be compatible with Shopify OS 2.0
-    
-    Use pure CSS + minimal JS (only for slider logic)
-    
-    Code Output Rules:
-    
-    Provide complete Shopify section code
-    
-    Include:
-    
-    Liquid HTML
-    
-    CSS inside {% style %} tags
-    
-    JavaScript inside {% javascript %} tags
-    
-    JSON schema
-    
-    Code must be copy-paste ready
-    
-    Follow Shopify best practices for performance & accessibility
-    
-    Recreate spacing, sizing, colors, and alignment as close as possible to the reference image.
-{% enddoc %}
+{%- comment -%}
+  Latest Gear Block - Uses existing product-card snippet
+  Displays products in a horizontal carousel with navigation arrows
+{%- endcomment -%}
+
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% liquid
@@ -104,7 +24,6 @@
   }
 
   .ai-latest-gear-container-{{ ai_gen_id }} {
-  
     margin: 0 auto;
     padding: 0 20px;
   }
@@ -160,7 +79,6 @@
 
   .ai-latest-gear-carousel-wrapper-{{ ai_gen_id }} {
     position: relative;
-    overflow: hidden;
   }
 
   .ai-latest-gear-carousel-{{ ai_gen_id }} {
@@ -170,6 +88,7 @@
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-bottom: 10px;
   }
 
   .ai-latest-gear-carousel-{{ ai_gen_id }}::-webkit-scrollbar {
@@ -179,76 +98,6 @@
   .ai-latest-gear-product-card-{{ ai_gen_id }} {
     flex: 0 0 calc((100% - ({{ block.settings.products_per_row_desktop | minus: 1 }} * {{ block.settings.product_gap }}px)) / {{ block.settings.products_per_row_desktop }});
     min-width: 0;
-  }
-
-  .ai-latest-gear-product-link-{{ ai_gen_id }} {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .ai-latest-gear-image-container-{{ ai_gen_id }} {
-    background-color: {{ block.settings.image_background }};
-    border-radius: {{ block.settings.image_border_radius }}px;
-    padding: {{ block.settings.image_padding }}px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-    aspect-ratio: 1 / 1;
-  }
-
-  .ai-latest-gear-image-{{ ai_gen_id }} {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-
-  .ai-latest-gear-image-placeholder-{{ ai_gen_id }} {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: {{ block.settings.image_background }};
-  }
-
-  .ai-latest-gear-image-placeholder-{{ ai_gen_id }} svg {
-    width: 60%;
-    height: 60%;
-    opacity: 0.3;
-  }
-
-  .ai-latest-gear-product-info-{{ ai_gen_id }} {
-    text-align: left;
-  }
-
-  .ai-latest-gear-product-title-{{ ai_gen_id }} {
-    font-size: {{ block.settings.title_size }}px;
-    font-weight: 600;
-    color: {{ block.settings.title_color }};
-    margin: 0 0 8px 0;
-    line-height: 1.3;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-
-  .ai-latest-gear-product-vendor-{{ ai_gen_id }} {
-    font-size: {{ block.settings.vendor_size }}px;
-    color: {{ block.settings.vendor_color }};
-    margin: 0 0 8px 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .ai-latest-gear-product-price-{{ ai_gen_id }} {
-    font-size: {{ block.settings.price_size }}px;
-    font-weight: 600;
-    color: {{ block.settings.price_color }};
-    margin: 0;
   }
 
   .ai-latest-gear-empty-state-{{ ai_gen_id }} {
@@ -320,35 +169,7 @@
         <div class="ai-latest-gear-carousel-{{ ai_gen_id }}">
           {% for product in products limit: block.settings.products_limit %}
             <div class="ai-latest-gear-product-card-{{ ai_gen_id }}">
-              <a href="{{ product.url }}" class="ai-latest-gear-product-link-{{ ai_gen_id }}">
-                <div class="ai-latest-gear-image-container-{{ ai_gen_id }}">
-                  {% if product.featured_image %}
-                    <img
-                      src="{{ product.featured_image | image_url: width: 600 }}"
-                      alt="{{ product.featured_image.alt | escape }}"
-                      loading="lazy"
-                      width="600"
-                      height="600"
-                      class="ai-latest-gear-image-{{ ai_gen_id }}"
-                    >
-                  {% else %}
-                    <div class="ai-latest-gear-image-placeholder-{{ ai_gen_id }}">
-                      {{ 'product-1' | placeholder_svg_tag }}
-                    </div>
-                  {% endif %}
-                </div>
-                <div class="ai-latest-gear-product-info-{{ ai_gen_id }}">
-                  {% if block.settings.show_vendor and product.vendor != blank %}
-                    <div class="ai-latest-gear-product-vendor-{{ ai_gen_id }}">{{ product.vendor }}</div>
-                  {% endif %}
-                  <h3 class="ai-latest-gear-product-title-{{ ai_gen_id }}">{{ product.title }}</h3>
-                  {% if block.settings.show_price %}
-                    <div class="ai-latest-gear-product-price-{{ ai_gen_id }}">
-                      {{ product.price | money }}
-                    </div>
-                  {% endif %}
-                </div>
-              </a>
+              {% render 'product-card', product: product, block: block %}
             </div>
           {% endfor %}
         </div>
@@ -376,7 +197,6 @@
         if (!this.carousel || this.cards.length === 0) return;
 
         this.setupNavigation();
-        this.setupTouchScroll();
         this.updateButtonStates();
 
         this.carousel.addEventListener('scroll', () => {
@@ -400,37 +220,6 @@
             this.scrollCarousel('next');
           });
         }
-      }
-
-      setupTouchScroll() {
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        this.carousel.addEventListener('mousedown', (e) => {
-          isDown = true;
-          this.carousel.style.cursor = 'grabbing';
-          startX = e.pageX - this.carousel.offsetLeft;
-          scrollLeft = this.carousel.scrollLeft;
-        });
-
-        this.carousel.addEventListener('mouseleave', () => {
-          isDown = false;
-          this.carousel.style.cursor = 'grab';
-        });
-
-        this.carousel.addEventListener('mouseup', () => {
-          isDown = false;
-          this.carousel.style.cursor = 'grab';
-        });
-
-        this.carousel.addEventListener('mousemove', (e) => {
-          if (!isDown) return;
-          e.preventDefault();
-          const x = e.pageX - this.carousel.offsetLeft;
-          const walk = (x - startX) * 2;
-          this.carousel.scrollLeft = scrollLeft - walk;
-        });
       }
 
       scrollCarousel(direction) {
@@ -584,48 +373,6 @@
     },
     {
       "type": "header",
-      "content": "Product card"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_vendor",
-      "label": "Show vendor",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_price",
-      "label": "Show price",
-      "default": true
-    },
-    {
-      "type": "color",
-      "id": "image_background",
-      "label": "Image background",
-      "default": "#f5f5f5"
-    },
-    {
-      "type": "range",
-      "id": "image_border_radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Image border radius",
-      "default": 8
-    },
-    {
-      "type": "range",
-      "id": "image_padding",
-      "min": 0,
-      "max": 40,
-      "step": 4,
-      "unit": "px",
-      "label": "Image padding",
-      "default": 20
-    },
-    {
-      "type": "header",
       "content": "Typography"
     },
     {
@@ -652,54 +399,6 @@
       "type": "color",
       "id": "heading_color",
       "label": "Heading color",
-      "default": "#000000"
-    },
-    {
-      "type": "range",
-      "id": "title_size",
-      "min": 12,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Product title size",
-      "default": 16
-    },
-    {
-      "type": "color",
-      "id": "title_color",
-      "label": "Product title color",
-      "default": "#000000"
-    },
-    {
-      "type": "range",
-      "id": "vendor_size",
-      "min": 10,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Vendor size",
-      "default": 12
-    },
-    {
-      "type": "color",
-      "id": "vendor_color",
-      "label": "Vendor color",
-      "default": "#666666"
-    },
-    {
-      "type": "range",
-      "id": "price_size",
-      "min": 12,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Price size",
-      "default": 16
-    },
-    {
-      "type": "color",
-      "id": "price_color",
-      "label": "Price color",
       "default": "#000000"
     },
     {
