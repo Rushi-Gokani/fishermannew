@@ -602,6 +602,79 @@
         justify-content: center;
     }
   }
+
+  /* Search Modal */
+  .search-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 100px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .search-modal.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .search-modal__content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+
+  .search-modal.active .search-modal__content {
+    transform: translateY(0);
+  }
+
+  .search-modal__close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #666;
+    line-height: 1;
+  }
+
+  .search-modal__form {
+    display: flex;
+    gap: 10px;
+  }
+
+  .search-modal__input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .search-modal__submit {
+    background-color: {{ section.settings.categories_bg }};
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
 </style>
 
 {% if section.settings.show_top_bar %}
@@ -767,7 +840,7 @@
       </div>
       {% endif %}
 
-      <button class="icon-btn" aria-label="Search">
+      <button class="icon-btn search-trigger" aria-label="Search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
       
@@ -781,10 +854,65 @@
     </div>
 
   </div>
+
+  <!-- Search Modal HTML -->
+  <div class="search-modal" id="searchModal">
+    <div class="search-modal__content">
+      <button class="search-modal__close" aria-label="Close search">&times;</button>
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-modal__form">
+        <input
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="Search our store..."
+          class="search-modal__input"
+          required
+        >
+        <input type="hidden" name="type" value="product">
+        <button type="submit" class="search-modal__submit">Search</button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Search Modal Logic
+    const searchTrigger = document.querySelector('.search-trigger');
+    const searchModal = document.getElementById('searchModal');
+    const searchClose = document.querySelector('.search-modal__close');
+    const searchInput = document.querySelector('.search-modal__input');
+
+    if (searchTrigger && searchModal) {
+      searchTrigger.addEventListener('click', function(e) {
+        e.preventDefault();
+        searchModal.classList.add('active');
+        setTimeout(() => searchInput.focus(), 100); // Focus input
+      });
+
+      const closeModal = () => {
+        searchModal.classList.remove('active');
+      };
+
+      if (searchClose) {
+        searchClose.addEventListener('click', closeModal);
+      }
+
+      // Close on background click
+      searchModal.addEventListener('click', function(e) {
+        if (e.target === searchModal) {
+          closeModal();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && searchModal.classList.contains('active')) {
+          closeModal();
+        }
+      });
+    }
+
     const sidebarItems = document.querySelectorAll('.sidebar-item');
     const contentPanels = document.querySelectorAll('.content-panel');
 
