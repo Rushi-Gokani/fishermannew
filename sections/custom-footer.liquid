@@ -175,6 +175,7 @@
   {%- endif -%}
 </footer>
 
+{% stylesheet %}
   .custom-footer {
     background-color: #f4f7f9; /* Light greyish blue background */
     color: #666666;
@@ -317,6 +318,12 @@
 
   .localization-form__select:hover {
     border-color: #6cb2eb;
+  }
+
+  .localization-form__select .icon-caret {
+    width: 10px;
+    height: 6px;
+    margin-left: auto;
   }
 
   .custom-footer__copyright {
