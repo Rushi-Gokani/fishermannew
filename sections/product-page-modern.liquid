@@ -270,8 +270,7 @@
       {% render 'product-form-modern',
         product: product,
         current_variant: current_variant,
-        product_form_id: product_form_id,
-        section: section
+        product_form_id: product_form_id
       %}
 
       <!-- Trust Badges -->
@@ -343,7 +342,7 @@
       {% if product.description != blank %}
         <details class="modern-accordion" open>
           <summary class="modern-accordion__summary">
-            <span class="modern-accordion__title">Description</span>
+            <h3 class="modern-accordion__title">Description</h3>
             <svg class="modern-accordion__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -408,6 +407,103 @@
 <!-- Modern Product Page JavaScript -->
 <script src="{{ 'modern-product-page.js' | asset_url }}" defer></script>
 
+<!-- Inline Script for Quantity -->
+<script>
+  (function() {
+    // Quantity selector - works immediately
+    const quantitySelectors = document.querySelectorAll('[data-quantity-selector]');
+    quantitySelectors.forEach(function(selector) {
+      const input = selector.querySelector('[data-quantity-input]');
+      const minusBtn = selector.querySelector('[data-quantity-minus]');
+      const plusBtn = selector.querySelector('[data-quantity-plus]');
+
+      if (input && minusBtn && plusBtn) {
+        minusBtn.addEventListener('click', function() {
+          let value = parseInt(input.value) || 1;
+          const min = parseInt(input.min) || 1;
+          value = Math.max(min, value - 1);
+          input.value = value;
+        });
+
+        plusBtn.addEventListener('click', function() {
+          let value = parseInt(input.value) || 1;
+          const max = parseInt(input.max) || Infinity;
+          value = value + 1;
+          if (max) value = Math.min(max, value);
+          input.value = value;
+        });
+      }
+    });
+
+    // Thumbnail click - works immediately
+    const thumbnails = document.querySelectorAll('.modern-gallery__thumbnail');
+    const slides = document.querySelectorAll('.modern-gallery__slide');
+
+    thumbnails.forEach(function(thumb, index) {
+      thumb.addEventListener('click', function() {
+        // Update slides
+        slides.forEach(function(slide, i) {
+          slide.classList.toggle('is-active', i === index);
+        });
+
+        // Update thumbnails
+        thumbnails.forEach(function(t, i) {
+          t.classList.toggle('is-active', i === index);
+          t.setAttribute('aria-current', i === index ? 'true' : 'false');
+        });
+
+        // Update counter
+        const counter = document.querySelector('[data-current-index]');
+        if (counter) counter.textContent = index + 1;
+      });
+    });
+
+    // Arrow navigation
+    const prevBtn = document.querySelector('.modern-gallery__nav--prev');
+    const nextBtn = document.querySelector('.modern-gallery__nav--next');
+    let currentIndex = 0;
+
+    function goToSlide(index) {
+      if (index < 0) index = slides.length - 1;
+      if (index >= slides.length) index = 0;
+
+      currentIndex = index;
+
+      slides.forEach(function(slide, i) {
+        slide.classList.toggle('is-active', i === index);
+      });
+
+      thumbnails.forEach(function(t, i) {
+        t.classList.toggle('is-active', i === index);
+        t.setAttribute('aria-current', i === index ? 'true' : 'false');
+      });
+
+      const counter = document.querySelector('[data-current-index]');
+      if (counter) counter.textContent = index + 1;
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function() {
+        goToSlide(currentIndex - 1);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function() {
+        goToSlide(currentIndex + 1);
+      });
+    }
+
+    // Variant change - update price
+    const variantInputs = document.querySelectorAll('input[name^="option"]');
+    variantInputs.forEach(function(input) {
+      input.addEventListener('change', function() {
+        // This will be handled by the main script
+      });
+    });
+  })();
+</script>
+
 {% stylesheet %}
   /* Modern Product Section - Base Styles */
   .modern-product-section {
@@ -465,11 +561,18 @@
     overflow: hidden;
     background: rgb(var(--color-foreground-rgb) / 0.02);
     box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
+    cursor: grab;
+  }
+
+  .modern-gallery__main:active {
+    cursor: grabbing;
   }
 
   .modern-gallery__viewport {
     position: relative;
     aspect-ratio: 1 / 1;
+    touch-action: pan-y;
+    user-select: none;
   }
 
   .modern-gallery__slide {
@@ -828,8 +931,17 @@
   }
 
   .modern-accordion__title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  .modern-accordion__summary h3 {
+    cursor: pointer;
+    user-select: none;
   }
 
   .modern-accordion__icon {

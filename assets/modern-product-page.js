@@ -84,25 +84,62 @@ class ModernProductPage {
 
   initSwipe() {
     const viewport = this.container.querySelector('.modern-gallery__viewport');
-    if (!viewport) return;
+    const mainGallery = this.container.querySelector('.modern-gallery__main');
+    if (!viewport || !mainGallery) return;
 
     let startX = 0;
     let endX = 0;
+    let isDragging = false;
 
+    // Touch events for mobile
     viewport.addEventListener('touchstart', (e) => {
       startX = e.touches[0].clientX;
-    });
+      isDragging = true;
+    }, { passive: true });
 
     viewport.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
       endX = e.touches[0].clientX;
-    });
+    }, { passive: true });
 
     viewport.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
       const diff = startX - endX;
       if (Math.abs(diff) > 50) {
         if (diff > 0) this.nextSlide();
         else this.previousSlide();
       }
+    });
+
+    // Mouse events for desktop drag
+    let isMouseDown = false;
+
+    mainGallery.addEventListener('mousedown', (e) => {
+      isMouseDown = true;
+      startX = e.clientX;
+      mainGallery.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isMouseDown) return;
+      endX = e.clientX;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+      mainGallery.style.cursor = '';
+      const diff = startX - endX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) this.nextSlide();
+        else this.previousSlide();
+      }
+    });
+
+    // Prevent image drag
+    viewport.addEventListener('dragstart', (e) => {
+      e.preventDefault();
     });
   }
 
@@ -307,8 +344,14 @@ class ModernProductPage {
     this.minusBtn = this.quantitySelector.querySelector('[data-quantity-minus]');
     this.plusBtn = this.quantitySelector.querySelector('[data-quantity-plus]');
 
-    this.minusBtn.addEventListener('click', () => this.updateQuantity(-1));
-    this.plusBtn.addEventListener('click', () => this.updateQuantity(1));
+    // Use event delegation on the container for better reliability
+    this.quantitySelector.addEventListener('click', (e) => {
+      if (e.target.closest('[data-quantity-minus]')) {
+        this.updateQuantity(-1);
+      } else if (e.target.closest('[data-quantity-plus]')) {
+        this.updateQuantity(1);
+      }
+    });
   }
 
   updateQuantity(change) {
@@ -318,6 +361,9 @@ class ModernProductPage {
 
     value = Math.max(min, Math.min(max, value + change));
     this.quantityInput.value = value;
+
+    // Trigger change event for any listeners
+    this.quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   // ========== Add to Cart ==========
