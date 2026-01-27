@@ -494,11 +494,42 @@
       });
     }
 
-    // Variant change - update price
+    // Variant change - prevent default click on labels
+    const variantSwatches = document.querySelectorAll('.modern-variant-swatch');
+    variantSwatches.forEach(function(swatch) {
+      swatch.addEventListener('click', function(e) {
+        e.preventDefault();
+        const input = swatch.querySelector('input[type="radio"]');
+        if (input) {
+          input.checked = true;
+        }
+      });
+    });
+
+    // Variant inputs change handler
     const variantInputs = document.querySelectorAll('input[name^="option"]');
     variantInputs.forEach(function(input) {
       input.addEventListener('change', function() {
-        // This will be handled by the main script
+        // Find the variant and update price
+        const productJSON = document.querySelector('[data-product-json]');
+        if (productJSON) {
+          const product = JSON.parse(productJSON.textContent);
+          const selectedOptions = Array.from(document.querySelectorAll('input[name^="option"]'))
+            .filter(i => i.checked)
+            .map(i => i.value);
+
+          const variant = product.variants.find(v => {
+            return selectedOptions.every((opt, idx) => v.options[idx] === opt);
+          });
+
+          if (variant) {
+            // Update price display
+            const priceEl = document.querySelector('.modern-product__price');
+            if (priceEl) {
+              priceEl.textContent = (variant.price / 100).toFixed(2);
+            }
+          }
+        }
       });
     });
   })();
@@ -533,7 +564,7 @@
   @media screen and (min-width: 990px) {
     .modern-product-section__container {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: clamp(48px, 8vw, 80px);
     }
 
@@ -551,6 +582,14 @@
   .modern-product-section__gallery {
     position: sticky;
     top: calc(var(--header-height, 80px) + 20px);
+    z-index: 1;
+  }
+
+  /* Mobile - Remove sticky on mobile to prevent stuck issue */
+  @media screen and (max-width: 989px) {
+    .modern-product-section__gallery {
+      position: static;
+    }
   }
 
   .modern-gallery__main {
@@ -1115,10 +1154,23 @@
   @media screen and (max-width: 749px) {
     .modern-product-section {
       padding: clamp(16px, 4vw, 32px) 0;
+      position: relative;
+      z-index: auto;
     }
 
     .modern-product-section__container {
       gap: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modern-product-section__gallery {
+      position: static !important;
+    }
+
+    .modern-product-section__info {
+      position: relative;
+      z-index: 2;
     }
 
     .modern-gallery__thumbnails {

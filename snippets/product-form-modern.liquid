@@ -137,8 +137,8 @@
         <button
           type="submit"
           name="add"
-          class="modern-add-to-cart"
-          style="background: #000; color: #fff; border: none;"
+          class="modern-add-to-cart modern-btn-primary"
+          style="background: #40C4FF; color: #fff; border: none;"
           {% if current_variant.available == false %}disabled{% endif %}
           data-add-to-cart
         >
@@ -318,6 +318,7 @@
   .modern-buttons-row > * {
     flex: 1;
     min-width: 0;
+    width: 50%;
   }
 
   /* Quantity Selector */
@@ -384,15 +385,15 @@
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
-    /* Default black button */
-    background: #000;
+    /* Blue button */
+    background: #40C4FF;
     color: #fff;
   }
 
   .modern-add-to-cart:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
-    background: #222;
+    box-shadow: 0 8px 24px rgb(64 196 255 / 0.4);
+    background: #2BB5FF;
   }
 
   .modern-add-to-cart:active:not(:disabled) {
@@ -402,7 +403,12 @@
   .modern-add-to-cart:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: #666;
+    background: #40C4FF;
+  }
+
+  .modern-add-to-cart:disabled:hover {
+    transform: none;
+    box-shadow: none;
   }
 
   .modern-add-to-cart:not(:disabled):hover {

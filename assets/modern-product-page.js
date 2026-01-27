@@ -211,12 +211,25 @@ class ModernProductPage {
       input.addEventListener('change', () => this.handleVariantChange());
     });
 
-    // Swatch keyboard selection
+    // Swatch selection - prevent default behavior
     this.variantSelects.querySelectorAll('[data-variant-swatch]').forEach(swatch => {
+      swatch.addEventListener('click', (e) => {
+        e.preventDefault();
+        const input = swatch.querySelector('input[type="radio"]');
+        if (input) {
+          input.checked = true;
+          this.handleVariantChange();
+        }
+      });
+
       swatch.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          swatch.control.click();
+          const input = swatch.querySelector('input[type="radio"]');
+          if (input) {
+            input.checked = true;
+            this.handleVariantChange();
+          }
         }
       });
     });
@@ -288,14 +301,8 @@ class ModernProductPage {
       addToCart.disabled = !variant.available;
     }
 
-    // Update URL
-    const url = new URL(window.location);
-    if (variant.id) {
-      url.searchParams.set('variant', variant.id);
-    } else {
-      url.searchParams.delete('variant');
-    }
-    window.history.replaceState({}, '', url.toString());
+    // Don't update URL to prevent page redirect
+    // The variant is handled by the form submission
 
     // Update variant input values
     const variantInput = this.container.querySelector('input[name="id"]');
