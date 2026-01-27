@@ -15,37 +15,25 @@
       "default": "#ffffff"
     },
     {
-      "type": "text",
-      "id": "announcement_text",
-      "label": "Announcement Text",
-      "default": "Free shipping on orders over €50"
-    },
-    {
-      "type": "url",
-      "id": "announcement_link",
-      "label": "Announcement Link"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_social",
-      "label": "Show Social Icons",
-      "default": true
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay Speed (seconds)",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 5
     }
   ],
   "blocks": [
     {
-      "type": "link",
-      "name": "Link",
+      "type": "announcement",
+      "name": "Announcement",
       "settings": [
         {
-          "type": "text",
+          "type": "richtext",
           "id": "text",
-          "label": "Text"
-        },
-        {
-          "type": "url",
-          "id": "url",
-          "label": "URL"
+          "label": "Text",
+          "default": "<p>Free shipping on orders over €50</p>"
         }
       ]
     }
@@ -59,97 +47,28 @@
 {% endschema %}
 
 <div class="top-bar" style="background-color: {{ section.settings.background_color }}; color: {{ section.settings.text_color }};">
-  <div class="page-width top-bar__content">
-    <div class="top-bar__left">
-      {% if section.settings.announcement_text != blank %}
-        <a href="{{ section.settings.announcement_link }}" class="top-bar__announcement link link--text">
-          {{ section.settings.announcement_text }}
-        </a>
-      {% endif %}
+  <div class="page-width top-bar__container">
+    <button class="top-bar__arrow top-bar__arrow--prev" aria-label="Previous announcement">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+
+    <div class="top-bar__slider">
+      {% for block in section.blocks %}
+        <div class="top-bar__slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}">
+          <div class="top-bar__text">
+            {{ block.settings.text }}
+          </div>
+        </div>
+      {% endfor %}
     </div>
-    <div class="top-bar__right">
-      <div class="top-bar__links">
-        {% for block in section.blocks %}
-          <a href="{{ block.settings.url }}" class="link link--text">{{ block.settings.text }}</a>
-        {% endfor %}
-      </div>
-      {% if section.settings.show_social %}
-        <ul class="list-social list-unstyled" role="list">
-          {%- if settings.social_facebook_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_facebook_link }}" class="link list-social__link">
-                {%- render 'icon-facebook' -%}
-                <span class="visually-hidden">{{ 'general.social.links.facebook' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_instagram_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_instagram_link }}" class="link list-social__link">
-                {%- render 'icon-instagram' -%}
-                <span class="visually-hidden">{{ 'general.social.links.instagram' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_youtube_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_youtube_link }}" class="link list-social__link">
-                {%- render 'icon-youtube' -%}
-                <span class="visually-hidden">{{ 'general.social.links.youtube' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_tiktok_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_tiktok_link }}" class="link list-social__link">
-                {%- render 'icon-tiktok' -%}
-                <span class="visually-hidden">{{ 'general.social.links.tiktok' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_twitter_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_twitter_link }}" class="link list-social__link">
-                {%- render 'icon-twitter' -%}
-                <span class="visually-hidden">{{ 'general.social.links.twitter' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_pinterest_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_pinterest_link }}" class="link list-social__link">
-                {%- render 'icon-pinterest' -%}
-                <span class="visually-hidden">{{ 'general.social.links.pinterest' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_snapchat_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_snapchat_link }}" class="link list-social__link">
-                {%- render 'icon-snapchat' -%}
-                <span class="visually-hidden">{{ 'general.social.links.snapchat' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_tumblr_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_tumblr_link }}" class="link list-social__link">
-                {%- render 'icon-tumblr' -%}
-                <span class="visually-hidden">{{ 'general.social.links.tumblr' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-          {%- if settings.social_vimeo_link != blank -%}
-            <li class="list-social__item">
-              <a href="{{ settings.social_vimeo_link }}" class="link list-social__link">
-                {%- render 'icon-vimeo' -%}
-                <span class="visually-hidden">{{ 'general.social.links.vimeo' | t }}</span>
-              </a>
-            </li>
-          {%- endif -%}
-        </ul>
-      {% endif %}
-    </div>
+
+    <button class="top-bar__arrow top-bar__arrow--next" aria-label="Next announcement">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
 </div>
 
@@ -157,44 +76,144 @@
   .top-bar {
     padding: 10px 0;
     font-size: 13px;
+    position: relative;
   }
-  .top-bar__content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .top-bar__right {
+  
+  .top-bar__container {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 20px;
+    max-width: 600px; /* Limit width to keep arrows close */
+    margin: 0 auto;
+    position: relative;
   }
-  .top-bar__links {
+
+  .top-bar__slider {
+    flex: 1;
+    position: relative;
+    height: 20px; /* Adjust based on font size/line height */
+    overflow: hidden;
     display: flex;
-    gap: 15px;
+    align-items: center;
+    justify-content: center;
   }
-  .top-bar a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .top-bar .list-social {
+
+  .top-bar__slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
     display: flex;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .top-bar__slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative; /* Make relative so it takes up space if needed, though absolute is better for cross-fading */
+  }
+  
+  /* Fix for absolute positioning height issue: ensure at least one slide takes space or set fixed height */
+  .top-bar__slide {
+    position: absolute; 
+    /* Resetting to absolute for crossfade effect */
+  }
+  .top-bar__slide.active {
+    z-index: 1;
+  }
+
+  .top-bar__text p {
     margin: 0;
-    padding: 0;
+    text-align: center;
   }
-  .top-bar .list-social__item .icon {
-    height: 1.4rem;
-    width: 1.4rem;
+
+  .top-bar__arrow {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    z-index: 2;
   }
+
+  .top-bar__arrow:hover {
+    opacity: 1;
+  }
+
   @media screen and (max-width: 749px) {
-    .top-bar__content {
-      flex-direction: column;
-      gap: 10px;
-      text-align: center;
-    }
-    .top-bar__right {
-      flex-direction: column;
-      gap: 10px;
+    .top-bar__container {
+      padding: 0 10px;
     }
   }
 {% endstyle %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.querySelector('.top-bar__container');
+    if (!container) return;
+
+    const slides = container.querySelectorAll('.top-bar__slide');
+    const prevBtn = container.querySelector('.top-bar__arrow--prev');
+    const nextBtn = container.querySelector('.top-bar__arrow--next');
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+    const autoplaySpeed = {{ section.settings.autoplay_speed | times: 1000 }};
+    let autoplayInterval;
+
+    if (totalSlides <= 1) {
+      if(prevBtn) prevBtn.style.display = 'none';
+      if(nextBtn) nextBtn.style.display = 'none';
+      return;
+    }
+
+    function showSlide(index) {
+      slides.forEach(slide => slide.classList.remove('active'));
+      slides[index].classList.add('active');
+    }
+
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % totalSlides;
+      showSlide(currentIndex);
+    }
+
+    function prevSlide() {
+      currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+      showSlide(currentIndex);
+    }
+
+    function startAutoplay() {
+      clearInterval(autoplayInterval);
+      autoplayInterval = setInterval(nextSlide, autoplaySpeed);
+    }
+
+    function stopAutoplay() {
+      clearInterval(autoplayInterval);
+    }
+
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      startAutoplay(); // Reset timer
+    });
+
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      startAutoplay(); // Reset timer
+    });
+
+    container.addEventListener('mouseenter', stopAutoplay);
+    container.addEventListener('mouseleave', startAutoplay);
+
+    startAutoplay();
+  });
+</script>
