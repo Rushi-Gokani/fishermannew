@@ -67,10 +67,10 @@ class ModernProductPage {
 
     // Update zoom image
     const activeSlide = this.slides[index];
-    const img = activeSlide?.querySelector('img');
+    const hiddenImg = activeSlide?.querySelector('[data-media-src-hidden]');
     const zoomImg = this.container.querySelector('[data-zoom-image]');
-    if (img && zoomImg) {
-      zoomImg.src = img.dataset.mediaSrc || img.src;
+    if (hiddenImg && zoomImg) {
+      zoomImg.src = hiddenImg.src;
     }
   }
 
@@ -157,9 +157,9 @@ class ModernProductPage {
 
   updateZoomImage() {
     const activeSlide = this.slides[this.currentIndex];
-    const img = activeSlide?.querySelector('img');
-    if (img && this.zoomImage) {
-      this.zoomImage.src = img.dataset.mediaSrc || img.src;
+    const hiddenImg = activeSlide?.querySelector('[data-media-src-hidden]');
+    if (hiddenImg && this.zoomImage) {
+      this.zoomImage.src = hiddenImg.src;
     }
   }
 
