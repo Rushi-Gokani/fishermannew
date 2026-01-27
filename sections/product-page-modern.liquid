@@ -108,7 +108,7 @@
           <button
             type="button"
             class="modern-gallery__nav modern-gallery__nav--prev"
-            aria-label="{{ 'accessibility.previous' | t }}"
+            aria-label="Previous"
             data-direction="prev"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -118,7 +118,7 @@
           <button
             type="button"
             class="modern-gallery__nav modern-gallery__nav--next"
-            aria-label="{{ 'accessibility.next' | t }}"
+            aria-label="Next"
             data-direction="next"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -135,7 +135,7 @@
               <path d="M21 21l-4.35-4.35"/>
               <path d="M11 8v6M8 11h6"/>
             </svg>
-            <span>{{ 'accessibility.zoom' | t }}</span>
+            <span>Click to zoom</span>
           </div>
         {% endif %}
       </div>
@@ -149,7 +149,7 @@
               class="modern-gallery__thumbnail {% if forloop.first %}is-active{% endif %}"
               data-media-id="{{ media.id }}"
               data-index="{{ forloop.index0 }}"
-              aria-label="{{ 'accessibility.go_to_slide' | t: index: forloop.index }}"
+              aria-label="Go to slide {{ forloop.index }}"
               aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
             >
               {% if media.media_type == 'image' %}
@@ -211,10 +211,10 @@
     <div class="modern-product-section__info">
       <!-- Breadcrumbs -->
       {% if section.settings.show_breadcrumbs %}
-        <nav class="modern-breadcrumbs" aria-label="{{ 'accessibility.breadcrumbs' | t }}">
+        <nav class="modern-breadcrumbs" aria-label="Breadcrumbs">
           <ol class="modern-breadcrumbs__list">
             <li class="modern-breadcrumbs__item">
-              <a href="{{ routes.root_url }}" class="modern-breadcrumbs__link">{{ 'general.breadcrumbs.home' | t }}</a>
+              <a href="{{ routes.root_url }}" class="modern-breadcrumbs__link">Home</a>
             </li>
             {% if collection %}
               <li class="modern-breadcrumbs__item">
@@ -241,7 +241,7 @@
             {{ product.selected_or_first_available_variant.compare_at_price | money }}
           </span>
           <span class="modern-product__save-badge">
-            {{ 'products.product.save' | t: amount: product.selected_or_first_available_variant.compare_at_price_minus_price | money }}
+            Save {{ product.selected_or_first_available_variant.compare_at_price_minus_price | money }}
           </span>
         {%- else -%}
           <span class="modern-product__price">
@@ -250,12 +250,12 @@
         {%- endif -%}
 
         {%- if product.selected_or_first_available_variant.available == false -%}
-          <span class="modern-product__sold-badge">{{ 'products.product.sold_out' | t }}</span>
+          <span class="modern-product__sold-badge">Sold Out</span>
         {%- endif -%}
 
         <!-- Tax notice -->
         {%- if cart.taxes_included -%}
-          <span class="modern-product__tax-note">{{ 'products.product.include_taxes' | t }}</span>
+          <span class="modern-product__tax-note">Tax included</span>
         {%- endif -%}
       </div>
 
@@ -343,7 +343,7 @@
       {% if product.description != blank %}
         <details class="modern-accordion" open>
           <summary class="modern-accordion__summary">
-            <span class="modern-accordion__title">{{ 'products.product.description' | t }}</span>
+            <span class="modern-accordion__title">Description</span>
             <svg class="modern-accordion__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -366,7 +366,7 @@
         type="button"
         class="modern-zoom-modal__close"
         data-close-zoom
-        aria-label="{{ 'accessibility.close' | t }}"
+        aria-label="Close"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -436,12 +436,12 @@
   /* Desktop Layout */
   @media screen and (min-width: 990px) {
     .modern-product-section__container {
-      grid-template-columns: 1.3fr 1fr;
+      grid-template-columns: 2fr 1fr;
       gap: clamp(48px, 8vw, 80px);
     }
 
     .modern-product-section--reverse .modern-product-section__container {
-      grid-template-columns: 1fr 1.3fr;
+      grid-template-columns: 1fr 2fr;
     }
 
     .modern-product-section--reverse .modern-product-section__gallery {

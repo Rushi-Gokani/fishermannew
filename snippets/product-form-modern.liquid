@@ -66,7 +66,7 @@
                 <input
                   type="radio"
                   id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                  name="{{ option.name }}"
+                  name="option{{ option.position }}"
                   value="{{ value | escape }}"
                   form="{{ product_form_id }}"
                   {% if option.selected_value == value %}checked{% endif %}
@@ -96,13 +96,13 @@
       <!-- Quantity Selector -->
       {% if show_quantity %}
         <div class="modern-quantity-selector" data-quantity-selector>
-          <label for="Quantity-{{ section.id }}" class="visually-hidden">{{ 'products.product.quantity' | t }}</label>
+          <label for="Quantity-{{ section.id }}" class="visually-hidden">Quantity</label>
 
           <button
             type="button"
             class="modern-quantity-btn"
             data-quantity-minus
-            aria-label="{{ 'products.product.decrease_quantity' | t }}"
+            aria-label="Decrease quantity"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="5" y1="12" x2="19" y2="12"/>
@@ -129,7 +129,7 @@
             type="button"
             class="modern-quantity-btn"
             data-quantity-plus
-            aria-label="{{ 'products.product.increase_quantity' | t }}"
+            aria-label="Increase quantity"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"/>
@@ -144,23 +144,23 @@
         <button
           type="submit"
           name="add"
-          class="modern-add-to-cart button-primary"
+          class="modern-add-to-cart"
+          style="background: #000; color: #fff; border: none;"
           {% if current_variant.available == false %}disabled{% endif %}
           data-add-to-cart
-          form="{{ product_form_id }}"
         >
           <span class="modern-add-to-cart__default">
             {% if current_variant.available %}
-              {{ 'products.product.add_to_cart' | t }}
+              Add to Cart
             {% else %}
-              {{ 'products.product.sold_out' | t }}
+              Sold Out
             {% endif %}
           </span>
           <span class="modern-add-to-cart__added" style="display: none;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
-            {{ 'products.product.added' | t }}
+            Added!
           </span>
           <span class="modern-add-to-cart__error" style="display: none;"></span>
         </button>
@@ -188,9 +188,9 @@
               <circle cx="12" cy="10" r="3"/>
             </svg>
             <div class="modern-pickup-availability-info">
-              <p class="modern-pickup-availability-title">{{ 'sections.pickup_availability.pickup_unavailable' | t }}</p>
+              <p class="modern-pickup-availability-title">Pickup unavailable</p>
               <button class="modern-pickup-availability-button">
-                {{ 'sections.pickup_availability.check_other_stores' | t }}
+                Check other stores
               </button>
             </div>
           </pickup-availability-preview>
@@ -310,6 +310,11 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    margin-top: 8px;
+  }
+
+  .modern-product-actions > * {
+    display: flex !important;
   }
 
   /* Quantity Selector */
@@ -382,11 +387,25 @@
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    /* Default black button */
+    background: #000;
+    color: #fff;
   }
 
-  .modern-add-to-cart.button-primary {
-    background: currentColor;
-    color: rgb(var(--color-background-rgb));
+  .modern-add-to-cart:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+    background: #222;
+  }
+
+  .modern-add-to-cart:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .modern-add-to-cart:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #666;
   }
 
   .modern-add-to-cart:not(:disabled):hover {
