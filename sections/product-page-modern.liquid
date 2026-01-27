@@ -558,24 +558,27 @@
     grid-template-columns: 1fr;
     gap: clamp(32px, 6vw, 64px);
     align-items: start;
+    box-sizing: border-box;
   }
 
-  /* Desktop Layout */
+  /* Desktop Layout - True 50-50 */
   @media screen and (min-width: 990px) {
     .modern-product-section__container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(48px, 8vw, 80px);
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: clamp(48px, 8vw, 80px) !important;
       align-items: start;
     }
 
-    /* Explicitly set order to ensure gallery is LEFT, info is RIGHT */
+    /* Force 50-50 width on each */
     .modern-product-section__gallery {
       order: 1;
+      flex: 0 0 auto !important;
     }
 
     .modern-product-section__info {
       order: 2;
+      flex: 0 0 auto !important;
     }
   }
 
@@ -612,7 +615,7 @@
   /* Mobile - Remove sticky on mobile to prevent stuck issue */
   @media screen and (max-width: 989px) {
     .modern-product-section__gallery {
-      position: static;
+      position: static !important;
     }
   }
 
