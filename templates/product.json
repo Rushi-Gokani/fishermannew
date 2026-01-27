@@ -164,6 +164,7 @@
           ]
         }
       },
+      "disabled": true,
       "name": "Product Information Copy",
       "settings": {
         "content_width": "content-center-aligned",
@@ -175,6 +176,22 @@
         "color_scheme": "",
         "padding-block-start": 19,
         "padding-block-end": 0
+      }
+    },
+    "product_page_modern_Br9FHH": {
+      "type": "product-page-modern",
+      "name": "Modern Product Page",
+      "settings": {
+        "show_breadcrumbs": true,
+        "show_short_description": true,
+        "enable_zoom": true,
+        "show_trust_badges": true,
+        "trust_badge_1_icon": "truck",
+        "trust_badge_1_text": "Free shipping on orders over $50",
+        "trust_badge_2_icon": "shield",
+        "trust_badge_2_text": "Secure checkout guaranteed",
+        "padding_top": 60,
+        "padding_bottom": 60
       }
     },
     "main": {
@@ -591,6 +608,7 @@
   },
   "order": [
     "product_information_copy_Mnjc3U",
+    "product_page_modern_Br9FHH",
     "main",
     "product_recommendations_qggXJq"
   ]
