@@ -914,9 +914,49 @@
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       </a>
 
-      <a href="{{ routes.cart_url }}" class="icon-btn" aria-label="Cart">
-        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-      </a>
+      {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+        <script src="{{ 'cart-drawer.js' | asset_url }}" type="module" fetchpriority="low"></script>
+        <cart-drawer-component class="cart-drawer" {% if settings.auto_open_cart_drawer %}auto-open{% endif %}>
+          <button class="icon-btn" aria-label="Cart" on:click="/open">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <div class="header-actions__cart-icon">
+                {% render 'cart-bubble', limit: 100, live_region: true %}
+            </div>
+          </button>
+          <dialog ref="dialog" class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}" aria-labelledby="cart-drawer-heading" scroll-lock cart-summary-sticky="true">
+            <div class="cart-drawer__inner">
+              <cart-items-component class="cart-items-component" data-section-id="{{ section.id }}">
+                {%- if cart.empty? -%}
+                  <div class="cart-drawer__header">
+                    <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
+                      <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+                    </button>
+                  </div>
+                  <div class="cart-drawer__content motion-reduce">
+                    <h2 class="cart-drawer__heading h4 cart-drawer__heading--empty">{{ 'content.your_cart_is_empty' | t }}</h2>
+                    <div class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</div>
+                  </div>
+                {%- else -%}
+                  <div class="cart-drawer__header">
+                    <h2 class="cart-drawer__heading h4">{{ 'content.cart_title' | t }} {% render 'cart-bubble' %}</h2>
+                    <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
+                      <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+                    </button>
+                  </div>
+                  <scroll-hint class="cart-drawer__content motion-reduce" style="--header-height: 60px;">
+                    <scroll-hint class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</scroll-hint>
+                    <div class="cart-drawer__summary">{% render 'cart-summary' %}</div>
+                  </scroll-hint>
+                {%- endif -%}
+              </cart-items-component>
+            </div>
+          </dialog>
+        </cart-drawer-component>
+      {% else %}
+        <a href="{{ routes.cart_url }}" class="icon-btn" aria-label="Cart">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        </a>
+      {% endif %}
     </div>
 
   </div>
