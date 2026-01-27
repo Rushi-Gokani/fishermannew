@@ -180,6 +180,10 @@
     },
     "product_page_modern_Br9FHH": {
       "type": "product-page-modern",
+      "custom_css": [
+        ".modern-product__description h2 {font-size: 20px !important;}",
+        ".modern-product__description h3 {font-size: 20px !important;}"
+      ],
       "name": "Modern Product Page",
       "settings": {
         "show_breadcrumbs": true,
