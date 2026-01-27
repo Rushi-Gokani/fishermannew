@@ -228,10 +228,10 @@
       <div class="ai-featured-brands-marquee-{{ ai_gen_id }}">
         <div class="ai-featured-brands-marquee-group-{{ ai_gen_id }}">
           {% for i in (1..10) %}
-            {% assign logo_key = 'logo_' | append: i %}
-            {% assign link_key = 'logo_link_' | append: i %}
-            {% assign logo = block.settings[logo_key] %}
-            {% assign link = block.settings[link_key] %}
+            {% assign collection_key = 'brand_collection_' | append: i %}
+            {% assign brand_collection = block.settings[collection_key] %}
+            {% assign logo = brand_collection.image %}
+            {% assign link = brand_collection.url %}
 
             {% if logo != blank %}
               <div class="ai-featured-brands-logo-item-{{ ai_gen_id }}">
@@ -269,10 +269,10 @@
 
         <div class="ai-featured-brands-marquee-group-{{ ai_gen_id }}" aria-hidden="true">
           {% for i in (1..10) %}
-            {% assign logo_key = 'logo_' | append: i %}
-            {% assign link_key = 'logo_link_' | append: i %}
-            {% assign logo = block.settings[logo_key] %}
-            {% assign link = block.settings[link_key] %}
+            {% assign collection_key = 'brand_collection_' | append: i %}
+            {% assign brand_collection = block.settings[collection_key] %}
+            {% assign logo = brand_collection.image %}
+            {% assign link = brand_collection.url %}
 
             {% if logo != blank %}
               <div class="ai-featured-brands-logo-item-{{ ai_gen_id }}">
@@ -481,143 +481,93 @@
     },
     {
       "type": "header",
-      "content": "Brand logo 1"
+      "content": "Brand Collection 1"
     },
     {
-      "type": "image_picker",
-      "id": "logo_1",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_1",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_1",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 2"
+      "content": "Brand Collection 2"
     },
     {
-      "type": "image_picker",
-      "id": "logo_2",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_2",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_2",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 3"
+      "content": "Brand Collection 3"
     },
     {
-      "type": "image_picker",
-      "id": "logo_3",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_3",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_3",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 4"
+      "content": "Brand Collection 4"
     },
     {
-      "type": "image_picker",
-      "id": "logo_4",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_4",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_4",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 5"
+      "content": "Brand Collection 5"
     },
     {
-      "type": "image_picker",
-      "id": "logo_5",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_5",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_5",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 6"
+      "content": "Brand Collection 6"
     },
     {
-      "type": "image_picker",
-      "id": "logo_6",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_6",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_6",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 7"
+      "content": "Brand Collection 7"
     },
     {
-      "type": "image_picker",
-      "id": "logo_7",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_7",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_7",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 8"
+      "content": "Brand Collection 8"
     },
     {
-      "type": "image_picker",
-      "id": "logo_8",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_8",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_8",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 9"
+      "content": "Brand Collection 9"
     },
     {
-      "type": "image_picker",
-      "id": "logo_9",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_9",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_9",
+      "label": "Collection"
     },
     {
       "type": "header",
-      "content": "Brand logo 10"
+      "content": "Brand Collection 10"
     },
     {
-      "type": "image_picker",
-      "id": "logo_10",
-      "label": "Logo"
-    },
-    {
-      "type": "url",
-      "id": "logo_link_10",
-      "label": "Link"
+      "type": "collection",
+      "id": "brand_collection_10",
+      "label": "Collection"
     }
   ],
   "presets": [
