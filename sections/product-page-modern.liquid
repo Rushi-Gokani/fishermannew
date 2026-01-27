@@ -1,0 +1,1198 @@
+{%- comment -%}
+  Modern Product Page Section
+  A clean, elegant product information display with:
+  - Image gallery with thumbnails
+  - Product title and pricing
+  - Variant selector
+  - Quantity picker
+  - Add to cart button
+{%- endcomment -%}
+
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'product-form-' | append: section.id
+  assign first_3d_model = product.media | where: 'media_type', 'model' | first
+%}
+
+<div class="modern-product-section" data-section-id="{{ section.id }}">
+  <!-- Background with subtle gradient -->
+  <div class="modern-product-section__background"></div>
+
+  <div class="modern-product-section__container">
+    <!-- Media Gallery -->
+    <div class="modern-product-section__gallery">
+      <!-- Main Image Display -->
+      <div class="modern-gallery__main">
+        <div class="modern-gallery__viewport">
+          {% if product.media.size > 0 %}
+            {% for media in product.media %}
+              <div
+                class="modern-gallery__slide {% if forloop.first %}is-active{% endif %}"
+                data-media-id="{{ media.id }}"
+                data-index="{{ forloop.index0 }}"
+              >
+                {% case media.media_type %}
+                  {% when 'image' %}
+                    {%- liquid
+                      assign image_src = media | image_url: width: 1200
+                      assign image_high_res = media | image_url: width: 2000
+                    -%}
+                    <div class="modern-gallery__image-wrapper" data-can-zoom>
+                      {{
+                        image_src
+                        | image_tag:
+                          loading: 'lazy',
+                          class: 'modern-gallery__image',
+                          width: nil,
+                          height: nil,
+                          alt: media.alt
+                      }}
+                      <img
+                        src="{{ image_high_res }}"
+                        alt="{{ media.alt }}"
+                        class="hidden"
+                        data-media-src-hidden
+                        loading="lazy"
+                      >
+                    </div>
+
+                  {% when 'external_video' %}
+                    <div class="modern-gallery__video-wrapper">
+                      {{
+                        media
+                        | external_video_url: 'autoloop,playlist, muted, controls'
+                        | external_video_tag:
+                          class: 'modern-gallery__video',
+                          loading: 'lazy'
+                      }}
+                    </div>
+
+                  {% when 'video' %}
+                    <div class="modern-gallery__video-wrapper">
+                      {{
+                        media
+                        | video_tag:
+                          class: 'modern-gallery__video',
+                          image_size: '1100x',
+                          loop: true,
+                          muted: true,
+                          controls: true,
+                          loading: 'lazy'
+                      }}
+                    </div>
+
+                  {% when 'model' %}
+                    <div class="modern-gallery__model-wrapper">
+                      <product-model data-model-id="{{ media.id }}">
+                        {{
+                          media
+                          | media_tag:
+                            image_size: '1100x',
+                            toggleable: true,
+                            loading: 'lazy'
+                        }}
+                      </product-model>
+                    </div>
+                {% endcase %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="modern-gallery__placeholder">
+              {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Navigation Arrows -->
+        {% if product.media.size > 1 %}
+          <button
+            type="button"
+            class="modern-gallery__nav modern-gallery__nav--prev"
+            aria-label="{{ 'accessibility.previous' | t }}"
+            data-direction="prev"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="modern-gallery__nav modern-gallery__nav--next"
+            aria-label="{{ 'accessibility.next' | t }}"
+            data-direction="next"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        {% endif %}
+
+        <!-- Zoom Indicator -->
+        {% if section.settings.enable_zoom %}
+          <div class="modern-gallery__zoom-hint">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+              <path d="M11 8v6M8 11h6"/>
+            </svg>
+            <span>{{ 'accessibility.zoom' | t }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Thumbnails -->
+      {% if product.media.size > 1 %}
+        <div class="modern-gallery__thumbnails">
+          {% for media in product.media %}
+            <button
+              type="button"
+              class="modern-gallery__thumbnail {% if forloop.first %}is-active{% endif %}"
+              data-media-id="{{ media.id }}"
+              data-index="{{ forloop.index0 }}"
+              aria-label="{{ 'accessibility.go_to_slide' | t: index: forloop.index }}"
+              aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+            >
+              {% if media.media_type == 'image' %}
+                {{
+                  media
+                  | image_url: width: 200
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'modern-gallery__thumbnail-img',
+                    alt: media.alt,
+                    width: nil,
+                    height: nil
+                }}
+              {% else %}
+                <span class="modern-gallery__thumbnail-badge">
+                  {% case media.media_type %}
+                    {% when 'video' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    {% when 'external_video' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21.58 7.17a2.001 2.001 0 0 0-1.42-1.42C18.55 5 12 5 12 5s-6.55 0-8.16.75c-.7.33-1.09 1.42-1.42 1.42C2 18.45 2 12 2 12s0-6.55.75-8.16c.33-.7 1.42-1.09 1.42-1.42C5.45 2 12 2 12 2s6.55 0 8.16.75c.7.33 1.09 1.42 1.42 1.42C22 5.55 22 12 22 12s0 6.55-.75 8.16c-.33.7-1.42 1.09-1.42 1.42C18.55 22 12 22 12 22s-6.55 0-8.16-.75c-.7-.33-1.09-1.42-1.42-1.42C2 18.45 2 12 2 12z"/>
+                        <polygon points="10 8 16 12 10 16 10 8"/>
+                      </svg>
+                    {% when 'model' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                      </svg>
+                  {% endcase %}
+                </span>
+                {{
+                  media
+                  | image_url: width: 200
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'modern-gallery__thumbnail-img',
+                    alt: media.alt,
+                    width: nil,
+                    height: nil
+                }}
+              {% endif %}
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Media Count -->
+      {% if product.media.size > 1 %}
+        <div class="modern-gallery__count">
+          <span data-current-index>1</span> / {{ product.media.size }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Product Information -->
+    <div class="modern-product-section__info">
+      <!-- Breadcrumbs -->
+      {% if section.settings.show_breadcrumbs %}
+        <nav class="modern-breadcrumbs" aria-label="{{ 'accessibility.breadcrumbs' | t }}">
+          <ol class="modern-breadcrumbs__list">
+            <li class="modern-breadcrumbs__item">
+              <a href="{{ routes.root_url }}" class="modern-breadcrumbs__link">{{ 'general.breadcrumbs.home' | t }}</a>
+            </li>
+            {% if collection %}
+              <li class="modern-breadcrumbs__item">
+                <a href="{{ collection.url }}" class="modern-breadcrumbs__link">{{ collection.title }}</a>
+              </li>
+            {% endif %}
+            <li class="modern-breadcrumbs__item" aria-current="page">
+              <span class="modern-breadcrumbs__current">{{ product.title }}</span>
+            </li>
+          </ol>
+        </nav>
+      {% endif %}
+
+      <!-- Product Title -->
+      <h1 class="modern-product__title">{{ product.title }}</h1>
+
+      <!-- Price -->
+      <div class="modern-product__price-wrapper">
+        {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+          <span class="modern-product__price modern-product__price--sale">
+            {{ product.selected_or_first_available_variant.price | money }}
+          </span>
+          <span class="modern-product__price-compare">
+            {{ product.selected_or_first_available_variant.compare_at_price | money }}
+          </span>
+          <span class="modern-product__save-badge">
+            {{ 'products.product.save' | t: amount: product.selected_or_first_available_variant.compare_at_price_minus_price | money }}
+          </span>
+        {%- else -%}
+          <span class="modern-product__price">
+            {{ product.selected_or_first_available_variant.price | money }}
+          </span>
+        {%- endif -%}
+
+        {%- if product.selected_or_first_available_variant.available == false -%}
+          <span class="modern-product__sold-badge">{{ 'products.product.sold_out' | t }}</span>
+        {%- endif -%}
+
+        <!-- Tax notice -->
+        {%- if cart.taxes_included -%}
+          <span class="modern-product__tax-note">{{ 'products.product.include_taxes' | t }}</span>
+        {%- endif -%}
+      </div>
+
+      <!-- Short Description -->
+      {% if product.description != blank and section.settings.show_short_description %}
+        <div class="modern-product__short-description">
+          {{ product.description | strip_html | truncate: 150 }}
+        </div>
+      {% endif %}
+
+      <!-- Product Form -->
+      {% render 'product-form-modern',
+        product: product,
+        current_variant: current_variant,
+        product_form_id: product_form_id,
+        section: section
+      %}
+
+      <!-- Trust Badges -->
+      {% if section.settings.show_trust_badges %}
+        <div class="modern-trust-badges">
+          {% if section.settings.trust_badge_1_text != blank %}
+            <div class="modern-trust-badge">
+              <div class="modern-trust-badge__icon">
+                {% if section.settings.trust_badge_1_icon == 'truck' %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                  </svg>
+                {% elsif section.settings.trust_badge_1_icon == 'shield' %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                {% elsif section.settings.trust_badge_1_icon == 'clock' %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                {% else %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                {% endif %}
+              </div>
+              <span class="modern-trust-badge__text">{{ section.settings.trust_badge_1_text }}</span>
+            </div>
+          {% endif %}
+
+          {% if section.settings.trust_badge_2_text != blank %}
+            <div class="modern-trust-badge">
+              <div class="modern-trust-badge__icon">
+                {% if section.settings.trust_badge_2_icon == 'truck' %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                  </svg>
+                {% elsif section.settings.trust_badge_2_icon == 'shield' %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                {% elsif section.settings.trust_badge_2_icon == 'clock' %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                {% else %}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                {% endif %}
+              </div>
+              <span class="modern-trust-badge__text">{{ section.settings.trust_badge_2_text }}</span>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Full Description Accordion -->
+      {% if product.description != blank %}
+        <details class="modern-accordion" open>
+          <summary class="modern-accordion__summary">
+            <span class="modern-accordion__title">{{ 'products.product.description' | t }}</span>
+            <svg class="modern-accordion__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </summary>
+          <div class="modern-accordion__content">
+            <div class="modern-product__description">
+              {{ product.description }}
+            </div>
+          </div>
+        </details>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Zoom Modal -->
+  {% if section.settings.enable_zoom %}
+    <div class="modern-zoom-modal" data-zoom-modal aria-hidden="true">
+      <div class="modern-zoom-modal__backdrop" data-close-zoom></div>
+      <button
+        type="button"
+        class="modern-zoom-modal__close"
+        data-close-zoom
+        aria-label="{{ 'accessibility.close' | t }}"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="modern-zoom-modal__content">
+        <button
+          type="button"
+          class="modern-zoom-modal__nav modern-zoom-modal__nav--prev"
+          data-zoom-prev
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <img src="" alt="" class="modern-zoom-modal__image" data-zoom-image>
+        <button
+          type="button"
+          class="modern-zoom-modal__nav modern-zoom-modal__nav--next"
+          data-zoom-next
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- 3D Model Script -->
+{% if first_3d_model %}
+  <script type="application/json" id="ProductJSON-{{ product.id }}">
+    {{ product | json }}
+  </script>
+{% endif %}
+
+<!-- Modern Product Page JavaScript -->
+<script src="{{ 'modern-product-page.js' | asset_url }}" defer></script>
+
+{% stylesheet %}
+  /* Modern Product Section - Base Styles */
+  .modern-product-section {
+    position: relative;
+    padding: clamp(20px, 5vw, 60px) 0;
+    isolation: isolate;
+  }
+
+  .modern-product-section__background {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgb(var(--color-background-rgb)) 0%, rgb(var(--color-background-rgb) / 0.95) 100%);
+    z-index: -1;
+  }
+
+  .modern-product-section__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 48px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(32px, 6vw, 64px);
+    align-items: start;
+  }
+
+  /* Desktop Layout */
+  @media screen and (min-width: 990px) {
+    .modern-product-section__container {
+      grid-template-columns: 1.3fr 1fr;
+      gap: clamp(48px, 8vw, 80px);
+    }
+
+    .modern-product-section--reverse .modern-product-section__container {
+      grid-template-columns: 1fr 1.3fr;
+    }
+
+    .modern-product-section--reverse .modern-product-section__gallery {
+      order: 2;
+    }
+
+    .modern-product-section--reverse .modern-product-section__info {
+      order: 1;
+    }
+  }
+
+  /* Gallery Styles */
+  .modern-product-section__gallery {
+    position: sticky;
+    top: calc(var(--header-height, 80px) + 20px);
+  }
+
+  .modern-gallery__main {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgb(var(--color-foreground-rgb) / 0.02);
+    box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
+  }
+
+  .modern-gallery__viewport {
+    position: relative;
+    aspect-ratio: 1 / 1;
+  }
+
+  .modern-gallery__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .modern-gallery__slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modern-gallery__image-wrapper {
+    width: 100%;
+    height: 100%;
+    cursor: zoom-in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.5);
+  }
+
+  .modern-gallery__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .modern-gallery__image-wrapper:hover .modern-gallery__image {
+    transform: scale(1.03);
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .modern-gallery__video-wrapper,
+  .modern-gallery__model-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .modern-gallery__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .modern-gallery__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modern-gallery__placeholder svg {
+    width: 120px;
+    height: 120px;
+    opacity: 0.2;
+  }
+
+  /* Gallery Navigation */
+  .modern-gallery__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  }
+
+  .modern-gallery__main:hover .modern-gallery__nav {
+    opacity: 1;
+  }
+
+  .modern-gallery__nav:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.2);
+  }
+
+  .modern-gallery__nav--prev {
+    left: 16px;
+  }
+
+  .modern-gallery__nav--next {
+    right: 16px;
+  }
+
+  .modern-gallery__nav:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* Zoom Hint */
+  .modern-gallery__zoom-hint {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 2;
+  }
+
+  .modern-gallery__zoom-hint svg {
+    flex-shrink: 0;
+  }
+
+  /* Thumbnails */
+  .modern-gallery__thumbnails {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .modern-gallery__thumbnail {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background: rgb(var(--color-foreground-rgb) / 0.03);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .modern-gallery__thumbnail:hover {
+    border-color: rgb(var(--color-foreground-rgb) / 0.2);
+    transform: translateY(-2px);
+  }
+
+  .modern-gallery__thumbnail.is-active {
+    border-color: currentColor;
+    box-shadow: 0 0 0 2px currentColor;
+  }
+
+  .modern-gallery__thumbnail:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .modern-gallery__thumbnail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .modern-gallery__thumbnail-badge {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.7);
+    color: #fff;
+    border-radius: 6px;
+  }
+
+  /* Media Count */
+  .modern-gallery__count {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    font-weight: 500;
+  }
+
+  /* Product Info */
+  .modern-product-section__info {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Breadcrumbs */
+  .modern-breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .modern-breadcrumbs__item:not(:last-child)::after {
+    content: '/';
+    margin-left: 8px;
+    opacity: 0.4;
+  }
+
+  .modern-breadcrumbs__link {
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+
+  .modern-breadcrumbs__link:hover {
+    color: currentColor;
+  }
+
+  .modern-breadcrumbs__current {
+    color: currentColor;
+    font-size: 14px;
+  }
+
+  /* Product Title */
+  .modern-product__title {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    margin: 0;
+    color: currentColor;
+  }
+
+  /* Price */
+  .modern-product__price-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .modern-product__price {
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .modern-product__price--sale {
+    color: var(--color-sale, #e63946);
+  }
+
+  .modern-product__price-compare {
+    font-size: 18px;
+    color: rgb(var(--color-foreground-rgb) / 0.4);
+    text-decoration: line-through;
+  }
+
+  .modern-product__save-badge {
+    padding: 4px 10px;
+    background: rgb(var(--color-sale-rgb, 230 57 70) / 0.1);
+    color: var(--color-sale, #e63946);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .modern-product__sold-badge {
+    padding: 6px 14px;
+    background: rgb(var(--color-foreground-rgb) / 0.1);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .modern-product__tax-note {
+    font-size: 13px;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+  }
+
+  /* Short Description */
+  .modern-product__short-description {
+    font-size: clamp(15px, 2.5vw, 17px);
+    line-height: 1.6;
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+  }
+
+  /* Trust Badges */
+  .modern-trust-badges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 20px 0;
+    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+  }
+
+  .modern-trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgb(var(--color-foreground-rgb) / 0.03);
+    border-radius: 12px;
+  }
+
+  .modern-trust-badge__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+    border-radius: 10px;
+    color: currentColor;
+    flex-shrink: 0;
+  }
+
+  .modern-trust-badge__text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Accordion */
+  .modern-accordion {
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .modern-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  .modern-accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .modern-accordion__title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .modern-accordion__icon {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  details[open] .modern-accordion__icon {
+    transform: rotate(180deg);
+  }
+
+  .modern-accordion__content {
+    padding: 0 20px 20px;
+  }
+
+  /* Description Content */
+  .modern-product__description {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgb(var(--color-foreground-rgb) / 0.8);
+  }
+
+  .modern-product__description *:first-child {
+    margin-top: 0;
+  }
+
+  .modern-product__description *:last-child {
+    margin-bottom: 0;
+  }
+
+  .modern-product__description h1,
+  .modern-product__description h2,
+  .modern-product__description h3 {
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+
+  .modern-product__description p {
+    margin-bottom: 16px;
+  }
+
+  .modern-product__description img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 20px 0;
+  }
+
+  .modern-product__description iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    margin: 20px 0;
+  }
+
+  .modern-product__description ul,
+  .modern-product__description ol {
+    margin: 16px 0;
+    padding-left: 24px;
+  }
+
+  .modern-product__description li {
+    margin-bottom: 8px;
+  }
+
+  /* Zoom Modal */
+  .modern-zoom-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .modern-zoom-modal[aria-hidden="false"] {
+    pointer-events: auto;
+  }
+
+  .modern-zoom-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.9);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .modern-zoom-modal[aria-hidden="false"] .modern-zoom-modal__backdrop {
+    opacity: 1;
+  }
+
+  .modern-zoom-modal__close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.1);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #fff;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+
+  .modern-zoom-modal[aria-hidden="false"] .modern-zoom-modal__close {
+    opacity: 1;
+  }
+
+  .modern-zoom-modal__close:hover {
+    background: rgb(255 255 255 / 0.2);
+  }
+
+  .modern-zoom-modal__content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.3s ease;
+  }
+
+  .modern-zoom-modal[aria-hidden="false"] .modern-zoom-modal__content {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .modern-zoom-modal__image {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .modern-zoom-modal__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.1);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.2s ease;
+  }
+
+  .modern-zoom-modal__nav:hover {
+    background: rgb(255 255 255 / 0.2);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .modern-zoom-modal__nav--prev {
+    left: -80px;
+  }
+
+  .modern-zoom-modal__nav--next {
+    right: -80px;
+  }
+
+  /* Mobile Adjustments */
+  @media screen and (max-width: 749px) {
+    .modern-product-section {
+      padding: clamp(16px, 4vw, 32px) 0;
+    }
+
+    .modern-product-section__container {
+      gap: 32px;
+    }
+
+    .modern-gallery__thumbnails {
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 8px;
+    }
+
+    .modern-gallery__nav {
+      width: 40px;
+      height: 40px;
+    }
+
+    .modern-gallery__nav--prev {
+      left: 8px;
+    }
+
+    .modern-gallery__nav--next {
+      right: 8px;
+    }
+
+    .modern-trust-badges {
+      grid-template-columns: 1fr;
+    }
+
+    .modern-zoom-modal__nav--prev {
+      left: 8px;
+    }
+
+    .modern-zoom-modal__nav--next {
+      right: 8px;
+    }
+  }
+
+  /* Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modern-product-section__info > * {
+    animation: fadeIn 0.5s ease backwards;
+  }
+
+  .modern-product-section__info > *:nth-child(1) { animation-delay: 0.05s; }
+  .modern-product-section__info > *:nth-child(2) { animation-delay: 0.1s; }
+  .modern-product-section__info > *:nth-child(3) { animation-delay: 0.15s; }
+  .modern-product-section__info > *:nth-child(4) { animation-delay: 0.2s; }
+  .modern-product-section__info > *:nth-child(5) { animation-delay: 0.25s; }
+  .modern-product-section__info > *:nth-child(6) { animation-delay: 0.3s; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Modern Product Page",
+  "tag": "section",
+  "class": "section-modern-product",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_short_description",
+      "label": "Show short description",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "Enable image zoom",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Trust Badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Show trust badges",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "trust_badge_1_icon",
+      "label": "First badge icon",
+      "options": [
+        {
+          "value": "truck",
+          "label": "Truck (Shipping)"
+        },
+        {
+          "value": "shield",
+          "label": "Shield (Security)"
+        },
+        {
+          "value": "clock",
+          "label": "Clock (Returns)"
+        },
+        {
+          "value": "check",
+          "label": "Check (Verified)"
+        }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "text",
+      "id": "trust_badge_1_text",
+      "label": "First badge text",
+      "default": "Free shipping on orders over $50"
+    },
+    {
+      "type": "select",
+      "id": "trust_badge_2_icon",
+      "label": "Second badge icon",
+      "options": [
+        {
+          "value": "truck",
+          "label": "Truck (Shipping)"
+        },
+        {
+          "value": "shield",
+          "label": "Shield (Security)"
+        },
+        {
+          "value": "clock",
+          "label": "Clock (Returns)"
+        },
+        {
+          "value": "check",
+          "label": "Check (Verified)"
+        }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "text",
+      "id": "trust_badge_2_text",
+      "label": "Second badge text",
+      "default": "Secure checkout guaranteed"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modern Product Page"
+    }
+  ]
+}
+{% endschema %}
