@@ -22,6 +22,12 @@
       "max": 10,
       "step": 1,
       "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "Enable Auto Swipe",
+      "default": true
     }
   ],
   "blocks": [
@@ -169,6 +175,7 @@
     let currentIndex = 0;
     const totalSlides = slides.length;
     const autoplaySpeed = {{ section.settings.autoplay_speed | times: 1000 }};
+    const enableAutoplay = {{ section.settings.enable_autoplay | json }};
     let autoplayInterval;
 
     if (totalSlides <= 1) {
@@ -193,6 +200,7 @@
     }
 
     function startAutoplay() {
+      if (!enableAutoplay) return;
       clearInterval(autoplayInterval);
       autoplayInterval = setInterval(nextSlide, autoplaySpeed);
     }
