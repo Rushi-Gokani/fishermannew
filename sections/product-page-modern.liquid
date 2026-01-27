@@ -260,12 +260,7 @@
       </div>
 
       <!-- Short Description -->
-      {% if product.description != blank and section.settings.show_short_description %}
-        <div class="modern-product__short-description">
-          {{ product.description | strip_html | truncate: 150 }}
-        </div>
-      {% endif %}
-
+    
       <!-- Product Form -->
       {% render 'product-form-modern',
         product: product,
@@ -887,10 +882,10 @@
 
   /* Product Title */
   .modern-product__title {
-    font-size: clamp(28px, 5vw, 42px);
+    font-size: clamp(28px, 5vw, 25px);
     font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
     margin: 0;
     color: currentColor;
   }
