@@ -343,8 +343,20 @@
             </svg>
           </summary>
           <div class="modern-accordion__content">
-            <div class="modern-product__description">
-              {{ product.description }}
+            <div class="modern-product__description" id="product-description-{{ section.id }}">
+              {%- assign description_text = product.description | strip_html -%}
+              {%- if description_text.size > 150 -%}
+                {%- assign short_desc = description_text | truncate: 150 -%}
+                <div class="description-short">
+                  {{ short_desc }}
+                  <span class="read-more-btn">...read more</span>
+                </div>
+                <div class="description-full" style="display: none;">
+                  {{ product.description }}
+                </div>
+              {%- else -%}
+                {{ product.description }}
+              {%- endif -%}
             </div>
           </div>
         </details>
@@ -527,6 +539,67 @@
         }
       });
     });
+
+    // Read More functionality
+    const readMoreBtns = document.querySelectorAll('.read-more-btn');
+    readMoreBtns.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const container = this.closest('.modern-product__description');
+        const shortDesc = container.querySelector('.description-short');
+        const fullDesc = container.querySelector('.description-full');
+
+        if (fullDesc && shortDesc) {
+          if (fullDesc.style.display === 'none') {
+            shortDesc.style.display = 'none';
+            fullDesc.style.display = 'block';
+            btn.textContent = '...read less';
+          } else {
+            shortDesc.style.display = '';
+            fullDesc.style.display = 'none';
+            btn.textContent = '...read more';
+          }
+        }
+      });
+    });
+
+    // Image Zoom functionality
+    const zoomWrappers = document.querySelectorAll('[data-can-zoom]');
+    const zoomModal = document.querySelector('[data-zoom-modal]');
+    const zoomClose = document.querySelector('[data-close-zoom]');
+
+    if (zoomWrappers.length > 0 && zoomModal) {
+      zoomWrappers.forEach(function(wrapper) {
+        wrapper.addEventListener('click', function() {
+          const img = wrapper.querySelector('img');
+          const zoomImg = document.querySelector('[data-zoom-image]');
+          const hiddenImg = wrapper.querySelector('[data-media-src-hidden]');
+
+          if (zoomImg && hiddenImg) {
+            zoomImg.src = hiddenImg.src;
+            zoomModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+          }
+        });
+      });
+
+      // Close zoom
+      const closeElements = document.querySelectorAll('[data-close-zoom]');
+      closeElements.forEach(function(el) {
+        el.addEventListener('click', function() {
+          zoomModal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        });
+      });
+
+      // Close on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && zoomModal.getAttribute('aria-hidden') === 'false') {
+          zoomModal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        }
+      });
+    }
   })();
 </script>
 
@@ -1044,6 +1117,38 @@
 
   .modern-product__description *:last-child {
     margin-bottom: 0;
+  }
+
+  /* Read More Styles */
+  .read-more-btn {
+    color: #40C4FF;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.2s ease;
+  }
+
+  .read-more-btn:hover {
+    opacity: 0.8;
+  }
+
+  .description-short {
+    margin-bottom: 0;
+  }
+
+  .description-short .read-more-btn {
+    display: inline-block;
+    margin-left: 4px;
+  }
+
+  .description-full {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   .modern-product__description h1,
