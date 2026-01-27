@@ -566,15 +566,27 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: clamp(48px, 8vw, 80px);
+      align-items: start;
+    }
+
+    /* Force 50-50 by using equal fr units with no width constraints */
+    .modern-product-section__container > * {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     /* Explicitly set order to ensure gallery is LEFT, info is RIGHT */
     .modern-product-section__gallery {
       order: 1;
+      max-width: 50%;
+      width: 100%;
     }
 
     .modern-product-section__info {
       order: 2;
+      max-width: 50%;
+      width: 100%;
     }
   }
 
@@ -599,6 +611,8 @@
     background: rgb(var(--color-foreground-rgb) / 0.02);
     box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
     cursor: grab;
+    width: 100%;
+    max-width: 100%;
   }
 
   .modern-gallery__main:active {
@@ -610,6 +624,9 @@
     aspect-ratio: 1 / 1;
     touch-action: pan-y;
     user-select: none;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .modern-gallery__slide {

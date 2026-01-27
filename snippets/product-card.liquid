@@ -346,7 +346,7 @@
         </svg>
       </button>
 
-      <div class="product-card-slider-container-{{ card_id }}" id="slider-{{ card_id }}">
+      <div class="product-card-slider-container-{{ card_id }}" id="slider-{{ card_id }}" data-product-url="{{ product.url }}">
         {% if product.media.size > 0 %}
           {% for media in product.media limit: 3 %}
             {% if media.media_type == 'image' %}
@@ -515,7 +515,8 @@
 
       const endPos = e.changedTouches[0].clientX;
       const diff = endPos - startPos;
-      const swiped = Math.abs(diff) > 50;
+      const absDiff = Math.abs(diff);
+      const swiped = absDiff > 50;
       const timeDiff = Date.now() - startTime;
 
       if (swiped && timeDiff < 300) {
@@ -528,6 +529,11 @@
         }
       } else {
         slideTo(currentIndex);
+        // Navigate if it was a tap (very small movement)
+        if (absDiff < 10) {
+           const url = slider.getAttribute('data-product-url');
+           if (url) window.location.href = url;
+        }
       }
     });
 
@@ -561,7 +567,8 @@
 
       const endPos = e.clientX;
       const diff = endPos - mouseStartPos;
-      const swiped = Math.abs(diff) > 50;
+      const absDiff = Math.abs(diff);
+      const swiped = absDiff > 50;
       const timeDiff = Date.now() - startTime;
 
       if (swiped && timeDiff < 300) {
@@ -574,6 +581,11 @@
         }
       } else {
         slideTo(currentIndex);
+        // Navigate if it was a click (very small movement)
+        if (absDiff < 10) {
+           const url = slider.getAttribute('data-product-url');
+           if (url) window.location.href = url;
+        }
       }
     });
 
