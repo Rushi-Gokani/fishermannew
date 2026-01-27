@@ -230,9 +230,22 @@
 
     <div class="ai-shop-categories-container-{{ ai_gen_id }}" id="scroll-container-{{ ai_gen_id }}">
       <div class="ai-shop-categories-grid-{{ ai_gen_id }}">
+        {% assign category_1_collection = collections[block.settings.category_1_collection] %}
         {% assign category_1_title = block.settings.category_1_title %}
+        {% if category_1_title == blank and category_1_collection != blank %}
+          {% assign category_1_title = category_1_collection.title %}
+        {% endif %}
+        
         {% assign category_1_image = block.settings.category_1_image %}
+        {% if category_1_image == blank and category_1_collection != blank %}
+          {% assign category_1_image = category_1_collection.image | default: category_1_collection.products.first.featured_image %}
+        {% endif %}
+
         {% assign category_1_link = block.settings.category_1_link %}
+        {% if category_1_link == blank and category_1_collection != blank %}
+          {% assign category_1_link = category_1_collection.url %}
+        {% endif %}
+        
         {% assign category_1_is_sale = block.settings.category_1_is_sale %}
 
         {% if category_1_title != blank %}
@@ -261,9 +274,22 @@
           </div>
         {% endif %}
 
+        {% assign category_2_collection = collections[block.settings.category_2_collection] %}
         {% assign category_2_title = block.settings.category_2_title %}
+        {% if category_2_title == blank and category_2_collection != blank %}
+          {% assign category_2_title = category_2_collection.title %}
+        {% endif %}
+
         {% assign category_2_image = block.settings.category_2_image %}
+        {% if category_2_image == blank and category_2_collection != blank %}
+          {% assign category_2_image = category_2_collection.image | default: category_2_collection.products.first.featured_image %}
+        {% endif %}
+
         {% assign category_2_link = block.settings.category_2_link %}
+        {% if category_2_link == blank and category_2_collection != blank %}
+          {% assign category_2_link = category_2_collection.url %}
+        {% endif %}
+
         {% assign category_2_is_sale = block.settings.category_2_is_sale %}
 
         {% if category_2_title != blank %}
@@ -292,9 +318,22 @@
           </div>
         {% endif %}
 
+        {% assign category_3_collection = collections[block.settings.category_3_collection] %}
         {% assign category_3_title = block.settings.category_3_title %}
+        {% if category_3_title == blank and category_3_collection != blank %}
+          {% assign category_3_title = category_3_collection.title %}
+        {% endif %}
+
         {% assign category_3_image = block.settings.category_3_image %}
+        {% if category_3_image == blank and category_3_collection != blank %}
+          {% assign category_3_image = category_3_collection.image | default: category_3_collection.products.first.featured_image %}
+        {% endif %}
+
         {% assign category_3_link = block.settings.category_3_link %}
+        {% if category_3_link == blank and category_3_collection != blank %}
+          {% assign category_3_link = category_3_collection.url %}
+        {% endif %}
+
         {% assign category_3_is_sale = block.settings.category_3_is_sale %}
 
         {% if category_3_title != blank %}
@@ -323,9 +362,22 @@
           </div>
         {% endif %}
 
+        {% assign category_4_collection = collections[block.settings.category_4_collection] %}
         {% assign category_4_title = block.settings.category_4_title %}
+        {% if category_4_title == blank and category_4_collection != blank %}
+          {% assign category_4_title = category_4_collection.title %}
+        {% endif %}
+
         {% assign category_4_image = block.settings.category_4_image %}
+        {% if category_4_image == blank and category_4_collection != blank %}
+          {% assign category_4_image = category_4_collection.image | default: category_4_collection.products.first.featured_image %}
+        {% endif %}
+
         {% assign category_4_link = block.settings.category_4_link %}
+        {% if category_4_link == blank and category_4_collection != blank %}
+          {% assign category_4_link = category_4_collection.url %}
+        {% endif %}
+
         {% assign category_4_is_sale = block.settings.category_4_is_sale %}
 
         {% if category_4_title != blank %}
@@ -354,9 +406,22 @@
           </div>
         {% endif %}
 
+        {% assign category_5_collection = collections[block.settings.category_5_collection] %}
         {% assign category_5_title = block.settings.category_5_title %}
+        {% if category_5_title == blank and category_5_collection != blank %}
+          {% assign category_5_title = category_5_collection.title %}
+        {% endif %}
+
         {% assign category_5_image = block.settings.category_5_image %}
+        {% if category_5_image == blank and category_5_collection != blank %}
+          {% assign category_5_image = category_5_collection.image | default: category_5_collection.products.first.featured_image %}
+        {% endif %}
+
         {% assign category_5_link = block.settings.category_5_link %}
+        {% if category_5_link == blank and category_5_collection != blank %}
+          {% assign category_5_link = category_5_collection.url %}
+        {% endif %}
+
         {% assign category_5_is_sale = block.settings.category_5_is_sale %}
 
         {% if category_5_title != blank %}
@@ -644,6 +709,11 @@
       "content": "Category 1"
     },
     {
+      "type": "collection",
+      "id": "category_1_collection",
+      "label": "Collection"
+    },
+    {
       "type": "image_picker",
       "id": "category_1_image",
       "label": "Image"
@@ -668,6 +738,11 @@
     {
       "type": "header",
       "content": "Category 2"
+    },
+    {
+      "type": "collection",
+      "id": "category_2_collection",
+      "label": "Collection"
     },
     {
       "type": "image_picker",
@@ -696,6 +771,11 @@
       "content": "Category 3"
     },
     {
+      "type": "collection",
+      "id": "category_3_collection",
+      "label": "Collection"
+    },
+    {
       "type": "image_picker",
       "id": "category_3_image",
       "label": "Image"
@@ -722,6 +802,11 @@
       "content": "Category 4"
     },
     {
+      "type": "collection",
+      "id": "category_4_collection",
+      "label": "Collection"
+    },
+    {
       "type": "image_picker",
       "id": "category_4_image",
       "label": "Image"
@@ -746,6 +831,11 @@
     {
       "type": "header",
       "content": "Category 5"
+    },
+    {
+      "type": "collection",
+      "id": "category_5_collection",
+      "label": "Collection"
     },
     {
       "type": "image_picker",
