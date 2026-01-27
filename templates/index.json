@@ -1114,6 +1114,8 @@
             "rating": 5,
             "review_text": "Amazing quality! The freeze dried fruits are so crunchy and flavorful. My kids love them as snacks!",
             "reviewer_name": "Sarah Johnson",
+            "reviewer_avatar": "shopify://shop_images/Murrvy_Flutter_Metal_Jig_Slow_Sinking_20_Gm_-_Pink_Silver.png",
+            "product_image": "shopify://shop_images/Murrvy_Flutter_Metal_Jig_Slow_Sinking_20_Gm-Blue_Pink.png",
             "product_title": "Freeze Dried Strawberry Mix",
             "product_link": ""
           }
@@ -1172,6 +1174,7 @@
           "settings": {
             "video_source": "uploaded",
             "video": "shopify://files/videos/berkley treline mono line.mp4",
+            "video_url": "",
             "video_alt": "",
             "video_autoplay": false,
             "video_loop": true,
@@ -1184,37 +1187,42 @@
           "type": "video_reel",
           "settings": {
             "video_source": "uploaded",
-            "video_alt": "",
-            "video_autoplay": false,
-            "video_loop": true,
-            "video_title": "",
-            "video_description": "",
-            "product": ""
-          }
-        },
-        "video_reel_q3mrVC": {
-          "type": "video_reel",
-          "settings": {
-            "video_source": "uploaded",
-            "video_alt": "",
-            "video_autoplay": false,
-            "video_loop": true,
-            "video_title": "",
-            "video_description": "",
-            "product": ""
-          }
-        },
-        "video_reel_biA9YQ": {
-          "type": "video_reel",
-          "settings": {
-            "video_source": "uploaded",
+            "video": "shopify://files/videos/Video-421.mp4",
             "video_url": "",
             "video_alt": "",
             "video_autoplay": false,
             "video_loop": true,
             "video_title": "",
             "video_description": "",
-            "product": ""
+            "product": "abu-garcia-ambassadeur-sx-level-wind-baitcasting-reel-right-handed-ambsx-5600"
+          }
+        },
+        "video_reel_q3mrVC": {
+          "type": "video_reel",
+          "settings": {
+            "video_source": "uploaded",
+            "video": "shopify://files/videos/Video-533.mp4",
+            "video_url": "",
+            "video_alt": "",
+            "video_autoplay": false,
+            "video_loop": true,
+            "video_title": "",
+            "video_description": "",
+            "product": "albatros-plastic-floats-with-fish-line-and-hooks-3-pcs-per-pack"
+          }
+        },
+        "video_reel_biA9YQ": {
+          "type": "video_reel",
+          "settings": {
+            "video_source": "uploaded",
+            "video": "shopify://files/videos/Video-576.mp4",
+            "video_url": "",
+            "video_alt": "",
+            "video_autoplay": false,
+            "video_loop": true,
+            "video_title": "",
+            "video_description": "",
+            "product": "abu-garcia-ascalon-k-guide-light-spinning-rod-6-ft-l"
           }
         }
       },
