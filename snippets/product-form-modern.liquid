@@ -1,0 +1,494 @@
+{%- comment -%}
+  Modern Product Form Snippet
+  Includes: Variant selector, quantity picker, add to cart button
+{%- endcomment -%}
+
+{%- liquid
+  assign product = product
+  assign current_variant = current_variant
+  assign product_form_id = product_form_id
+  assign section = section
+
+  # Default settings
+  assign variant_style = 'pills'
+  assign show_quantity = true
+  assign enable_payment_button = true
+-%}
+
+<product-form
+  class="modern-product-form"
+  data-section-id="{{ section.id }}"
+>
+  {% form 'product',
+    product,
+    id: product_form_id,
+    class: 'modern-product-form__form',
+    data-product-form: ''
+  %}
+    <!-- Hidden Variant ID -->
+    <input type="hidden" name="id" value="{{ current_variant.id }}" form="{{ product_form_id }}">
+    <!-- Variant Picker -->
+    {%- unless product.has_only_default_variant -%}
+      <div class="modern-variant-picker" data-variant-picker>
+        {%- for option in product.options_with_values -%}
+          <fieldset class="modern-variant-fieldset">
+            <legend class="modern-variant-label">
+              {{ option.name }}
+              <span class="modern-variant-selected-value" data-option-index="{{ forloop.index0 }}">
+                {{ option.selected_value }}
+              </span>
+            </legend>
+
+            <div class="modern-variant-options" data-option-index="{{ forloop.index0 }}">
+              {%- for value in option.values -%}
+                {%- liquid
+                  assign option_disabled = false
+                  assign option_swatch_img = null
+                  assign option_swatch_color = null
+
+                  for variant in product.variants
+                    if variant.option1 == value and option.position == 1
+                      unless variant.available
+                        assign option_disabled = true
+                      endunless
+                    elsif variant.option2 == value and option.position == 2
+                      unless variant.available
+                        assign option_disabled = true
+                      endunless
+                    elsif variant.option3 == value and option.position == 3
+                      unless variant.available
+                        assign option_disabled = true
+                      endunless
+                    endif
+                  endfor
+                -%}
+
+                <input
+                  type="radio"
+                  id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                  name="{{ option.name }}"
+                  value="{{ value | escape }}"
+                  form="{{ product_form_id }}"
+                  {% if option.selected_value == value %}checked{% endif %}
+                  {% if option_disabled %}disabled{% endif %}
+                  class="modern-variant-input visually-hidden"
+                  data-variant-option
+                >
+
+                <label
+                  for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                  class="modern-variant-swatch {% if variant_style == 'pills' %}modern-variant-swatch--pill{% else %}modern-variant-swatch--circle{% endif %} {% if option_disabled %}is-disabled{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                  data-variant-swatch
+                  data-option-value="{{ value | escape }}"
+                  tabindex="0"
+                >
+                  {{ value }}
+                </label>
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+      </div>
+    {%- endunless -%}
+
+    <!-- Quantity & Add to Cart -->
+    <div class="modern-product-actions">
+      <!-- Quantity Selector -->
+      {% if show_quantity %}
+        <div class="modern-quantity-selector" data-quantity-selector>
+          <label for="Quantity-{{ section.id }}" class="visually-hidden">{{ 'products.product.quantity' | t }}</label>
+
+          <button
+            type="button"
+            class="modern-quantity-btn"
+            data-quantity-minus
+            aria-label="{{ 'products.product.decrease_quantity' | t }}"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+
+          <input
+            type="number"
+            name="quantity"
+            id="Quantity-{{ section.id }}"
+            class="modern-quantity-input"
+            value="{{ current_variant.quantity_rule.min | default: 1 }}"
+            min="{{ current_variant.quantity_rule.min | default: 1 }}"
+            {% if current_variant.quantity_rule.max %}
+              max="{{ current_variant.quantity_rule.max }}"
+            {% endif %}
+            step="{{ current_variant.quantity_rule.increment | default: 1 }}"
+            form="{{ product_form_id }}"
+            data-quantity-input
+            readonly
+          >
+
+          <button
+            type="button"
+            class="modern-quantity-btn"
+            data-quantity-plus
+            aria-label="{{ 'products.product.increase_quantity' | t }}"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
+      {% endif %}
+
+      <!-- Add to Cart Button -->
+      <div class="modern-add-to-cart-wrapper" data-add-to-cart-wrapper>
+        <button
+          type="submit"
+          name="add"
+          class="modern-add-to-cart button-primary"
+          {% if current_variant.available == false %}disabled{% endif %}
+          data-add-to-cart
+          form="{{ product_form_id }}"
+        >
+          <span class="modern-add-to-cart__default">
+            {% if current_variant.available %}
+              {{ 'products.product.add_to_cart' | t }}
+            {% else %}
+              {{ 'products.product.sold_out' | t }}
+            {% endif %}
+          </span>
+          <span class="modern-add-to-cart__added" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ 'products.product.added' | t }}
+          </span>
+          <span class="modern-add-to-cart__error" style="display: none;"></span>
+        </button>
+
+        <!-- Dynamic Checkout Button -->
+        {% if enable_payment_button and current_variant.available %}
+          {{ form | payment_button }}
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Pickup Availability -->
+    {%- assign pick_up_availabilities = current_variant.store_availabilities | where: 'pick_up_enabled', true -%}
+    {%- if pick_up_availabilities.size > 0 -%}
+      <pickup-availability
+        class="modern-pickup-availability"
+        data-base-url="{{ shop.url }}{{ routes.root_url }}"
+        data-variant-id="{{ current_variant.id }}"
+        data-has-only-default-variant="{{ product.has_only_default_variant }}"
+      >
+        <template>
+          <pickup-availability-preview class="modern-pickup-availability-preview">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <div class="modern-pickup-availability-info">
+              <p class="modern-pickup-availability-title">{{ 'sections.pickup_availability.pickup_unavailable' | t }}</p>
+              <button class="modern-pickup-availability-button">
+                {{ 'sections.pickup_availability.check_other_stores' | t }}
+              </button>
+            </div>
+          </pickup-availability-preview>
+        </template>
+      </pickup-availability>
+    {%- endif -%}
+
+    <!-- Product JSON for JS -->
+    <script type="application/json" data-product-json>
+      {{ product | json }}
+    </script>
+  {% endform %}
+</product-form>
+
+{% stylesheet %}
+  /* Modern Variant Picker */
+  .modern-variant-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .modern-variant-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .modern-variant-label {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: currentColor;
+  }
+
+  .modern-variant-selected-value {
+    font-weight: 400;
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+  }
+
+  .modern-variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Pills Style */
+  .modern-variant-swatch--pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .modern-variant-swatch--pill:hover {
+    border-color: rgb(var(--color-foreground-rgb) / 0.3);
+  }
+
+  .modern-variant-swatch--pill.is-selected {
+    border-color: currentColor;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  .modern-variant-swatch--pill.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* Circle Style (for colors) */
+  .modern-variant-swatch--circle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+
+  .modern-variant-swatch--circle::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .modern-variant-swatch--circle:hover {
+    transform: scale(1.1);
+  }
+
+  .modern-variant-swatch--circle.is-selected {
+    border-color: currentColor;
+    box-shadow: 0 0 0 2px currentColor;
+  }
+
+  .modern-variant-swatch--circle.is-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* Modern Product Actions */
+  .modern-product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Quantity Selector */
+  .modern-quantity-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: rgb(var(--color-foreground-rgb) / 0.03);
+    border-radius: 14px;
+    max-width: 180px;
+  }
+
+  .modern-quantity-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: currentColor;
+  }
+
+  .modern-quantity-btn:hover {
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+    border-color: rgb(var(--color-foreground-rgb) / 0.25);
+  }
+
+  .modern-quantity-btn:active {
+    transform: scale(0.95);
+  }
+
+  .modern-quantity-input {
+    width: 60px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: currentColor;
+    -moz-appearance: textfield;
+  }
+
+  .modern-quantity-input::-webkit-outer-spin-button,
+  .modern-quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Add to Cart */
+  .modern-add-to-cart-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modern-add-to-cart {
+    width: 100%;
+    min-height: 56px;
+    padding: 0 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .modern-add-to-cart.button-primary {
+    background: currentColor;
+    color: rgb(var(--color-background-rgb));
+  }
+
+  .modern-add-to-cart:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+  }
+
+  .modern-add-to-cart:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .modern-add-to-cart:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .modern-add-to-cart svg {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  /* Dynamic Checkout Button */
+  .shopify-payment-button {
+    width: 100%;
+  }
+
+  .shopify-payment-button__button {
+    min-height: 48px;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Pickup Availability */
+  .modern-pickup-availability-preview {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgb(var(--color-foreground-rgb) / 0.03);
+    border-radius: 12px;
+    margin-top: 16px;
+  }
+
+  .modern-pickup-availability-preview svg {
+    flex-shrink: 0;
+    color: currentColor;
+  }
+
+  .modern-pickup-availability-title {
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+
+  .modern-pickup-availability-button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: currentColor;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: inherit;
+  }
+
+  /* Visually Hidden */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Focus States */
+  .modern-variant-swatch:focus-visible,
+  .modern-quantity-btn:focus-visible,
+  .modern-add-to-cart:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* Mobile Adjustments */
+  @media screen and (max-width: 749px) {
+    .modern-product-actions {
+      gap: 12px;
+    }
+
+    .modern-add-to-cart {
+      min-height: 52px;
+      font-size: 15px;
+    }
+
+    .modern-quantity-selector {
+      max-width: 100%;
+    }
+
+    .modern-quantity-btn {
+      width: 36px;
+      height: 36px;
+    }
+  }
+{% endstylesheet %}
