@@ -13,13 +13,27 @@
   "sections": {
     "top_bar_section": {
       "type": "top-bar",
-      "disabled": true,
+      "blocks": {
+        "announcement_PrkxPm": {
+          "type": "announcement",
+          "settings": {
+            "text": "<p>Free shipping on orders over €554</p>"
+          }
+        },
+        "announcement_PRpUyJ": {
+          "type": "announcement",
+          "settings": {
+            "text": "<p>Free shipping on orders over €50</p>"
+          }
+        }
+      },
+      "block_order": [
+        "announcement_PrkxPm",
+        "announcement_PRpUyJ"
+      ],
       "settings": {
-        "background_color": "#40c4ff",
-        "text_color": "#ffffff",
-        "announcement_text": "Always confirm payments via our official WhatsApp before paying",
-        "announcement_link": "",
-        "show_social": true
+        "background_color": "#ffffff",
+        "text_color": "#000000"
       }
     },
     "header_section": {
@@ -135,6 +149,10 @@
         "badge_items": "Offers, Sale",
         "badge_text": "HOT!",
         "badge_bg": "#ff4500",
+        "sidebar_bg": "#f8f9fa",
+        "sidebar_text": "#333333",
+        "sidebar_active_bg": "#ffffff",
+        "sidebar_active_text": "#2563eb",
         "show_currency": true
       }
     }
