@@ -14,6 +14,12 @@
     "top_bar_section": {
       "type": "top-bar",
       "blocks": {
+        "announcement_PrkxPm": {
+          "type": "announcement",
+          "settings": {
+            "text": "<p>Free shipping on orders over €554</p>"
+          }
+        },
         "announcement_PRpUyJ": {
           "type": "announcement",
           "settings": {
@@ -22,11 +28,12 @@
         }
       },
       "block_order": [
+        "announcement_PrkxPm",
         "announcement_PRpUyJ"
       ],
       "settings": {
-        "background_color": "#40c4ff",
-        "text_color": "#ffffff"
+        "background_color": "#ffffff",
+        "text_color": "#000000"
       }
     },
     "header_section": {
