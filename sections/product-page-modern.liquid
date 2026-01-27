@@ -532,20 +532,18 @@
   /* Desktop Layout */
   @media screen and (min-width: 990px) {
     .modern-product-section__container {
-      grid-template-columns: 2fr 1fr;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
       gap: clamp(48px, 8vw, 80px);
     }
 
-    .modern-product-section--reverse .modern-product-section__container {
-      grid-template-columns: 1fr 2fr;
-    }
-
-    .modern-product-section--reverse .modern-product-section__gallery {
-      order: 2;
-    }
-
-    .modern-product-section--reverse .modern-product-section__info {
+    /* Explicitly set order to ensure gallery is LEFT, info is RIGHT */
+    .modern-product-section__gallery {
       order: 1;
+    }
+
+    .modern-product-section__info {
+      order: 2;
     }
   }
 
