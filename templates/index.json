@@ -1395,7 +1395,7 @@
             "logo_height": 90,
             "logo_max_width": 180,
             "logo_spacing": 60,
-            "logo_filter": "grayscale(100%)",
+            "logo_filter": "none",
             "scroll_speed": 30,
             "pause_on_hover": true,
             "padding_top": 60,
