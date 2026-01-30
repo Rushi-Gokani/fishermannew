@@ -261,6 +261,10 @@
   }
 
   /* Buy Now button */
+  .product-card-image-link-{{ card_id }} {
+    display: block;
+  }
+
   .product-card-buy-btn-{{ card_id }} {
     width: 100%;
     background-color: {{ accent_color }};
@@ -268,7 +272,7 @@
     font-size: 16px;
     font-weight: 700;
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -350,14 +354,20 @@
         {% if product.media.size > 0 %}
           {% for media in product.media limit: 3 %}
             {% if media.media_type == 'image' %}
-              <img
-                src="{{ media | image_url: width: 400 }}"
-                alt="{{ media.alt | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-                class="product-card-image-{{ card_id }}"
+              <a
+                href="{{ product.url }}"
+                class="product-card-image-link-{{ card_id }}"
+                aria-label="{{ product.title | escape }}"
               >
+                <img
+                  src="{{ media | image_url: width: 400 }}"
+                  alt="{{ media.alt | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                  class="product-card-image-{{ card_id }}"
+                >
+              </a>
             {% elsif media.media_type == 'video' %}
               <video
                 class="product-card-image-{{ card_id }}"
@@ -371,7 +381,13 @@
             {% endif %}
           {% endfor %}
         {% else %}
-          {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
+          <a
+            href="{{ product.url }}"
+            class="product-card-image-link-{{ card_id }}"
+            aria-label="{{ product.title | escape }}"
+          >
+            {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
+          </a>
         {% endif %}
       </div>
     </div>
