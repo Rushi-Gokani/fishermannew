@@ -265,6 +265,19 @@
     gap: 10px;
   }
 
+  /* General swatch base style */
+  .modern-variant-swatch {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  /* Selected state - black border for all swatches */
+  .modern-variant-swatch.is-selected {
+    border-color: #000 !important;
+    box-shadow: 0 0 0 2px #000 !important;
+  }
+
   /* Image Swatch Style - Sharp edges */
   .modern-variant-swatch--image {
     position: relative;

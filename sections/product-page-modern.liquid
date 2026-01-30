@@ -417,6 +417,8 @@
 <!-- Inline Script for Quantity -->
 <script>
   (function() {
+    console.log('=== INLINE SCRIPT STARTED ===');
+
     // Quantity selector - works immediately
     const quantitySelectors = document.querySelectorAll('[data-quantity-selector]');
     quantitySelectors.forEach(function(selector) {
@@ -502,23 +504,46 @@
     }
 
     // Variant swatch click handler - properly triggers image change
+    console.log('=== VARIANT SCRIPT INITIALIZING ===');
     const variantSwatches = document.querySelectorAll('.modern-variant-swatch');
+    console.log('Found variant swatches:', variantSwatches.length);
+    if (variantSwatches.length > 0) {
+      console.log('First swatch classes:', variantSwatches[0].className);
+    }
 
     // Function to update gallery image based on media ID
     function switchToMedia(mediaId) {
       console.log('=== SWITCH TO MEDIA ===');
-      console.log('Looking for media ID:', mediaId);
-      console.log('Available slides with media IDs:', Array.from(slides).map(s => ({
+      console.log('Looking for media ID:', mediaId, 'Type:', typeof mediaId);
+
+      const slideData = Array.from(slides).map(s => ({
         mediaId: s.getAttribute('data-media-id'),
         index: s.getAttribute('data-index')
-      })));
+      }));
+      console.log('Available slides with media IDs:', JSON.stringify(slideData, null, 2));
 
-      const targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
-      console.log('Target slide found:', targetSlide);
+      // Try exact match first
+      let targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
+      console.log('Target slide found (exact match):', targetSlide);
+
+      // If not found, try converting mediaId to different formats
+      if (!targetSlide) {
+        console.log('Not found with exact match, trying alternatives...');
+        const mediaIdNum = parseInt(mediaId);
+        console.log('Trying numeric:', mediaIdNum);
+        targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaIdNum + '"]');
+        console.log('Target slide found (numeric):', targetSlide);
+      }
+
+      if (!targetSlide) {
+        console.log('Not found, trying as string without quotes...');
+        targetSlide = document.querySelector(`.modern-gallery__slide[data-media-id='${mediaId}']`);
+        console.log('Target slide found (alt):', targetSlide);
+      }
 
       if (targetSlide) {
         const slideIndex = parseInt(targetSlide.getAttribute('data-index'));
-        console.log('Slide index:', slideIndex);
+        console.log('✅ Slide index:', slideIndex);
 
         // Update slides
         slides.forEach(function(slide, i) {
@@ -535,22 +560,29 @@
         const counter = document.querySelector('[data-current-index]');
         if (counter) counter.textContent = slideIndex + 1;
 
-        console.log('Successfully switched to slide', slideIndex);
+        console.log('✅ Successfully switched to slide', slideIndex);
         return true;
       }
 
-      console.log('Target slide NOT found for media ID:', mediaId);
+      console.log('❌ Could not find slide for media ID:', mediaId);
       return false;
     }
 
     // Function to handle variant price update
     function updateVariantPrice(variant) {
+      console.log('=== UPDATING PRICE ===');
+      console.log('Variant:', variant.title, 'Price:', variant.price);
+
       const priceWrapper = document.querySelector('.modern-product__price-wrapper');
+      console.log('Price wrapper found:', priceWrapper);
+
       if (priceWrapper) {
         const hasComparePrice = variant.compare_at_price && variant.compare_at_price > variant.price;
 
+        console.log('Has compare price:', hasComparePrice);
+
         if (hasComparePrice) {
-          priceWrapper.innerHTML = `
+          const newHTML = `
             <span class="modern-product__price modern-product__price--sale">
               $${(variant.price / 100).toFixed(2)}
             </span>
@@ -561,25 +593,43 @@
               Save $${((variant.compare_at_price - variant.price) / 100).toFixed(2)}
             </span>
           `;
+          console.log('Setting price HTML (with compare):', newHTML);
+          priceWrapper.innerHTML = newHTML;
         } else {
-          priceWrapper.innerHTML = `
+          const newHTML = `
             <span class="modern-product__price">
               $${(variant.price / 100).toFixed(2)}
             </span>
           `;
+          console.log('Setting price HTML (no compare):', newHTML);
+          priceWrapper.innerHTML = newHTML;
         }
 
         // Add sold out badge if needed
         if (!variant.available) {
           priceWrapper.innerHTML += '<span class="modern-product__sold-badge">Sold Out</span>';
         }
+
+        console.log('Price updated. New innerHTML:', priceWrapper.innerHTML.substring(0, 200));
+      } else {
+        console.log('❌ Price wrapper not found!');
       }
 
-      // Update hidden variant ID input
+      // Update hidden variant ID input for Buy Now button
       const variantIdInput = document.querySelector('input[name="id"]');
       if (variantIdInput) {
+        console.log('Updating hidden variant ID input to:', variant.id);
         variantIdInput.value = variant.id;
       }
+
+      // Update the variant selected value display
+      const selectedValueSpans = document.querySelectorAll('.modern-variant-selected-value');
+      selectedValueSpans.forEach(function(span, index) {
+        if (variant.options[index]) {
+          console.log('Updating selected value display', index, 'to:', variant.options[index]);
+          span.textContent = variant.options[index];
+        }
+      });
     }
 
     // Function to get variant from selected options
@@ -592,18 +642,48 @@
 
       try {
         const product = JSON.parse(productJSON.textContent);
-        const selectedOptions = Array.from(document.querySelectorAll('input[name^="option"]'))
-          .filter(i => i.checked)
-          .map(i => i.value);
 
-        console.log('Selected options:', selectedOptions);
-        console.log('Available variants:', product.variants.map(v => ({ id: v.id, title: v.title, options: v.options })));
+        // Get all checked variant inputs
+        const checkedInputs = Array.from(document.querySelectorAll('input[name^="option"]')).filter(i => i.checked);
+        const selectedOptions = checkedInputs.map(i => ({
+          name: i.name,
+          value: i.value,
+          position: parseInt(i.name.replace('option', ''))
+        }));
 
-        const variant = product.variants.find(v => {
-          return selectedOptions.every((opt, idx) => v.options[idx] === opt);
+        console.log('=== CHECKED INPUTS ===');
+        selectedOptions.forEach(opt => {
+          console.log(`  Option ${opt.position}: ${opt.value}`);
         });
 
-        console.log('Found variant:', variant);
+        // Create array of selected values in order (option1, option2, option3)
+        const selectedValues = [];
+        for (let i = 1; i <= 3; i++) {
+          const found = selectedOptions.find(opt => opt.position === i);
+          if (found) {
+            selectedValues.push(found.value);
+          }
+        }
+
+        console.log('Selected values array:', selectedValues);
+
+        // Find variant that matches ALL selected values
+        const variant = product.variants.find(v => {
+          const match = selectedValues.every((val, idx) => v.options[idx] === val);
+          return match;
+        });
+
+        if (variant) {
+          console.log('✅ Found variant:', variant.title, 'ID:', variant.id);
+          console.log('  Variant options:', variant.options);
+          console.log('  Featured image:', variant.featured_image);
+          console.log('  Attached media:', variant.attached_to_media);
+        } else {
+          console.log('❌ No variant found for:', selectedValues);
+          console.log('Available variants:');
+          product.variants.forEach(v => console.log('  ', v.title, v.options, 'ID:', v.id));
+        }
+
         return variant;
       } catch (error) {
         console.error('Error parsing product JSON:', error);
@@ -611,71 +691,172 @@
       }
     }
 
+    // Alternative: Find slide by variant's attached media position
+    function findSlideForVariant(variant) {
+      if (!variant) return null;
+
+      // Try featured_media first (Liquid uses this)
+      if (variant.featured_media && variant.featured_media.id) {
+        const slide = document.querySelector(`.modern-gallery__slide[data-media-id="${variant.featured_media.id}"]`);
+        if (slide) {
+          console.log('Found slide via featured_media.id');
+          return slide;
+        }
+      }
+
+      // Try featured_image (JSON uses this)
+      if (variant.featured_image && variant.featured_image.id) {
+        const slide = document.querySelector(`.modern-gallery__slide[data-media-id="${variant.featured_image.id}"]`);
+        if (slide) {
+          console.log('Found slide via featured_image.id');
+          return slide;
+        }
+      }
+
+      // Try attached_to_media
+      if (variant.attached_to_media && variant.attached_to_media.position) {
+        const slide = document.querySelector(`.modern-gallery__slide[data-index="${variant.attached_to_media.position - 1}"]`);
+        if (slide) {
+          console.log('Found slide via attached_to_media.position');
+          return slide;
+        }
+      }
+
+      console.log('Could not find slide for variant');
+      return null;
+    }
+
     // Handle variant swatch click - find complete variant and switch to its image
-    variantSwatches.forEach(function(swatch) {
+    console.log('Setting up variant swatch click handlers...');
+    variantSwatches.forEach(function(swatch, index) {
+      console.log('Setting up click handler for swatch', index, swatch);
       swatch.addEventListener('click', function(e) {
+        console.log('=== SWATCH CLICKED ===', index);
         e.preventDefault();
 
-        // Check the associated radio input
-        const input = swatch.querySelector('input[type="radio"]');
+        // The input is NOT inside the label - it's a sibling
+        // Use the label's 'for' attribute to find the input
+        const inputId = swatch.getAttribute('for');
+        console.log('Looking for input with ID:', inputId);
+        const input = document.getElementById(inputId);
+        console.log('Found input:', input);
+
         if (input) {
+          console.log('Before check - input.checked:', input.checked);
           input.checked = true;
+          console.log('After check - input.checked:', input.checked);
 
-          // Get the complete selected variant (all options)
-          const variant = getSelectedVariant();
-          if (variant) {
-            console.log('=== VARIANT CLICKED ===');
-            console.log('Variant title:', variant.title);
-            console.log('Variant ID:', variant.id);
-            console.log('Variant featured_image:', variant.featured_image);
-            console.log('Variant available:', variant.available);
+          // Update ALL swatch visual states - remove is-selected from all, add to clicked
+          console.log('Updating visual selection state...');
+          variantSwatches.forEach(function(s) {
+            s.classList.remove('is-selected');
+            s.setAttribute('aria-selected', 'false');
+          });
+          swatch.classList.add('is-selected');
+          swatch.setAttribute('aria-selected', 'true');
 
-            // Try both featured_image and featured_media
-            let mediaId = null;
-            if (variant.featured_image && variant.featured_image.id) {
-              mediaId = variant.featured_image.id.toString();
-              console.log('Using featured_image ID:', mediaId);
-            } else if (variant.featured_media && variant.featured_media.id) {
-              mediaId = variant.featured_media.id.toString();
-              console.log('Using featured_media ID:', mediaId);
-            }
+          // Small delay to ensure DOM is updated, then get variant
+          setTimeout(function() {
+            // Verify all checked inputs
+            const allChecked = Array.from(document.querySelectorAll('input[name^="option"]')).filter(i => i.checked);
+            console.log('All checked inputs after click:', allChecked.map(i => ({ name: i.name, value: i.value })));
 
-            if (mediaId) {
-              console.log('Switching to media ID:', mediaId);
-              const success = switchToMedia(mediaId);
-              console.log('Switch successful:', success);
+            // Get the complete selected variant (all options)
+            const variant = getSelectedVariant();
+            if (variant) {
+              console.log('=== VARIANT CLICKED ===');
+              console.log('Variant title:', variant.title);
+              console.log('Variant ID:', variant.id);
+
+              // Try to find and switch to the variant's slide
+              const slide = findSlideForVariant(variant);
+              if (slide) {
+                const slideIndex = parseInt(slide.getAttribute('data-index'));
+                console.log('✅ Switching to slide index:', slideIndex);
+
+                // Update slides
+                slides.forEach(function(s, i) {
+                  s.classList.toggle('is-active', i === slideIndex);
+                });
+
+                // Update thumbnails
+                thumbnails.forEach(function(t, i) {
+                  t.classList.toggle('is-active', i === slideIndex);
+                  t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
+                });
+
+                // Update counter
+                const counter = document.querySelector('[data-current-index]');
+                if (counter) counter.textContent = slideIndex + 1;
+              } else {
+                console.log('⚠️ No slide found for this variant');
+              }
+
+              // Update price
+              updateVariantPrice(variant);
             } else {
-              console.log('No featured media for this variant');
+              console.log('❌ No variant found for selection');
             }
-
-            // Update price
-            updateVariantPrice(variant);
-          } else {
-            console.log('No variant found for selection');
-          }
+          }, 10);
         }
       });
+    });
+    console.log('Variant swatch handlers set up');
+
+    // Initialize default selection states - add black border to checked inputs
+    console.log('=== INITIALIZING DEFAULT SELECTION ===');
+    const defaultChecked = document.querySelectorAll('input[name^="option"]:checked');
+    console.log('Default checked inputs:', defaultChecked.length);
+    defaultChecked.forEach(function(input) {
+      const swatch = document.querySelector('.modern-variant-swatch[for="' + input.id + '"]');
+      if (swatch) {
+        console.log('Adding is-selected to:', input.value);
+        swatch.classList.add('is-selected');
+        swatch.setAttribute('aria-selected', 'true');
+      }
     });
 
     // Also handle input change for keyboard navigation
     const variantInputs = document.querySelectorAll('input[name^="option"]');
     variantInputs.forEach(function(input) {
       input.addEventListener('change', function() {
+        // Update visual state for swatches in the same option group
+        const optionName = input.name;
+        console.log('Input changed for:', optionName, 'Value:', input.value);
+
+        // Update all swatches for this option
+        const relatedInputs = document.querySelectorAll('input[name="' + optionName + '"]');
+        relatedInputs.forEach(function(inp) {
+          const swatch = document.querySelector('.modern-variant-swatch[for="' + inp.id + '"]');
+          if (swatch) {
+            if (inp.checked) {
+              swatch.classList.add('is-selected');
+              swatch.setAttribute('aria-selected', 'true');
+            } else {
+              swatch.classList.remove('is-selected');
+              swatch.setAttribute('aria-selected', 'false');
+            }
+          }
+        });
+
         const variant = getSelectedVariant();
         if (variant) {
           console.log('=== VARIANT CHANGED VIA INPUT ===');
           console.log('Variant title:', variant.title);
 
-          // Try both featured_image and featured_media
-          let mediaId = null;
-          if (variant.featured_image && variant.featured_image.id) {
-            mediaId = variant.featured_image.id.toString();
-          } else if (variant.featured_media && variant.featured_media.id) {
-            mediaId = variant.featured_media.id.toString();
-          }
-
-          if (mediaId) {
-            switchToMedia(mediaId);
+          // Try to find and switch to the variant's slide
+          const slide = findSlideForVariant(variant);
+          if (slide) {
+            const slideIndex = parseInt(slide.getAttribute('data-index'));
+            slides.forEach(function(s, i) {
+              s.classList.toggle('is-active', i === slideIndex);
+            });
+            thumbnails.forEach(function(t, i) {
+              t.classList.toggle('is-active', i === slideIndex);
+              t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
+            });
+            const counter = document.querySelector('[data-current-index]');
+            if (counter) counter.textContent = slideIndex + 1;
           }
 
           // Update price
@@ -1459,9 +1640,39 @@
       z-index: 2;
     }
 
+    /* Hide breadcrumbs on mobile */
+    .modern-breadcrumbs {
+      display: none;
+    }
+
+    /* Product Title - smaller on mobile */
+    .modern-product__title {
+      font-size: 20px !important;
+      line-height: 1.3;
+    }
+
+    /* Thumbnails - horizontal scroll in one line on mobile */
     .modern-gallery__thumbnails {
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
       gap: 8px;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .modern-gallery__thumbnails::-webkit-scrollbar {
+      display: none;
+    }
+
+    .modern-gallery__thumbnail {
+      flex: 0 0 70px;
+      width: 70px;
+      scroll-snap-align: start;
     }
 
     .modern-gallery__nav {
