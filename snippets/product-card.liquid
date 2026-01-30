@@ -260,11 +260,11 @@
     margin-left: 8px;
   }
 
-  /* Buy Now button */
   .product-card-image-link-{{ card_id }} {
     display: block;
   }
 
+  /* Buy Now button */
   .product-card-buy-btn-{{ card_id }} {
     width: 100%;
     background-color: {{ accent_color }};
@@ -350,24 +350,23 @@
         </svg>
       </button>
 
-      <div class="product-card-slider-container-{{ card_id }}" id="slider-{{ card_id }}" data-product-url="{{ product.url }}">
+      <a
+        href="{{ product.url }}"
+        class="product-card-image-link-{{ card_id }}"
+        aria-label="{{ product.title | escape }}"
+      >
+        <div class="product-card-slider-container-{{ card_id }}" id="slider-{{ card_id }}" data-product-url="{{ product.url }}">
         {% if product.media.size > 0 %}
           {% for media in product.media limit: 3 %}
             {% if media.media_type == 'image' %}
-              <a
-                href="{{ product.url }}"
-                class="product-card-image-link-{{ card_id }}"
-                aria-label="{{ product.title | escape }}"
+              <img
+                src="{{ media | image_url: width: 400 }}"
+                alt="{{ media.alt | escape }}"
+                loading="lazy"
+                width="400"
+                height="400"
+                class="product-card-image-{{ card_id }}"
               >
-                <img
-                  src="{{ media | image_url: width: 400 }}"
-                  alt="{{ media.alt | escape }}"
-                  loading="lazy"
-                  width="400"
-                  height="400"
-                  class="product-card-image-{{ card_id }}"
-                >
-              </a>
             {% elsif media.media_type == 'video' %}
               <video
                 class="product-card-image-{{ card_id }}"
@@ -381,15 +380,10 @@
             {% endif %}
           {% endfor %}
         {% else %}
-          <a
-            href="{{ product.url }}"
-            class="product-card-image-link-{{ card_id }}"
-            aria-label="{{ product.title | escape }}"
-          >
-            {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
-          </a>
+          {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
         {% endif %}
-      </div>
+        </div>
+      </a>
     </div>
 
     <!-- Pagination Dots -->
