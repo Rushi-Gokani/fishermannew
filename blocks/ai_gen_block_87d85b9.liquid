@@ -143,7 +143,7 @@
 
   .ai-faq-item-{{ ai_gen_id }} {
     background-color: {{ block.settings.item_background }};
-    border-radius: {{ block.settings.border_radius }}px;
+    border-radius: 0;
     overflow: hidden;
     border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
     box-shadow: {{ block.settings.shadow_horizontal }}px {{ block.settings.shadow_vertical }}px {{ block.settings.shadow_blur }}px {{ block.settings.shadow_color }};
@@ -161,6 +161,7 @@
     border: none;
     width: 100%;
     text-align: left;
+    border-radius: 0;
   }
 
   .ai-faq-question-wrapper-{{ ai_gen_id }}:hover {
@@ -171,7 +172,7 @@
     flex-shrink: 0;
     width: {{ block.settings.number_size }}px;
     height: {{ block.settings.number_size }}px;
-    border-radius: 50%;
+    border-radius: 0;
     background-color: {{ block.settings.number_background }};
     color: {{ block.settings.number_color }};
     display: flex;

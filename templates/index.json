@@ -789,6 +789,39 @@
         "padding-block-end": 0
       }
     },
+    "featured_product_spotlight_fnfYLD": {
+      "type": "featured-product-spotlight",
+      "disabled": true,
+      "custom_css": [
+        ".fps-description-text h2 {font-size: 16px !important;}"
+      ],
+      "name": "Featured Product S",
+      "settings": {
+        "product": "abu-garcia-salty-fighter-2-jigging-spinning-rod-jigging-rod-6-ft-mh",
+        "layout": "image-left",
+        "color_scheme": "",
+        "show_vendor": true,
+        "show_reviews": false,
+        "show_description": true,
+        "description_limit": 300,
+        "read_more_text": "Read More",
+        "show_variants": true,
+        "show_quantity": true,
+        "show_secondary_image": true,
+        "show_thumbnails": true,
+        "show_badge": true,
+        "badge_text": "",
+        "add_to_cart_text": "Add to Cart",
+        "show_buy_now": true,
+        "buy_now_text": "Buy Now",
+        "button_color": "#000000",
+        "button_text_color": "#ffffff",
+        "show_trust_badges": true,
+        "show_background_pattern": false,
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
     "featured_product_information_mF4Kez": {
       "type": "featured-product-information",
       "blocks": {
@@ -1584,6 +1617,7 @@
     "marquee_QXzHMY",
     "product_list_HKrErB",
     "1769169291dfcb3d53",
+    "featured_product_spotlight_fnfYLD",
     "featured_product_information_mF4Kez",
     "testimonials_product_slider_7YAxB9",
     "reels_video_section_TBj3mU",
