@@ -155,7 +155,7 @@
       "type": "color",
       "id": "sidebar_active_text",
       "label": "Active Item Text Color",
-      "default": "#2563eb"
+      "default": "#333333"
     },
     {
       "type": "header",
@@ -166,7 +166,7 @@
       "id": "show_currency",
       "label": "Show Currency Selector",
       "default": true
-    }
+    },
   ],
   "blocks": [
     {
@@ -263,847 +263,332 @@
 }
 {% endschema %}
 
+{% liquid
+  assign mobile_logo_width = section.settings.logo_width | times: 0.65 | round
+  assign enable_cart_drawer = false
+  if settings.cart_type == 'drawer' and template.name != 'cart'
+    assign enable_cart_drawer = true
+  endif
+  assign category_blocks = section.blocks | where: 'type', 'category_group'
+%}
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
   .custom-top-bar,
-  .custom-header-section {
-    font-family: 'Space Grotesk', 'Space Mono', sans-serif;
-    letter-spacing: 0.01em;
+  .custom-header-section,
+  .mobile-drawer {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.01em;
   }
 
   /* Top Bar */
   .custom-top-bar {
-    background: linear-gradient(110deg, {{ section.settings.top_bar_bg }} 0%, {{ section.settings.top_bar_bg | color_mix: '#ffffff', 15 }} 55%, {{ section.settings.top_bar_bg | color_mix: '#000000', 10 }} 100%);
-    color: {{ section.settings.top_bar_text_color }};
-    font-size: 11px;
-    text-transform: uppercase;
-    padding: 10px 56px;
+    background: #0f172a;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+    padding: 8px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .top-bar-left {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .top-bar-left { font-weight: 600; }
+  .top-bar-right, .top-bar-menu, .top-bar-social { 
+    display: flex; 
+    align-items: center; 
+    gap: 20px; 
   }
-  .top-bar-right {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-  }
-  .top-bar-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    gap: 15px;
-  }
-  .top-bar-menu a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .top-bar-social {
-    display: flex;
-    gap: 10px;
-  }
-  .top-bar-social svg {
-    width: 14px;
-    height: 14px;
-    fill: currentColor;
-  }
+  .top-bar-menu { list-style: none; padding: 0; margin: 0; gap: 15px; }
+  .top-bar-menu a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  .top-bar-menu a:hover { color: #40c4ff; }
+  .top-bar-social a { color: #94a3b8; transition: color 0.2s; }
+  .top-bar-social a:hover { color: #40c4ff; }
+  .top-bar-social svg { width: 14px; height: 14px; fill: currentColor; }
 
-  /* Main Header */
+  /* Main Header Section */
   .custom-header-section {
-    background: linear-gradient(115deg,
-        {{ section.settings.header_bg }} 0%,
-        {{ section.settings.header_bg }} 45%,
-        {{ section.settings.header_bg | color_mix: '#050f1f', 65 }} 100%
-      );
-    color: {{ section.settings.header_text }};
+    background: #40c4ff;
+    color: #0f172a;
     position: relative;
     z-index: 1000;
-    padding: 16px 0 20px;
-    overflow: visible;
+    padding: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .custom-header-section::before {
     content: '';
     position: absolute;
-    border-radius: 999px;
-    filter: blur(0px);
-    opacity: 0.35;
-    z-index: 0;
-  }
-
-  .custom-header-section::before {
     width: 360px;
     height: 360px;
     top: -140px;
     left: -140px;
-    background: radial-gradient(circle, {{ section.settings.categories_bg | color_desaturate: 20 | color_lighten: 10 }} 0%, transparent 70%);
+    border-radius: 999px;
+    filter: blur(80px);
+    opacity: 0.4;
+    z-index: 0;
+    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+    pointer-events: none;
   }
 
   .custom-header-container {
-    width: 100%;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 0px 28px;
+    padding: 0 40px;
+    height: 90px;
     display: flex;
     align-items: center;
-    gap: 18px;
     position: relative;
     z-index: 1;
+  }
+
+  .header-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 32px;
   }
 
   /* Branding */
   .header-branding {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 10px;
+    max-width: 250px;
   }
-
-  .nav-cluster {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    margin: auto;
-  }
-
-  .nav-cluster .categories-wrapper {
-    flex-shrink: 0;
-  }
-
-  .nav-cluster .main-nav {
-    flex: 1;
-    display: flex;
-    min-width: 0;
-  }
-
-  .header-logo img {
-    display: block;
-    width: {{ section.settings.logo_width }}px;
+  .header-branding a { display: block; line-height: 0; }
+  .header-branding img {
+    max-width: {{ section.settings.logo_width }}px;
     height: auto;
+    display: block;
+    width: 100%;
   }
   .header-logo-text {
-    font-size: 22px;
-    font-weight: 700;
-    color: inherit;
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
   }
 
-  /* Categories Button */
+  /* Navigation Cluster (Centered) */
+  .nav-cluster {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+  }
+
   .categories-wrapper {
     position: relative;
-    isolation: isolate;
     display: flex;
     align-items: center;
-  }
-
-  .categories-wrapper::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
-    height: 26px;
-    pointer-events: auto;
   }
 
   .categories-btn {
-    background: linear-gradient(120deg, {{ section.settings.categories_bg }} 0%, {{ section.settings.categories_bg | color_lighten: 12 }} 100%);
-    color: {{ section.settings.categories_text }};
-    border: none;
-    padding: 12px 24px;
-    border-radius: 999px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.35);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-  }
-
-  .categories-btn:hover,
-  .categories-btn:focus-visible {
-    transform: translateY(-2px);
-    opacity: 0.95;
-    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.5);
-  }
-
-  .categories-btn svg {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
-  }
-
-  /* Mega Menu Dropdown */
-  .categories-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(18px);
-    color: #111827;
-    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.18);
-    border-radius: 24px;
-    display: none; /* Hidden by default */
-    min-width: 1000px; /* Increased width */
-    margin-top: 15px;
-    z-index: 1001;
-    overflow: hidden;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-  }
-  
-  .categories-wrapper:hover .categories-dropdown,
-  .categories-wrapper:focus-within .categories-dropdown,
-  .categories-wrapper.is-open .categories-dropdown {
-    display: flex;
-  }
-
-  /* Sidebar */
-  .dropdown-sidebar {
-    background: linear-gradient(180deg, rgba(248,250,252,1), rgba(248,250,252,0.5));
-    width: 260px; /* Slightly wider sidebar */
-    flex-shrink: 0;
-    padding: 18px 0;
-    border-right: 1px solid rgba(226, 232, 240, 0.9);
-  }
-
-  .sidebar-item {
-    display: block;
-    padding: 16px 28px; /* Larger click area */
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(15,23,42,0.6);
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .sidebar-item:hover, .sidebar-item.active {
-    background: rgba(15,23,42,0.08);
-    color: #0f172a;
-  }
-  
-  .sidebar-item.active {
-      background: rgba(15,23,42,0.12);
-      color: #0f172a;
-  }
-
-  /* Content Area */
-  .dropdown-content-area {
-    flex-grow: 1;
-    background: rgba(255,255,255,0.85);
-    position: relative;
-    min-height: 480px; /* Increased height */
-    padding-block: 12px;
-  }
-
-  .content-panel {
-    display: none;
-    padding: 32px 40px; /* More padding */
-    width: 100%;
-    height: 100%;
-    /* Dynamic Grid Layout */
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
-    gap: 34px;
-  }
-
-  .content-panel.active {
-    display: grid;
-  }
-
-  .panel-column h4 {
-    font-size: 16px; /* Larger heading */
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #0f172a;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .panel-column ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .panel-column li {
-    margin-bottom: 12px;
-  }
-
-  .panel-column a {
-    text-decoration: none;
-    color: #243047;
-    font-size: 14px; /* Larger text */
-    transition: color 0.2s;
-  }
-
-  .panel-column a:hover {
-    color: {{ section.settings.categories_bg }};
-  }
-
-  /* Promo Card */
-  .promo-card {
-    position: relative;
-    border-radius: 18px;
-    overflow: hidden;
-    height: 100%; /* Fill available height in its column */
-    min-height: 250px;
-    max-height: 400px;
-    box-shadow: 0 18px 40px rgba(15,23,42,0.18);
-  }
-
-  .promo-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .promo-overlay {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.92);
-    padding: 18px;
-    border-radius: 12px;
-    box-shadow: 0 18px 40px rgba(15,23,42,0.22);
-    color: #0f172a;
-  }
-
-  .promo-title {
-    font-weight: 600;
-    font-size: 18px;
-    color: #0f172a;
-    margin-bottom: 5px;
-    display: block;
-  }
-
-  .promo-subtitle {
-    font-size: 13px;
-    color: rgba(15,23,42,0.7);
-  }
-
-  /* Main Nav & Mega Menu */
-  .main-nav {
-    flex: 1;
-    position: relative;
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .mega-nav__list {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 24px;
-    list-style: none;
-    padding: 0 4px;
-    margin: 0;
-  }
-
-  .mega-nav__item {
-    position: relative;
-  }
-
-  .mega-nav__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: rgba(255,255,255,0.85);
-    font-weight: 600;
-    font-size: 15px;
-    letter-spacing: 0.02em;
-    padding-bottom: 4px;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .mega-nav__item--has-children .mega-nav__link svg {
-    width: 12px;
-    height: 12px;
-    stroke: currentColor;
-    stroke-width: 2;
-  }
-
-  .mega-nav__item:hover > .mega-nav__link,
-  .mega-nav__item.open > .mega-nav__link {
-    color: #ffffff;
-    border-color: {{ section.settings.categories_bg }};
-  }
-
-  .hot-badge {
-    background-color: {{ section.settings.badge_bg }};
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 999px;
-    margin-left: 3px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .mega-panel {
-    position: absolute;
-    left: 50%;
-    top: calc(100% + 18px);
-    transform: translateX(-50%) translateY(10px);
-    min-width: 760px;
-    max-width: 1040px;
-    background: radial-gradient(circle at top left, rgba(255,255,255,0.1), rgba(15,23,42,0.95));
-    border-radius: 28px;
-    padding: 32px;
-    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(16px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 30;
-  }
-
-  .mega-panel::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: 26px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    pointer-events: none;
-  }
-
-  .mega-nav__item.open > .mega-panel,
-  .mega-nav__item--has-children:hover > .mega-panel {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(0px);
-  }
-
-  .mega-panel__inner {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .mega-panel__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-  }
-
-  .mega-panel__eyebrow {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(255,255,255,0.6);
-    margin: 0 0 6px;
-  }
-
-  .mega-panel__title {
-    font-size: 26px;
-    font-weight: 700;
-    margin: 0;
-    color: #fff;
-  }
-
-  .mega-panel__cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    background: #ffffff;
+    color: #40c4ff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
     padding: 10px 18px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 700;
     font-size: 13px;
-    font-weight: 600;
-    transition: border-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  .categories-btn:hover {
+    background: #f8fafc;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
   }
 
-  .mega-panel__cta svg {
-    width: 14px;
-    height: 14px;
-    stroke: currentColor;
-    stroke-width: 2;
-  }
-
-  .mega-panel__cta:hover {
-    border-color: {{ section.settings.categories_bg }};
-    color: {{ section.settings.categories_bg }};
-    background: rgba(255,255,255,0.05);
-  }
-
-  .mega-panel__body {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr);
+  .main-nav .mega-nav__list {
+    display: flex;
     gap: 32px;
-    align-items: stretch;
-  }
-
-  .mega-panel__columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 24px;
-  }
-
-  .mega-panel__column ul {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
   }
-
-  .mega-panel__column a {
-    color: rgba(255,255,255,0.95);
+  .mega-nav__link {
+    color: #0f172a;
     text-decoration: none;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .mega-panel__column a:hover {
-    color: {{ section.settings.categories_bg }};
-  }
-
-  .mega-panel__sublist {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
-  }
-
-  .mega-panel__sublist a {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.85);
-  }
-
-  .mega-panel__feature-card {
-    position: relative;
-    border-radius: 20px;
-    padding: 32px;
-    background: linear-gradient(135deg, {{ section.settings.categories_bg }}, #0f172a 85%);
-    color: white;
-    overflow: hidden;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
-  }
-
-  .mega-panel__feature-card::after {
-    content: '';
-    position: absolute;
-    inset: 16px;
-    border-radius: 16px;
-    border: 1px dashed rgba(255,255,255,0.25);
-    opacity: 0.25;
-  }
-
-  .feature-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin: 0 0 12px;
-    color: rgba(255,255,255,0.8);
-  }
-
-  .feature-headline {
-    font-size: 24px;
-    margin: 0 0 10px;
-    font-weight: 700;
-  }
-
-  .feature-copy {
-    font-size: 14px;
-    margin: 0 0 20px;
-    color: rgba(255,255,255,0.85);
-  }
-
-  .feature-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: white;
-    text-decoration: none;
+    font-size: 13px;
     font-weight: 600;
+    transition: color 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
   }
-
-  .feature-link svg {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    stroke-width: 2;
-  }
-
-  .feature-link:hover {
-    opacity: 0.85;
-  }
+  .mega-nav__link:hover { color: #000000; opacity: 1; }
 
   /* Right Icons */
   .header-icons {
-    display: inline-flex;
+    flex: 0 0 auto;
+    display: flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(255,255,255,0.9);
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
-    margin-left: auto;
+    gap: 12px;
   }
-
   .icon-btn {
-    background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    cursor: pointer;
+    background: transparent;
+    border: none;
     color: #0f172a;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    transition: transform 0.2s ease, border-color 0.2s, color 0.2s;
+    position: relative;
+    opacity: 0.9;
   }
-
   .icon-btn:hover {
-    transform: translateY(-1px);
-    border-color: {{ section.settings.categories_bg }};
-    color: {{ section.settings.categories_bg }};
-  }
-  
-  .icon-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke: currentColor;
-    stroke-width: 2;
-    fill: none;
-  }
-
-  .currency-selector {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    color: #0f172a;
-  }
-
-  /* Mobile Responsive */
-  @media (max-width: 1024px) {
-    .main-nav {
-      display: none; /* Hide main nav on smaller screens for now */
-    }
-    .categories-dropdown {
-      min-width: 300px;
-      flex-direction: column;
-    }
-    .dropdown-sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #eee;
-    }
-    .dropdown-content-area {
-        display: none; /* Simplify for mobile for now, or use JS accordion */
-    }
-    .custom-header-container {
-        padding: 15px 20px;
-    }
-    .custom-top-bar {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-    .top-bar-right {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .mega-panel {
-        position: static;
-        transform: none;
-        min-width: auto;
-        max-width: none;
-        opacity: 1;
-        pointer-events: auto;
-        margin-top: 12px;
-    }
-    .mega-panel__body {
-        grid-template-columns: 1fr;
-    }
-  }
-
-  /* Search Modal */
-  .search-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 100px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .search-modal.active {
-    display: flex;
+    color: #000;
+    background: rgba(255, 255, 255, 0.2);
     opacity: 1;
   }
-
-  .search-modal__content {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px;
-    position: relative;
-    transform: translateY(-20px);
-    transition: transform 0.3s ease;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  }
-
-  .search-modal.active .search-modal__content {
-    transform: translateY(0);
-  }
-
-  .search-modal__close {
+  .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; }
+  .header-actions__cart-icon {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: #666;
-    line-height: 1;
-    padding: 5px;
+    top: -2px;
+    right: -2px;
+    transform: scale(0.8);
   }
+  .cart-count-bubble { background-color: #ffffff; color: #40c4ff; }
 
-  .search-modal__form {
-    display: flex;
-    gap: 10px;
-    align-items: stretch; /* Ensure equal height */
+  /* Megamenu Dropdown */
+  .categories-dropdown {
+    position: absolute;
+    top: calc(100% + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    backdrop-filter: blur(20px);
+    color: #0f172a;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    display: none;
+    width: 850px;
+    z-index: 1001;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
   }
+  .categories-wrapper:hover .categories-dropdown { display: flex; }
 
-  .search-modal__input {
-    flex: 1;
-    padding: 0 15px;
-    height: 46px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    line-height: 46px; /* Vertically center text */
+  .dropdown-sidebar {
+    background: #f8fafc;
+    width: 240px;
+    padding: 15px 0;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
   }
-
-  .search-modal__submit {
-    background-color: {{ section.settings.categories_bg }};
-    color: white;
-    border: none;
-    padding: 0 25px;
-    height: 46px;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Predictive Search Results */
-  .predictive-search-results {
-    margin-top: 15px;
-    max-height: 300px;
-    overflow-y: auto;
-    border-top: 1px solid #eee;
-    display: none; /* Hidden by default */
-  }
-
-  .predictive-search-results.has-results {
-    display: block;
-  }
-
-  .predictive-search-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px 0;
-    border-bottom: 1px solid #f5f5f5;
-    text-decoration: none;
-    color: inherit;
-    transition: background-color 0.2s;
-  }
-
-  .predictive-search-item:hover {
-    background-color: #f9f9f9;
-  }
-
-  .predictive-search-item img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-
-  .predictive-search-item__info {
-    flex: 1;
-  }
-
-  .predictive-search-item__title {
-    font-weight: 600;
+  .sidebar-item {
+    padding: 12px 24px;
     font-size: 14px;
-    display: block;
-    margin-bottom: 4px;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sidebar-item.active, .sidebar-item:hover { 
+    background: rgba(64, 196, 255, 0.1); 
+    color: #40c4ff; 
+    border-left: 3px solid #40c4ff; /* Active indicator */
   }
 
-  .predictive-search-item__price {
-    font-size: 13px;
-    color: #666;
+  .dropdown-content-area { flex: 1; min-height: 400px; background: transparent; }
+  .content-panel { display: none; padding: 30px; grid-template-columns: repeat(2, 1fr) 200px; gap: 30px; }
+  .content-panel.active { display: grid; }
+  .panel-column h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: #40c4ff; margin-bottom: 15px; }
+  .panel-column ul { list-style: none; padding: 0; margin: 0; }
+  .panel-column li { margin-bottom: 8px; }
+  .panel-column a { text-decoration: none; color: #0f172a; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .panel-column a:hover { color: #40c4ff; }
+
+  .promo-card { position: relative; border-radius: 12px; overflow: hidden; display: block; height: 100%; border: 1px solid rgba(0,0,0,0.05); transition: transform 0.3s; }
+  .promo-card:hover { transform: translateY(-5px); border-color: #40c4ff; }
+  .promo-card img { width: 100%; height: 100%; object-fit: cover; }
+  .promo-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px; color: #fff; }
+  .promo-title { font-weight: 700; font-size: 16px; color: #40c4ff; }
+  .promo-subtitle { font-size: 12px; opacity: 0.9; }
+
+  /* Mobile */
+  .header-mobile { display: none; width: 100%; align-items: center; justify-content: space-between; height: 70px; padding: 0 20px; }
+  .header-mobile .header-branding { max-width: 90px; }
+  .header-mobile .header-branding img { max-width: 100%; height: auto; }
+  
+  @media (max-width: 1024px) {
+    .header-layout { display: none; }
+    .header-mobile { display: flex; }
+    .custom-header-container { height: auto; padding: 0; }
   }
 
-  .predictive-search-loading {
-    text-align: center;
-    padding: 20px;
-    color: #888;
-    font-size: 14px;
+  /* Mobile Drawer */
+  .mobile-drawer {
+    position: fixed; top: 0; left: -100%; width: 85%; height: 100%; background: #ffffff; z-index: 2001; transition: left 0.3s ease; padding: 30px;
+    border-right: 1px solid rgba(0,0,0,0.1);
   }
+  .mobile-drawer.active { left: 0; }
+  .mobile-drawer__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  .mobile-drawer__close { background: none; border: none; color: #0f172a; cursor: pointer; padding: 5px; }
+  .mobile-drawer__link { color: #0f172a; text-decoration: none; font-size: 18px; font-weight: 600; display: block; margin-bottom: 20px; transition: color 0.2s, padding 0.2s; }
+  .mobile-drawer__link:hover { color: #40c4ff; padding-left: 10px; }
+  .mobile-drawer__overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; }
+  .mobile-drawer__overlay.active { display: block; }
+
+  /* Modals */
+  .search-modal {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); z-index: 2000; display: none; align-items: flex-start; justify-content: center; padding-top: 80px; opacity: 0; transition: opacity 0.3s ease;
+  }
+  .search-modal.active { display: flex; opacity: 1; }
+  .search-modal__content { background: #1e293b; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+  .search-modal__close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; }
+  .search-modal__close:hover { color: #fff; }
+  .search-modal__form { display: flex; gap: 10px; }
+  .search-modal__input { flex: 1; padding: 12px 20px; border: 1px solid #334155; border-radius: 10px; font-size: 16px; background: #0f172a; color: #fff; }
+  .search-modal__input:focus { border-color: #40c4ff; outline: none; }
+  .search-modal__submit { background: #40c4ff; color: #0f172a; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .search-modal__submit:hover { background: #81d4fa; }
+  
+  .predictive-search-results { margin-top: 20px; max-height: 400px; overflow-y: auto; display: none; }
+  .predictive-search-results.has-results { display: block; }
+  .predictive-search-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #334155; text-decoration: none; color: #e2e8f0; }
+  .predictive-search-item:hover { background-color: rgba(255,255,255,0.05); }
+  .predictive-search-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
+  .predictive-search-item__title { font-weight: 600; font-size: 14px; display: block; color: #fff; }
+  .predictive-search-item__price { font-size: 13px; color: #94a3b8; }
 </style>
+
+{% capture header_logo_markup %}
+  <a href="{{ routes.root_url }}">
+    {% if section.settings.logo != blank %}
+      {{ section.settings.logo | image_url: width: section.settings.logo_width | image_tag: loading: 'eager' }}
+    {% else %}
+      <span class="header-logo-text">{{ shop.name }}</span>
+    {% endif %}
+  </a>
+{% endcapture %}
+
+{% if enable_cart_drawer %}
+  <script
+    src="{{ 'cart-drawer.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+{% endif %}
 
 {% if section.settings.show_top_bar %}
 <div class="custom-top-bar">
@@ -1132,10 +617,9 @@
 
 <div class="custom-header-section">
   <div class="custom-header-container">
-    
-    <!-- Branding -->
-    <div class="header-branding">
-      <div class="header-logo">
+    <!-- Desktop Layout -->
+    <div class="header-layout">
+      <div class="header-branding">
         <a href="{{ routes.root_url }}">
           {% if section.settings.logo != blank %}
             {{ section.settings.logo | image_url: width: section.settings.logo_width | image_tag: loading: 'eager' }}
@@ -1144,233 +628,216 @@
           {% endif %}
         </a>
       </div>
-    </div>
 
-    <!-- Navigation Cluster -->
-    <div class="nav-cluster">
-      <div class="categories-wrapper">
-        <button class="categories-btn">
-          {{ section.settings.categories_label }}
-          <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-        </button>
-
-        <div class="categories-dropdown">
-          <!-- Sidebar -->
-          <div class="dropdown-sidebar">
-            {% for block in section.blocks %}
-              {% if block.type == 'category_group' %}
-                <div class="sidebar-item {% if forloop.first %}active{% endif %}" data-target="panel-{{ block.id }}">
-                  {{ block.settings.heading }}
-                  {% if block.settings.menu_1 != blank or block.settings.menu_2 != blank or block.settings.promo_image != blank %}
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-                  {% endif %}
-                </div>
-              {% endif %}
-            {% endfor %}
-          </div>
-
-          <!-- Content Area -->
-          <div class="dropdown-content-area">
-            {% for block in section.blocks %}
-              {% if block.type == 'category_group' %}
-                <div class="content-panel {% if forloop.first %}active{% endif %}" id="panel-{{ block.id }}">
-                  
-                  <!-- Column 1 -->
-                  {% if block.settings.menu_1 != blank or block.settings.menu_1_heading != blank %}
-                  <div class="panel-column">
-                    {% if block.settings.menu_1_heading != blank %}
-                      <h4>{{ block.settings.menu_1_heading }}</h4>
-                    {% endif %}
-                    {% if block.settings.menu_1 != blank %}
-                      <ul>
-                        {% for link in block.settings.menu_1.links %}
-                          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    {% endif %}
+      <div class="nav-cluster">
+        <div class="categories-wrapper">
+          <button class="categories-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            {{ section.settings.categories_label }}
+          </button>
+          
+          <div class="categories-dropdown">
+            <div class="dropdown-sidebar">
+              {% for block in section.blocks %}
+                {% if block.type == 'category_group' %}
+                  <div class="sidebar-item {% if forloop.first %}active{% endif %}" data-target="panel-{{ block.id }}">
+                    {{ block.settings.heading }}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                   </div>
-                  {% endif %}
-
-                  <!-- Column 2 -->
-                  {% if block.settings.menu_2 != blank or block.settings.menu_2_heading != blank %}
-                  <div class="panel-column">
-                    {% if block.settings.menu_2_heading != blank %}
-                      <h4>{{ block.settings.menu_2_heading }}</h4>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <div class="dropdown-content-area">
+              {% for block in section.blocks %}
+                {% if block.type == 'category_group' %}
+                  <div class="content-panel {% if forloop.first %}active{% endif %}" id="panel-{{ block.id }}">
+                    {% if block.settings.menu_1 != blank %}
+                      <div class="panel-column">
+                        <h4>{{ block.settings.menu_1_heading }}</h4>
+                        <ul>
+                          {% for link in block.settings.menu_1.links %}
+                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% endfor %}
+                        </ul>
+                      </div>
                     {% endif %}
                     {% if block.settings.menu_2 != blank %}
-                      <ul>
-                        {% for link in block.settings.menu_2.links %}
-                          <li><a href="{{ link.url}}">{{ link.title }}</a></li>
-                        {% endfor %}
-                      </ul>
+                      <div class="panel-column">
+                        <h4>{{ block.settings.menu_2_heading }}</h4>
+                        <ul>
+                          {% for link in block.settings.menu_2.links %}
+                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% endfor %}
+                        </ul>
+                      </div>
                     {% endif %}
-                  </div>
-                  {% endif %}
-
-                  <!-- Column 3 -->
-                  {% if block.settings.menu_3 != blank or block.settings.menu_3_heading != blank %}
-                  <div class="panel-column">
-                    {% if block.settings.menu_3_heading != blank %}
-                      <h4>{{ block.settings.menu_3_heading }}</h4>
-                    {% endif %}
-                    {% if block.settings.menu_3 != blank %}
-                      <ul>
-                        {% for link in block.settings.menu_3.links %}
-                          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    {% endif %}
-                  </div>
-                  {% endif %}
-
-                  <!-- Promo Card -->
-                  {% if block.settings.promo_image != blank %}
-                  <div class="panel-column">
-                      <a href="{{ block.settings.promo_link | default: '#' }}" class="promo-card-link">
-                          <div class="promo-card">
-                          {{ block.settings.promo_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
+                    {% if block.settings.promo_image != blank %}
+                      <div class="panel-column">
+                        <a href="{{ block.settings.promo_link | default: '#' }}" class="promo-card">
+                          {{ block.settings.promo_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
                           <div class="promo-overlay">
-                              <span class="promo-title">{{ block.settings.promo_title }}</span>
-                              <span class="promo-subtitle">{{ block.settings.promo_subtitle }}</span>
+                            <span class="promo-title">{{ block.settings.promo_title }}</span>
+                            <span class="promo-subtitle">{{ block.settings.promo_subtitle }}</span>
                           </div>
-                          </div>
-                      </a>
+                        </a>
+                      </div>
+                    {% endif %}
                   </div>
-                  {% endif %}
-
-                </div>
-              {% endif %}
-            {% endfor %}
+                {% endif %}
+              {% endfor %}
+            </div>
           </div>
         </div>
+
+        <nav class="main-nav">
+          <ul class="mega-nav__list">
+            {% for link in section.settings.main_menu.links %}
+              <li class="mega-nav__item">
+                <a href="{{ link.url }}" class="mega-nav__link">{{ link.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
       </div>
 
-      <!-- Main Navigation -->
-      <nav class="main-nav">
-        {% assign badge_items_arr = section.settings.badge_items | split: ', ' %}
-        <ul class="mega-nav__list">
-          {% for link in section.settings.main_menu.links %}
-            {% assign has_children = link.links | size %}
-            <li class="mega-nav__item{% if has_children > 0 %} mega-nav__item--has-children{% endif %}">
-              <a href="{{ link.url }}" class="mega-nav__link">
-                {{ link.title }}
-                {% if badge_items_arr contains link.title %}
-                  <span class="hot-badge">{{ section.settings.badge_text }}</span>
-                {% endif %}
-                {% if has_children > 0 %}
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                {% endif %}
-              </a>
-
-              {% if has_children > 0 %}
-                <div class="mega-panel" aria-hidden="true">
-                  <div class="mega-panel__inner">
-                    <div class="mega-panel__header">
-                      <div>
-                        <p class="mega-panel__eyebrow">Explore</p>
-                        <h3 class="mega-panel__title">{{ link.title }}</h3>
-                      </div>
-                      <a class="mega-panel__cta" href="{{ link.url }}">
-                        Shop everything
-                  </div>
-
-                  <div class="mega-panel__body">
-                    <div class="mega-panel__columns">
-                      {% for child_link in link.links %}
-                        <div class="mega-panel__column">
-                          <a href="{{ child_link.url }}">{{ child_link.title }}</a>
-                          {% if child_link.links.size > 0 %}
-                            <div class="mega-panel__sublist">
-                              {% for grandchild in child_link.links %}
-                                <a href="{{ grandchild.url }}">{{ grandchild.title }}</a>
-                              {% endfor %}
-                            </div>
-                          {% endif %}
-                        </div>
-                      {% endfor %}
-                    </div>
-
-                    <div class="mega-panel__feature-card">
-                      <p class="feature-label">Editor's pick</p>
-                      <p class="feature-headline">Fresh arrivals crafted for the season</p>
-                      <p class="feature-copy">Curated essentials that combine performance, craftsmanship, and bold aesthetics.</p>
-                      <a href="{{ link.url }}" class="feature-link">
-                        Discover now
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    </nav>
-
-    <!-- Right Icons -->
-    <div class="header-icons">
-      {% if section.settings.show_currency %}
-      <div class="currency-selector">
-        <span>GR (EUR €)</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </div>
-      {% endif %}
-
-      <button class="icon-btn search-trigger" aria-label="Search">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      </button>
-      
-      <a href="{{ routes.account_url }}" class="icon-btn" aria-label="Account">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      </a>
-
-      {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
-        <script src="{{ 'cart-drawer.js' | asset_url }}" type="module" fetchpriority="low"></script>
-        <cart-drawer-component class="cart-drawer" {% if settings.auto_open_cart_drawer %}auto-open{% endif %}>
-          <button class="icon-btn" aria-label="Cart" on:click="/open">
-            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            <div class="header-actions__cart-icon">
-                {% render 'cart-bubble', limit: 100, live_region: true %}
-            </div>
-          </button>
-          <dialog ref="dialog" class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}" aria-labelledby="cart-drawer-heading" scroll-lock cart-summary-sticky="true">
-            <div class="cart-drawer__inner">
-              <cart-items-component class="cart-items-component" data-section-id="{{ section.id }}">
-                {%- if cart.empty? -%}
-                  <div class="cart-drawer__header">
-                    <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
-                      <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
-                    </button>
-                  </div>
-                  <div class="cart-drawer__content motion-reduce">
-                    <h2 class="cart-drawer__heading h4 cart-drawer__heading--empty">{{ 'content.your_cart_is_empty' | t }}</h2>
-                    <div class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</div>
-                  </div>
-                {%- else -%}
-                  <div class="cart-drawer__header">
-                    <h2 class="cart-drawer__heading h4">{{ 'content.cart_title' | t }} {% render 'cart-bubble' %}</h2>
-                    <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
-                      <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
-                    </button>
-                  </div>
-                  <scroll-hint class="cart-drawer__content motion-reduce" style="--header-height: 60px;">
-                    <scroll-hint class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</scroll-hint>
-                    <div class="cart-drawer__summary">{% render 'cart-summary' %}</div>
-                  </scroll-hint>
-                {%- endif -%}
-              </cart-items-component>
-            </div>
-          </dialog>
-        </cart-drawer-component>
-      {% else %}
-        <a href="{{ routes.cart_url }}" class="icon-btn" aria-label="Cart">
-            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+      <div class="header-icons">
+        <button class="icon-btn search-trigger" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <a href="{{ routes.account_url }}" class="icon-btn" aria-label="Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </a>
-      {% endif %}
+        
+        {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+          <cart-drawer-component class="cart-drawer" {% if settings.auto_open_cart_drawer %}auto-open{% endif %}>
+            <button class="icon-btn" aria-label="Cart" on:click="/open">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+              <div class="header-actions__cart-icon">
+                  {% render 'cart-bubble', limit: 100, live_region: true %}
+              </div>
+            </button>
+            <dialog ref="dialog" class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}" aria-labelledby="cart-drawer-heading" scroll-lock cart-summary-sticky="true">
+              <div class="cart-drawer__inner">
+                <cart-items-component class="cart-items-component" data-section-id="{{ section.id }}">
+                  {%- if cart.empty? -%}
+                    <div class="cart-drawer__header">
+                      <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
+                        <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+                      </button>
+                    </div>
+                    <div class="cart-drawer__content motion-reduce">
+                      <h2 class="cart-drawer__heading h4 cart-drawer__heading--empty">{{ 'content.your_cart_is_empty' | t }}</h2>
+                      <div class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</div>
+                    </div>
+                  {%- else -%}
+                    <div class="cart-drawer__header">
+                      <h2 class="cart-drawer__heading h4">{{ 'content.cart_title' | t }} {% render 'cart-bubble' %}</h2>
+                      <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
+                        <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+                      </button>
+                    </div>
+                    <scroll-hint class="cart-drawer__content motion-reduce" style="--header-height: 60px;">
+                      <scroll-hint class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</scroll-hint>
+                      <div class="cart-drawer__summary">{% render 'cart-summary' %}</div>
+                    </scroll-hint>
+                  {%- endif -%}
+                </cart-items-component>
+              </div>
+            </dialog>
+          </cart-drawer-component>
+        {% else %}
+          <a href="{{ routes.cart_url }}" class="icon-btn" aria-label="Cart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+          </a>
+        {% endif %}
+      </div>
     </div>
 
+    <!-- Mobile Layout -->
+    <div class="header-mobile">
+      <button class="icon-btn mobile-menu-trigger" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+
+      <div class="header-branding">
+        <a href="{{ routes.root_url }}">
+          {% if section.settings.logo != blank %}
+            {{ section.settings.logo | image_url: width: 120 | image_tag: loading: 'eager' }}
+          {% else %}
+            <span class="header-logo-text" style="font-size: 18px;">{{ shop.name }}</span>
+          {% endif %}
+        </a>
+      </div>
+
+      <div class="header-icons">
+        {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+          <cart-drawer-component class="cart-drawer" {% if settings.auto_open_cart_drawer %}auto-open{% endif %}>
+            <button class="icon-btn" aria-label="Cart" on:click="/open">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+              <div class="header-actions__cart-icon">
+                  {% render 'cart-bubble', limit: 100, live_region: true %}
+              </div>
+            </button>
+            <dialog ref="dialog" class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}" aria-labelledby="cart-drawer-heading" scroll-lock cart-summary-sticky="true">
+              <div class="cart-drawer__inner">
+                <cart-items-component class="cart-items-component" data-section-id="{{ section.id }}">
+                  {%- if cart.empty? -%}
+                    <div class="cart-drawer__header">
+                      <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
+                        <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+                      </button>
+                    </div>
+                    <div class="cart-drawer__content motion-reduce">
+                      <h2 class="cart-drawer__heading h4 cart-drawer__heading--empty">{{ 'content.your_cart_is_empty' | t }}</h2>
+                      <div class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</div>
+                    </div>
+                  {%- else -%}
+                    <div class="cart-drawer__header">
+                      <h2 class="cart-drawer__heading h4">{{ 'content.cart_title' | t }} {% render 'cart-bubble' %}</h2>
+                      <button ref="closeButton" on:click="cart-drawer-component/close" class="button close-button cart-drawer__close-button button-unstyled" aria-label="{{ 'actions.close_dialog' | t }}">
+                        <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+                      </button>
+                    </div>
+                    <scroll-hint class="cart-drawer__content motion-reduce" style="--header-height: 60px;">
+                      <scroll-hint class="cart-drawer__items">{% render 'cart-products', drawer_context: 'drawer' %}</scroll-hint>
+                      <div class="cart-drawer__summary">{% render 'cart-summary' %}</div>
+                    </scroll-hint>
+                  {%- endif -%}
+                </cart-items-component>
+              </div>
+            </dialog>
+          </cart-drawer-component>
+        {% else %}
+          <a href="{{ routes.cart_url }}" class="icon-btn" aria-label="Cart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+          </a>
+        {% endif %}
+      </div>
+    </div>
   </div>
+</div>
+
+
+<!-- Mobile Menu Drawer -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer__header">
+    <span class="header-logo-text" style="font-size: 20px;">{{ shop.name }}</span>
+    <button class="mobile-drawer__close" aria-label="Close menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <nav class="mobile-drawer__nav">
+    <ul class="mobile-drawer__list">
+      {% for link in section.settings.main_menu.links %}
+        <li class="mobile-drawer__item">
+          <a href="{{ link.url }}" class="mobile-drawer__link">{{ link.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+</div>
+<div class="mobile-drawer__overlay" id="mobileDrawerOverlay"></div>
 
   <!-- Search Modal HTML -->
   <div class="search-modal" id="searchModal">
@@ -1391,7 +858,6 @@
       <div id="predictive-search-results" class="predictive-search-results"></div>
     </div>
   </div>
-</div>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -1565,5 +1031,29 @@
         }
       });
     });
+
+    // Mobile Drawer Logic
+    const mobileMenuTrigger = document.querySelector('.mobile-menu-trigger');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const mobileDrawerClose = document.querySelector('.mobile-drawer__close');
+    const mobileDrawerOverlay = document.getElementById('mobileDrawerOverlay');
+
+    if (mobileMenuTrigger && mobileDrawer && mobileDrawerOverlay) {
+      const openDrawer = () => {
+        mobileDrawer.classList.add('active');
+        mobileDrawerOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+
+      const closeDrawer = () => {
+        mobileDrawer.classList.remove('active');
+        mobileDrawerOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+
+      mobileMenuTrigger.addEventListener('click', openDrawer);
+      mobileDrawerClose?.addEventListener('click', closeDrawer);
+      mobileDrawerOverlay.addEventListener('click', closeDrawer);
+    }
   });
 </script>
