@@ -1,6 +1,6 @@
 {%- comment -%}
   Modern Product Form Snippet
-  Includes: Variant selector with image swatches, quantity picker, add to cart button
+  Includes: Variant selector with image swatches for color, text pills for size, quantity picker, add to cart button
 {%- endcomment -%}
 
 {%- liquid
@@ -10,7 +10,6 @@
   assign section_id = section_id
 
   # Default settings
-  assign variant_style = 'image'
   assign show_quantity = true
   assign enable_payment_button = true
 -%}
@@ -45,9 +44,21 @@
                   assign option_disabled = false
                   assign option_swatch_img = null
                   assign variant_with_image = null
+                  assign variant_for_value = null
 
                   for variant in product.variants
-                    if variant.option1 == value and option.position == 1
+                    # Check if this variant matches the current option value
+                    assign matches_value = false
+                    if option.position == 1 and variant.option1 == value
+                      assign matches_value = true
+                    elsif option.position == 2 and variant.option2 == value
+                      assign matches_value = true
+                    elsif option.position == 3 and variant.option3 == value
+                      assign matches_value = true
+                    endif
+
+                    if matches_value
+                      assign variant_for_value = variant
                       unless variant.available
                         assign option_disabled = true
                       endunless
@@ -55,24 +66,15 @@
                         assign option_swatch_img = variant.featured_media
                         assign variant_with_image = variant
                       endif
-                    elsif variant.option2 == value and option.position == 2
-                      unless variant.available
-                        assign option_disabled = true
-                      endunless
-                      if variant.featured_media and option_swatch_img == null
-                        assign option_swatch_img = variant.featured_media
-                        assign variant_with_image = variant
-                      endif
-                    elsif variant.option3 == value and option.position == 3
-                      unless variant.available
-                        assign option_disabled = true
-                      endunless
-                      if variant.featured_media and option_swatch_img == null
-                        assign option_swatch_img = variant.featured_media
-                        assign variant_with_image = variant
-                      endif
                     endif
                   endfor
+
+                  # Determine swatch style: use image for Color, text for others
+                  assign option_name_downcase = option.name | downcase
+                  assign use_image_swatch = false
+                  if option_name_downcase contains 'color' or option_name_downcase contains 'colour'
+                    assign use_image_swatch = true
+                  endif
                 -%}
 
                 <input
@@ -85,18 +87,19 @@
                   {% if option_disabled %}disabled{% endif %}
                   class="modern-variant-input visually-hidden"
                   data-variant-option
-                  {% if variant_with_image %}data-variant-id="{{ variant_with_image.id }}"{% endif %}
+                  {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
                 >
 
                 <label
                   for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}"
-                  class="modern-variant-swatch modern-variant-swatch--image {% if option_disabled %}is-disabled{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                  class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
                   data-variant-swatch
                   data-option-value="{{ value | escape }}"
-                  {% if variant_with_image %}data-variant-image="{{ variant_with_image.featured_media.id }}"{% endif %}
+                  {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
+                  {% if variant_for_value %}data-variant-full-id="{{ variant_for_value.id }}"{% endif %}
                   tabindex="0"
                 >
-                  {%- if option_swatch_img -%}
+                  {%- if use_image_swatch and option_swatch_img -%}
                     {{
                       option_swatch_img
                       | image_url: width: 100

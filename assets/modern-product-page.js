@@ -252,9 +252,9 @@ class ModernProductPage {
   }
 
   updateVariantState(variant) {
-    // Update image if variant has a featured image
-    if (variant.featured_image) {
-      const mediaId = variant.featured_image.id.toString();
+    // Update image if variant has a featured media
+    if (variant.featured_media) {
+      const mediaId = variant.featured_media.id.toString();
       const targetSlide = this.container.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
 
       if (targetSlide) {

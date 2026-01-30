@@ -12,9 +12,13 @@
 {% assign card_id = block.id | append: '-' | append: product.id %}
 {% assign accent_color = '#40C4FF' %}
 {% assign media_count = product.media | size %}
-{% assign has_multiple_media = media_count > 1 %}
 
 {% liquid
+  assign has_multiple_media = false
+  if media_count > 1
+    assign has_multiple_media = true
+  endif
+
   assign on_sale = false
   if product.compare_at_price > product.price
     assign on_sale = true
@@ -170,11 +174,16 @@
     display: flex;
     transition: transform 0.3s ease;
     cursor: grab;
+    width: 100%;
   }
 
   .product-card-slider-container-{{ card_id }}.dragging {
     cursor: grabbing;
     transition: none;
+  }
+
+  .product-card-slider-container-{{ card_id }} > * {
+    flex: 0 0 100%;
   }
 
   .product-card-image-{{ card_id }} {
@@ -285,6 +294,7 @@
     padding: 6px 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    z-index: 2;
   }
 
   /* Buy Now button */
@@ -480,11 +490,12 @@
 <script>
   (function() {
     const cardId = '{{ card_id }}';
+    const cardElement = document.querySelector('.product-card-' + cardId);
     const slider = document.getElementById('slider-' + cardId);
     const dotsContainer = document.getElementById('dots-' + cardId);
     const dots = dotsContainer?.querySelectorAll('.product-card-dot-' + cardId);
-    const prevArrow = document.querySelector('.product-card-arrow-prev-' + cardId);
-    const nextArrow = document.querySelector('.product-card-arrow-next-' + cardId);
+    const prevArrow = cardElement?.querySelector('.product-card-arrow-prev-' + cardId);
+    const nextArrow = cardElement?.querySelector('.product-card-arrow-next-' + cardId);
 
     if (!slider) return;
 
@@ -527,6 +538,8 @@
       updateArrows(index);
     }
 
+    slideTo(0);
+
     // Arrow button clicks
     if (prevArrow) {
       prevArrow.addEventListener('click', () => {
@@ -555,6 +568,9 @@
     slider.addEventListener('touchmove', (e) => {
       if (!isDragging) return;
       const currentPosition = e.touches[0].clientX;
+      const diff = currentPosition - startPos;
+      const movePercent = diff / slider.offsetWidth * 100;
+      slider.style.transform = `translateX(${currentTranslate + movePercent}%)`;
     }, { passive: true });
 
     slider.addEventListener('touchend', (e) => {
@@ -601,11 +617,8 @@
       if (!mouseDown) return;
       const currentPos = e.clientX;
       const diff = currentPos - mouseStartPos;
-      const moveDiff = diff / slider.offsetWidth * 100;
-
-      if (Math.abs(moveDiff) < 100) {
-        slider.style.transform = `translateX(${currentTranslate + moveDiff}%)`;
-      }
+      const movePercent = diff / slider.offsetWidth * 100;
+      slider.style.transform = `translateX(${currentTranslate + movePercent}%)`;
     });
 
     slider.addEventListener('mouseup', (e) => {

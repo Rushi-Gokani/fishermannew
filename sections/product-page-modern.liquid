@@ -501,97 +501,185 @@
       });
     }
 
-    // Variant change - prevent default click on labels
+    // Variant swatch click handler - properly triggers image change
     const variantSwatches = document.querySelectorAll('.modern-variant-swatch');
+
+    // Function to update gallery image based on media ID
+    function switchToMedia(mediaId) {
+      console.log('=== SWITCH TO MEDIA ===');
+      console.log('Looking for media ID:', mediaId);
+      console.log('Available slides with media IDs:', Array.from(slides).map(s => ({
+        mediaId: s.getAttribute('data-media-id'),
+        index: s.getAttribute('data-index')
+      })));
+
+      const targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
+      console.log('Target slide found:', targetSlide);
+
+      if (targetSlide) {
+        const slideIndex = parseInt(targetSlide.getAttribute('data-index'));
+        console.log('Slide index:', slideIndex);
+
+        // Update slides
+        slides.forEach(function(slide, i) {
+          slide.classList.toggle('is-active', i === slideIndex);
+        });
+
+        // Update thumbnails
+        thumbnails.forEach(function(t, i) {
+          t.classList.toggle('is-active', i === slideIndex);
+          t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
+        });
+
+        // Update counter
+        const counter = document.querySelector('[data-current-index]');
+        if (counter) counter.textContent = slideIndex + 1;
+
+        console.log('Successfully switched to slide', slideIndex);
+        return true;
+      }
+
+      console.log('Target slide NOT found for media ID:', mediaId);
+      return false;
+    }
+
+    // Function to handle variant price update
+    function updateVariantPrice(variant) {
+      const priceWrapper = document.querySelector('.modern-product__price-wrapper');
+      if (priceWrapper) {
+        const hasComparePrice = variant.compare_at_price && variant.compare_at_price > variant.price;
+
+        if (hasComparePrice) {
+          priceWrapper.innerHTML = `
+            <span class="modern-product__price modern-product__price--sale">
+              $${(variant.price / 100).toFixed(2)}
+            </span>
+            <span class="modern-product__price-compare">
+              $${(variant.compare_at_price / 100).toFixed(2)}
+            </span>
+            <span class="modern-product__save-badge">
+              Save $${((variant.compare_at_price - variant.price) / 100).toFixed(2)}
+            </span>
+          `;
+        } else {
+          priceWrapper.innerHTML = `
+            <span class="modern-product__price">
+              $${(variant.price / 100).toFixed(2)}
+            </span>
+          `;
+        }
+
+        // Add sold out badge if needed
+        if (!variant.available) {
+          priceWrapper.innerHTML += '<span class="modern-product__sold-badge">Sold Out</span>';
+        }
+      }
+
+      // Update hidden variant ID input
+      const variantIdInput = document.querySelector('input[name="id"]');
+      if (variantIdInput) {
+        variantIdInput.value = variant.id;
+      }
+    }
+
+    // Function to get variant from selected options
+    function getSelectedVariant() {
+      const productJSON = document.querySelector('[data-product-json]');
+      if (!productJSON) {
+        console.log('No product JSON found');
+        return null;
+      }
+
+      try {
+        const product = JSON.parse(productJSON.textContent);
+        const selectedOptions = Array.from(document.querySelectorAll('input[name^="option"]'))
+          .filter(i => i.checked)
+          .map(i => i.value);
+
+        console.log('Selected options:', selectedOptions);
+        console.log('Available variants:', product.variants.map(v => ({ id: v.id, title: v.title, options: v.options })));
+
+        const variant = product.variants.find(v => {
+          return selectedOptions.every((opt, idx) => v.options[idx] === opt);
+        });
+
+        console.log('Found variant:', variant);
+        return variant;
+      } catch (error) {
+        console.error('Error parsing product JSON:', error);
+        return null;
+      }
+    }
+
+    // Handle variant swatch click - find complete variant and switch to its image
     variantSwatches.forEach(function(swatch) {
       swatch.addEventListener('click', function(e) {
         e.preventDefault();
+
+        // Check the associated radio input
         const input = swatch.querySelector('input[type="radio"]');
         if (input) {
           input.checked = true;
+
+          // Get the complete selected variant (all options)
+          const variant = getSelectedVariant();
+          if (variant) {
+            console.log('=== VARIANT CLICKED ===');
+            console.log('Variant title:', variant.title);
+            console.log('Variant ID:', variant.id);
+            console.log('Variant featured_image:', variant.featured_image);
+            console.log('Variant available:', variant.available);
+
+            // Try both featured_image and featured_media
+            let mediaId = null;
+            if (variant.featured_image && variant.featured_image.id) {
+              mediaId = variant.featured_image.id.toString();
+              console.log('Using featured_image ID:', mediaId);
+            } else if (variant.featured_media && variant.featured_media.id) {
+              mediaId = variant.featured_media.id.toString();
+              console.log('Using featured_media ID:', mediaId);
+            }
+
+            if (mediaId) {
+              console.log('Switching to media ID:', mediaId);
+              const success = switchToMedia(mediaId);
+              console.log('Switch successful:', success);
+            } else {
+              console.log('No featured media for this variant');
+            }
+
+            // Update price
+            updateVariantPrice(variant);
+          } else {
+            console.log('No variant found for selection');
+          }
         }
       });
     });
 
-    // Variant inputs change handler
+    // Also handle input change for keyboard navigation
     const variantInputs = document.querySelectorAll('input[name^="option"]');
     variantInputs.forEach(function(input) {
       input.addEventListener('change', function() {
-        // Find the variant and update price
-        const productJSON = document.querySelector('[data-product-json]');
-        if (productJSON) {
-          const product = JSON.parse(productJSON.textContent);
-          const selectedOptions = Array.from(document.querySelectorAll('input[name^="option"]'))
-            .filter(i => i.checked)
-            .map(i => i.value);
+        const variant = getSelectedVariant();
+        if (variant) {
+          console.log('=== VARIANT CHANGED VIA INPUT ===');
+          console.log('Variant title:', variant.title);
 
-          const variant = product.variants.find(v => {
-            return selectedOptions.every((opt, idx) => v.options[idx] === opt);
-          });
-
-          if (variant) {
-            // Update price display with proper formatting
-            const priceEl = document.querySelector('.modern-product__price');
-            const priceWrapper = document.querySelector('.modern-product__price-wrapper');
-            if (variant) {
-              // Check if variant has a featured image
-              if (variant.featured_image) {
-                const mediaId = variant.featured_image.id.toString();
-
-                // Find the slide with this media and activate it
-                const targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
-                if (targetSlide) {
-                  const slideIndex = parseInt(targetSlide.getAttribute('data-index'));
-
-                  // Update slides
-                  slides.forEach(function(slide, i) {
-                    slide.classList.toggle('is-active', i === slideIndex);
-                  });
-
-                  // Update thumbnails
-                  thumbnails.forEach(function(t, i) {
-                    t.classList.toggle('is-active', i === slideIndex);
-                    t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
-                  });
-
-                  // Update counter
-                  const counter = document.querySelector('[data-current-index]');
-                  if (counter) counter.textContent = slideIndex + 1;
-                }
-              }
-
-              // Update price
-              if (priceWrapper) {
-                // Re-render price section with variant data
-                const hasComparePrice = variant.compare_at_price && variant.compare_at_price > variant.price;
-
-                if (hasComparePrice) {
-                  priceWrapper.innerHTML = `
-                    <span class="modern-product__price modern-product__price--sale">
-                      $${(variant.price / 100).toFixed(2)}
-                    </span>
-                    <span class="modern-product__price-compare">
-                      $${(variant.compare_at_price / 100).toFixed(2)}
-                    </span>
-                    <span class="modern-product__save-badge">
-                      Save $${((variant.compare_at_price - variant.price) / 100).toFixed(2)}
-                    </span>
-                  `;
-                } else {
-                  priceWrapper.innerHTML = `
-                    <span class="modern-product__price">
-                      $${(variant.price / 100).toFixed(2)}
-                    </span>
-                  `;
-                }
-
-                // Add sold out badge if needed
-                if (!variant.available) {
-                  priceWrapper.innerHTML += '<span class="modern-product__sold-badge">Sold Out</span>';
-                }
-              }
-            }
+          // Try both featured_image and featured_media
+          let mediaId = null;
+          if (variant.featured_image && variant.featured_image.id) {
+            mediaId = variant.featured_image.id.toString();
+          } else if (variant.featured_media && variant.featured_media.id) {
+            mediaId = variant.featured_media.id.toString();
           }
+
+          if (mediaId) {
+            switchToMedia(mediaId);
+          }
+
+          // Update price
+          updateVariantPrice(variant);
         }
       });
     });
