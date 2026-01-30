@@ -1,6 +1,6 @@
 {%- comment -%}
   Modern Product Form Snippet
-  Includes: Variant selector, quantity picker, add to cart button
+  Includes: Variant selector with image swatches, quantity picker, add to cart button
 {%- endcomment -%}
 
 {%- liquid
@@ -10,7 +10,7 @@
   assign section_id = section_id
 
   # Default settings
-  assign variant_style = 'pills'
+  assign variant_style = 'image'
   assign show_quantity = true
   assign enable_payment_button = true
 -%}
@@ -44,21 +44,33 @@
                 {%- liquid
                   assign option_disabled = false
                   assign option_swatch_img = null
-                  assign option_swatch_color = null
+                  assign variant_with_image = null
 
                   for variant in product.variants
                     if variant.option1 == value and option.position == 1
                       unless variant.available
                         assign option_disabled = true
                       endunless
+                      if variant.featured_media
+                        assign option_swatch_img = variant.featured_media
+                        assign variant_with_image = variant
+                      endif
                     elsif variant.option2 == value and option.position == 2
                       unless variant.available
                         assign option_disabled = true
                       endunless
+                      if variant.featured_media and option_swatch_img == null
+                        assign option_swatch_img = variant.featured_media
+                        assign variant_with_image = variant
+                      endif
                     elsif variant.option3 == value and option.position == 3
                       unless variant.available
                         assign option_disabled = true
                       endunless
+                      if variant.featured_media and option_swatch_img == null
+                        assign option_swatch_img = variant.featured_media
+                        assign variant_with_image = variant
+                      endif
                     endif
                   endfor
                 -%}
@@ -73,16 +85,31 @@
                   {% if option_disabled %}disabled{% endif %}
                   class="modern-variant-input visually-hidden"
                   data-variant-option
+                  {% if variant_with_image %}data-variant-id="{{ variant_with_image.id }}"{% endif %}
                 >
 
                 <label
                   for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}"
-                  class="modern-variant-swatch {% if variant_style == 'pills' %}modern-variant-swatch--pill{% else %}modern-variant-swatch--circle{% endif %} {% if option_disabled %}is-disabled{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                  class="modern-variant-swatch modern-variant-swatch--image {% if option_disabled %}is-disabled{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
                   data-variant-swatch
                   data-option-value="{{ value | escape }}"
+                  {% if variant_with_image %}data-variant-image="{{ variant_with_image.featured_media.id }}"{% endif %}
                   tabindex="0"
                 >
-                  {{ value }}
+                  {%- if option_swatch_img -%}
+                    {{
+                      option_swatch_img
+                      | image_url: width: 100
+                      | image_tag:
+                        loading: 'lazy',
+                        class: 'modern-variant-swatch-img',
+                        alt: value,
+                        width: nil,
+                        height: nil
+                    }}
+                  {%- else -%}
+                    <span class="modern-variant-swatch-label">{{ value }}</span>
+                  {%- endif -%}
                 </label>
               {%- endfor -%}
             </div>
@@ -235,7 +262,65 @@
     gap: 10px;
   }
 
-  /* Pills Style */
+  /* Image Swatch Style - Sharp edges */
+  .modern-variant-swatch--image {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(var(--color-foreground-rgb) / 0.02);
+  }
+
+  .modern-variant-swatch--image:hover {
+    border-color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+
+  .modern-variant-swatch--image.is-selected {
+    border-color: currentColor;
+    box-shadow: 0 0 0 2px currentColor;
+  }
+
+  .modern-variant-swatch--image.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .modern-variant-swatch--image.is-disabled::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 5px,
+      rgb(0 0 0 / 0.1) 5px,
+      rgb(0 0 0 / 0.1) 10px
+    );
+  }
+
+  .modern-variant-swatch-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .modern-variant-swatch-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: currentColor;
+    text-align: center;
+    padding: 4px;
+  }
+
+  /* Pills Style - Sharp edges */
   .modern-variant-swatch--pill {
     display: inline-flex;
     align-items: center;
@@ -243,7 +328,7 @@
     min-height: 44px;
     padding: 0 18px;
     border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 10px;
+    border-radius: 0;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -266,13 +351,13 @@
     text-decoration: line-through;
   }
 
-  /* Circle Style (for colors) */
+  /* Circle Style (for colors) - Make sharp */
   .modern-variant-swatch--circle {
     position: relative;
     width: 40px;
     height: 40px;
     border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 50%;
+    border-radius: 0;
     cursor: pointer;
     transition: all 0.2s ease;
     overflow: hidden;
@@ -282,12 +367,12 @@
     content: '';
     position: absolute;
     inset: 2px;
-    border-radius: 50%;
+    border-radius: 0;
     background: currentColor;
   }
 
   .modern-variant-swatch--circle:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
   }
 
   .modern-variant-swatch--circle.is-selected {
@@ -321,14 +406,14 @@
     width: 50%;
   }
 
-  /* Quantity Selector */
+  /* Quantity Selector - Sharp edges */
   .modern-quantity-selector {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 8px;
     background: rgb(var(--color-foreground-rgb) / 0.03);
-    border-radius: 14px;
+    border-radius: 0;
     max-width: 180px;
   }
 
@@ -340,7 +425,7 @@
     justify-content: center;
     background: #fff;
     border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 10px;
+    border-radius: 0;
     cursor: pointer;
     transition: all 0.2s ease;
     color: currentColor;
@@ -372,14 +457,14 @@
     margin: 0;
   }
 
-  /* Add to Cart */
+  /* Add to Cart - Sharp edges */
   .modern-add-to-cart {
     width: 100%;
     min-height: 56px;
     padding: 0 32px;
     font-size: 16px;
     font-weight: 600;
-    border-radius: 14px;
+    border-radius: 0;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -431,7 +516,7 @@
     margin-right: 8px;
   }
 
-  /* Dynamic Checkout Button */
+  /* Dynamic Checkout Button - Sharp edges */
   .modern-buy-now-wrapper {
     width: 100%;
   }
@@ -444,7 +529,7 @@
   .shopify-payment-button__button {
     width: 100% !important;
     min-height: 56px !important;
-    border-radius: 14px !important;
+    border-radius: 0 !important;
     font-weight: 600 !important;
     font-size: 15px !important;
   }
@@ -453,13 +538,13 @@
     font-size: 14px !important;
   }
 
-  /* Pickup Availability */
+  /* Pickup Availability - Sharp edges */
   .modern-pickup-availability-preview {
     display: flex;
     gap: 12px;
     padding: 16px;
     background: rgb(var(--color-foreground-rgb) / 0.03);
-    border-radius: 12px;
+    border-radius: 0;
     margin-top: 16px;
   }
 

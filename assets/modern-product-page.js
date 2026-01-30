@@ -252,6 +252,17 @@ class ModernProductPage {
   }
 
   updateVariantState(variant) {
+    // Update image if variant has a featured image
+    if (variant.featured_image) {
+      const mediaId = variant.featured_image.id.toString();
+      const targetSlide = this.container.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
+
+      if (targetSlide) {
+        const slideIndex = parseInt(targetSlide.getAttribute('data-index'));
+        this.goToSlide(slideIndex);
+      }
+    }
+
     // Update price
     const priceWrapper = this.container.querySelector('.modern-product__price-wrapper');
     if (priceWrapper && variant) {

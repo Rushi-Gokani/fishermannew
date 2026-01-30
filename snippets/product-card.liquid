@@ -11,6 +11,8 @@
 {% assign block_settings = block.settings %}
 {% assign card_id = block.id | append: '-' | append: product.id %}
 {% assign accent_color = '#40C4FF' %}
+{% assign media_count = product.media | size %}
+{% assign has_multiple_media = media_count > 1 %}
 
 {% liquid
   assign on_sale = false
@@ -26,6 +28,12 @@
   assign show_badge = false
   if product.tags contains 'best-seller' or product.tags contains 'Best Seller'
     assign show_badge = true
+  endif
+
+  assign discount_percent = 0
+  if on_sale and product.compare_at_price > 0
+    assign price_difference = product.compare_at_price | minus: product.price
+    assign discount_percent = price_difference | times: 100 | divided_by: product.compare_at_price
   endif
 %}
 
@@ -260,8 +268,23 @@
     margin-left: 8px;
   }
 
-  .product-card-image-link-{{ card_id }} {
+  .product-card-single-image-link-{{ card_id }} {
     display: block;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .product-card-discount-badge-{{ card_id }} {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: #FF3B30;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   /* Buy Now button */
@@ -327,80 +350,95 @@
 
   <!-- Image Section with Swipeable Slider -->
   <div class="product-card-image-wrapper-{{ card_id }}">
-    <div class="product-card-slider-{{ card_id }}">
-      <!-- Previous Arrow -->
-      <button
-        class="product-card-arrow-{{ card_id }} product-card-arrow-prev-{{ card_id }}"
-        aria-label="Previous image"
-        data-direction="prev"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-      </button>
+    {% if on_sale and discount_percent > 0 %}
+      <div class="product-card-discount-badge-{{ card_id }}">
+        Save {{ discount_percent | round }}%
+      </div>
+    {% endif %}
 
-      <!-- Next Arrow -->
-      <button
-        class="product-card-arrow-{{ card_id }} product-card-arrow-next-{{ card_id }}"
-        aria-label="Next image"
-        data-direction="next"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
-      </button>
+    {% if has_multiple_media %}
+      <div class="product-card-slider-{{ card_id }}">
+        <!-- Previous Arrow -->
+        <button
+          class="product-card-arrow-{{ card_id }} product-card-arrow-prev-{{ card_id }}"
+          aria-label="Previous image"
+          data-direction="prev"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
 
-      <a
-        href="{{ product.url }}"
-        class="product-card-image-link-{{ card_id }}"
-        aria-label="{{ product.title | escape }}"
-      >
+        <!-- Next Arrow -->
+        <button
+          class="product-card-arrow-{{ card_id }} product-card-arrow-next-{{ card_id }}"
+          aria-label="Next image"
+          data-direction="next"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+
         <div class="product-card-slider-container-{{ card_id }}" id="slider-{{ card_id }}" data-product-url="{{ product.url }}">
-        {% if product.media.size > 0 %}
-          {% for media in product.media limit: 3 %}
-            {% if media.media_type == 'image' %}
-              <img
-                src="{{ media | image_url: width: 400 }}"
-                alt="{{ media.alt | escape }}"
-                loading="lazy"
-                width="400"
-                height="400"
-                class="product-card-image-{{ card_id }}"
-              >
-            {% elsif media.media_type == 'video' %}
-              <video
-                class="product-card-image-{{ card_id }}"
-                muted
-                loop
-                playsinline
-                onclick="this.paused ? this.play() : this.pause()"
-              >
-                <source src="{{ media.sources[1].url }}" type="video/mp4">
-              </video>
-            {% endif %}
-          {% endfor %}
-        {% else %}
-          {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
-        {% endif %}
+          {% if media_count > 0 %}
+            {% for media in product.media limit: 3 %}
+              {% if media.media_type == 'image' %}
+                <img
+                  src="{{ media | image_url: width: 400 }}"
+                  alt="{{ media.alt | escape }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                  class="product-card-image-{{ card_id }}"
+                >
+              {% elsif media.media_type == 'video' %}
+                <video
+                  class="product-card-image-{{ card_id }}"
+                  muted
+                  loop
+                  playsinline
+                  onclick="this.paused ? this.play() : this.pause()"
+                >
+                  <source src="{{ media.sources[1].url }}" type="video/mp4">
+                </video>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
+          {% endif %}
         </div>
-      </a>
-    </div>
+      </div>
 
-    <!-- Pagination Dots -->
-    <div class="product-card-dots-{{ card_id }}" id="dots-{{ card_id }}">
-      {% if product.media.size > 0 %}
+      <!-- Pagination Dots -->
+      <div class="product-card-dots-{{ card_id }}" id="dots-{{ card_id }}">
         {% for media in product.media limit: 3 %}
           <span
             class="product-card-dot-{{ card_id }}{% if forloop.first %} active{% endif %}"
             data-index="{{ forloop.index | minus: 1 }}"
           ></span>
         {% endfor %}
-      {% else %}
-        <span class="product-card-dot-{{ card_id }} active"></span>
-        <span class="product-card-dot-{{ card_id }}"></span>
-        <span class="product-card-dot-{{ card_id }}"></span>
-      {% endif %}
-    </div>
+      </div>
+    {% else %}
+      <a
+        href="{{ product.url }}"
+        class="product-card-single-image-link-{{ card_id }}"
+        aria-label="{{ product.title | escape }}"
+      >
+        {% if product.featured_image %}
+          <img
+            src="{{ product.featured_image | image_url: width: 400 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            loading="lazy"
+            width="400"
+            height="400"
+            class="product-card-image-{{ card_id }}"
+          >
+        {% else %}
+          {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: card_id }}
+        {% endif %}
+      </a>
+    {% endif %}
   </div>
 
   <!-- Bottom Section: Brand, Title, Price, Button -->
