@@ -45,6 +45,7 @@
                   assign option_swatch_img = null
                   assign variant_with_image = null
                   assign variant_for_value = null
+                  assign has_variant_sale = false
 
                   for variant in product.variants
                     # Check if this variant matches the current option value
@@ -62,9 +63,23 @@
                       unless variant.available
                         assign option_disabled = true
                       endunless
+                      
+                      # Grab image from the first matching variant that has one, or keep updating? 
+                      # Usually we want the first specific one, or the one corresponding to current other selections.
+                      # For simplicity, we keep updating if we find one with an image.
                       if variant.featured_media
                         assign option_swatch_img = variant.featured_media
                         assign variant_with_image = variant
+                      endif
+                      
+                      # Check for sale
+                      assign variant_compare = variant.compare_at_price
+                      if variant_compare == nil or variant_compare == blank or variant_compare == 0
+                        assign variant_compare = product.compare_at_price
+                      endif
+                      
+                      if variant.available and variant_compare != nil and variant_compare > variant.price
+                        assign has_variant_sale = true
                       endif
                     endif
                   endfor
@@ -112,6 +127,10 @@
                     }}
                   {%- else -%}
                     <span class="modern-variant-swatch-label">{{ value }}</span>
+                  {%- endif -%}
+                  
+                  {%- if has_variant_sale and option_disabled == false -%}
+                    <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
                   {%- endif -%}
                 </label>
               {%- endfor -%}
@@ -285,7 +304,7 @@
     height: 70px;
     border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
     border-radius: 10px;
-    overflow: hidden;
+    /* overflow: hidden; Removed to allow SALE badge to stick out */
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -366,6 +385,23 @@
     opacity: 0.4;
     cursor: not-allowed;
     text-decoration: line-through;
+  }
+
+  /* SALE badge on variant swatches */
+  .modern-variant-sale-dot {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    z-index: 1;
   }
 
   /* Circle Style (for colors) - Rounded 10px (soft square) or keep circle? User said "rounded", usually means soft square for swatches, or maybe circle.

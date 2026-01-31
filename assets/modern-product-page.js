@@ -328,26 +328,6 @@ class ModernProductPage {
       }
     }
 
-    // Update SALE badge on image
-    const saleBadge = this.container.querySelector('[data-sale-badge]');
-    const saleText = this.container.querySelector('[data-sale-text]');
-    if (saleBadge) {
-      // FALLBACK: Try variant compare_at_price first, then product-level
-      let saleComparePrice = variant.compare_at_price;
-      if (saleComparePrice === null || saleComparePrice === undefined || saleComparePrice === 0 || saleComparePrice === '') {
-        saleComparePrice = this.productJSON.compare_at_price || 0;
-      }
-      
-      const hasDiscount = saleComparePrice > 0 && saleComparePrice > variant.price;
-      if (hasDiscount) {
-        const discountPercent = Math.round((saleComparePrice - variant.price) / saleComparePrice * 100);
-        if (saleText) saleText.textContent = `SALE ${discountPercent}% OFF`;
-        saleBadge.style.display = '';
-      } else {
-        saleBadge.style.display = 'none';
-      }
-    }
-
 
     // Update add to cart button
     const addToCart = this.container.querySelector('[data-add-to-cart]');

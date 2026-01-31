@@ -23,18 +23,6 @@
     <div class="modern-product-section__gallery">
       <!-- Main Image Display -->
       <div class="modern-gallery__main">
-        <!-- Sale Badge -->
-        {%- assign show_sale_badge = false -%}
-        {%- assign sale_discount = 0 -%}
-        {%- assign cv = product.selected_or_first_available_variant -%}
-        {%- if cv.compare_at_price != nil and cv.compare_at_price > cv.price -%}
-          {%- assign show_sale_badge = true -%}
-          {%- assign sale_discount = cv.compare_at_price | minus: cv.price | times: 100.0 | divided_by: cv.compare_at_price | round -%}
-        {%- endif -%}
-        <div class="modern-gallery__sale-badge" data-sale-badge style="{% unless show_sale_badge %}display: none;{% endunless %}">
-          <span data-sale-text>SALE {{ sale_discount }}% OFF</span>
-        </div>
-        
         <div class="modern-gallery__viewport">
           {% if product.media.size > 0 %}
             {% for media in product.media %}
@@ -566,8 +554,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const priceEl = container.querySelector('[data-product-price]');
     const compareEl = container.querySelector('[data-compare-price]');
     const saveBadge = container.querySelector('[data-save-badge]');
-    const saleBadge = container.querySelector('[data-sale-badge]');
-    const saleText = container.querySelector('[data-sale-text]');
     
     // Calculate discount - FALLBACK to product.compare_at_price if variant doesn't have it
     const currentPrice = variant.price;
@@ -606,16 +592,6 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBadge.style.display = '';
       } else {
         saveBadge.style.display = 'none';
-      }
-    }
-    
-    // Update SALE badge on image
-    if (saleBadge) {
-      if (hasDiscount) {
-        if (saleText) saleText.textContent = 'SALE ' + discountPercent + '% OFF';
-        saleBadge.style.display = '';
-      } else {
-        saleBadge.style.display = 'none';
       }
     }
   }
