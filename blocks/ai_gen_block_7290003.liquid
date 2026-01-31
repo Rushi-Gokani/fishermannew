@@ -78,7 +78,7 @@
     aspect-ratio: 1;
     margin-bottom: {{ block.settings.image_text_spacing }}px;
     overflow: hidden;
-    border-radius: 0;
+    border-radius: {{ block.settings.image_border_radius }}px;
     background-color: #f5f5f5;
   }
 
@@ -134,7 +134,7 @@
     transform: translateY(-50%);
     width: {{ block.settings.arrow_button_size }}px;
     height: {{ block.settings.arrow_button_size }}px;
-    border-radius: 0;
+    border-radius: 50%;
     background-color: {{ block.settings.arrow_bg_color }};
     border: 1px solid {{ block.settings.arrow_border_color }};
     display: none;

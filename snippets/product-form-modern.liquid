@@ -278,13 +278,13 @@
     box-shadow: 0 0 0 2px #000 !important;
   }
 
-  /* Image Swatch Style - Sharp edges */
+  /* Image Swatch Style - Rounded 10px */
   .modern-variant-swatch--image {
     position: relative;
     width: 70px;
     height: 70px;
     border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 0;
+    border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -326,6 +326,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 10px;
   }
 
   .modern-variant-swatch-label {
@@ -336,7 +337,7 @@
     padding: 4px;
   }
 
-  /* Pills Style - Sharp edges */
+  /* Pills Style - Rounded 10px */
   .modern-variant-swatch--pill {
     display: inline-flex;
     align-items: center;
@@ -344,7 +345,7 @@
     min-height: 44px;
     padding: 0 18px;
     border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 0;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -367,13 +368,21 @@
     text-decoration: line-through;
   }
 
-  /* Circle Style (for colors) - Make sharp */
+  /* Circle Style (for colors) - Rounded 10px (soft square) or keep circle? User said "rounded", usually means soft square for swatches, or maybe circle.
+     If it's circle class, it SHOULD be circle. But user asked for rounded. I'll leave circle as circle or make it 10px? 
+     Usually "circle" implies 50%. But "swatch" generally means the square ones. 
+     I will make the 'circle' style 50% (it was 0 before?? No, it was 0 for 'make sharp' comment).
+     Wait, line 376 said `border-radius: 0` for `.modern-variant-swatch--circle`. That's weird for a 'circle' class. 
+     I will change it to `50%` to be a true circle, or `10px` if they want consistent rounding. 
+     Given the user asked "make... to rounded", I'll stick to 10px for consistency unless it's explicitly a circle UI.
+     Actually, let's make it 50% because the class name is `circle`.
+  */
   .modern-variant-swatch--circle {
     position: relative;
     width: 40px;
     height: 40px;
     border: 2px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 0;
+    border-radius: 50%; /* Circle class should be circle */
     cursor: pointer;
     transition: all 0.2s ease;
     overflow: hidden;
@@ -383,7 +392,7 @@
     content: '';
     position: absolute;
     inset: 2px;
-    border-radius: 0;
+    border-radius: 50%;
     background: currentColor;
   }
 
@@ -422,14 +431,14 @@
     width: 50%;
   }
 
-  /* Quantity Selector - Sharp edges */
+  /* Quantity Selector - Rounded 10px */
   .modern-quantity-selector {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 8px;
     background: rgb(var(--color-foreground-rgb) / 0.03);
-    border-radius: 0;
+    border-radius: 10px;
     max-width: 180px;
   }
 
@@ -441,7 +450,7 @@
     justify-content: center;
     background: #fff;
     border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 0;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
     color: currentColor;
@@ -473,14 +482,14 @@
     margin: 0;
   }
 
-  /* Add to Cart - Sharp edges */
+  /* Add to Cart - Rounded 10px */
   .modern-add-to-cart {
     width: 100%;
     min-height: 56px;
     padding: 0 32px;
     font-size: 16px;
     font-weight: 600;
-    border-radius: 0;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -532,7 +541,7 @@
     margin-right: 8px;
   }
 
-  /* Dynamic Checkout Button - Sharp edges */
+  /* Dynamic Checkout Button - Rounded 10px */
   .modern-buy-now-wrapper {
     width: 100%;
   }
@@ -545,7 +554,7 @@
   .shopify-payment-button__button {
     width: 100% !important;
     min-height: 56px !important;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
     font-weight: 600 !important;
     font-size: 15px !important;
   }
@@ -554,13 +563,13 @@
     font-size: 14px !important;
   }
 
-  /* Pickup Availability - Sharp edges */
+  /* Pickup Availability - Rounded 10px */
   .modern-pickup-availability-preview {
     display: flex;
     gap: 12px;
     padding: 16px;
     background: rgb(var(--color-foreground-rgb) / 0.03);
-    border-radius: 0;
+    border-radius: 10px;
     margin-top: 16px;
   }
 

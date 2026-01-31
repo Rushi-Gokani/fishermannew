@@ -345,8 +345,8 @@
           <div class="modern-accordion__content">
             <div class="modern-product__description" id="product-description-{{ section.id }}">
               {%- assign description_text = product.description | strip_html -%}
-              {%- if description_text.size > 150 -%}
-                {%- assign short_desc = description_text | truncate: 150 -%}
+              {%- if description_text.size > 500 -%}
+                {%- assign short_desc = description_text | truncate: 500 -%}
                 <div class="description-short">
                   {{ short_desc }}
                   <span class="read-more-btn">...read more</span>
@@ -404,6 +404,8 @@
   {% endif %}
 </div>
 
+<!-- Quantity & Variant Logic Injected Here -->
+
 <!-- 3D Model Script -->
 {% if first_3d_model %}
   <script type="application/json" id="ProductJSON-{{ product.id }}">
@@ -411,521 +413,284 @@
   </script>
 {% endif %}
 
+<!-- Product JSON for Modern Product Page JS -->
+<script type="application/json" data-product-json>
+  {{ product | json }}
+</script>
+
 <!-- Modern Product Page JavaScript -->
 <script src="{{ 'modern-product-page.js' | asset_url }}" defer></script>
 
-<!-- Inline Script for Quantity -->
+<!-- Fallback Inline Script for Full Functionality -->
 <script>
-  (function() {
-    console.log('=== INLINE SCRIPT STARTED ===');
-
-    // Quantity selector - works immediately
-    const quantitySelectors = document.querySelectorAll('[data-quantity-selector]');
-    quantitySelectors.forEach(function(selector) {
-      const input = selector.querySelector('[data-quantity-input]');
-      const minusBtn = selector.querySelector('[data-quantity-minus]');
-      const plusBtn = selector.querySelector('[data-quantity-plus]');
-
-      if (input && minusBtn && plusBtn) {
-        minusBtn.addEventListener('click', function() {
-          let value = parseInt(input.value) || 1;
-          const min = parseInt(input.min) || 1;
-          value = Math.max(min, value - 1);
-          input.value = value;
-        });
-
-        plusBtn.addEventListener('click', function() {
-          let value = parseInt(input.value) || 1;
-          const max = parseInt(input.max) || Infinity;
-          value = value + 1;
-          if (max) value = Math.min(max, value);
-          input.value = value;
-        });
-      }
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Product page inline script initialized');
+  
+  // ========== GALLERY NAVIGATION ==========
+  const container = document.querySelector('.modern-product-section');
+  if (!container) return;
+  
+  const slides = container.querySelectorAll('.modern-gallery__slide');
+  const thumbnails = container.querySelectorAll('.modern-gallery__thumbnail');
+  const prevBtn = container.querySelector('.modern-gallery__nav--prev');
+  const nextBtn = container.querySelector('.modern-gallery__nav--next');
+  let currentIndex = 0;
+  
+  function goToSlide(index) {
+    if (slides.length === 0) return;
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+    currentIndex = index;
+    
+    slides.forEach(function(slide, i) {
+      slide.classList.toggle('is-active', i === index);
     });
-
-    // Thumbnail click - works immediately
-    const thumbnails = document.querySelectorAll('.modern-gallery__thumbnail');
-    const slides = document.querySelectorAll('.modern-gallery__slide');
-
-    thumbnails.forEach(function(thumb, index) {
-      thumb.addEventListener('click', function() {
-        // Update slides
-        slides.forEach(function(slide, i) {
-          slide.classList.toggle('is-active', i === index);
-        });
-
-        // Update thumbnails
-        thumbnails.forEach(function(t, i) {
-          t.classList.toggle('is-active', i === index);
-          t.setAttribute('aria-current', i === index ? 'true' : 'false');
-        });
-
-        // Update counter
-        const counter = document.querySelector('[data-current-index]');
-        if (counter) counter.textContent = index + 1;
+    
+    thumbnails.forEach(function(t, i) {
+      t.classList.toggle('is-active', i === index);
+      t.setAttribute('aria-current', i === index ? 'true' : 'false');
+    });
+    
+    const counter = container.querySelector('[data-current-index]');
+    if (counter) counter.textContent = index + 1;
+  }
+  
+  // Thumbnail clicks
+  thumbnails.forEach(function(thumb, index) {
+    thumb.addEventListener('click', function() {
+      goToSlide(index);
+    });
+  });
+  
+  // Arrow navigation
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      goToSlide(currentIndex - 1);
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      goToSlide(currentIndex + 1);
+    });
+  }
+  
+  // ========== QUANTITY SELECTOR ==========
+  const quantitySelectors = container.querySelectorAll('[data-quantity-selector]');
+  quantitySelectors.forEach(function(selector) {
+    const input = selector.querySelector('[data-quantity-input]');
+    const minusBtn = selector.querySelector('[data-quantity-minus]');
+    const plusBtn = selector.querySelector('[data-quantity-plus]');
+    
+    if (input && minusBtn && plusBtn) {
+      minusBtn.addEventListener('click', function() {
+        let value = parseInt(input.value) || 1;
+        const min = parseInt(input.min) || 1;
+        input.value = Math.max(min, value - 1);
+      });
+      plusBtn.addEventListener('click', function() {
+        let value = parseInt(input.value) || 1;
+        const max = parseInt(input.max) || 9999;
+        input.value = Math.min(max, value + 1);
+      });
+    }
+  });
+  
+  // ========== VARIANT SELECTION ==========
+  const productJSON = container.querySelector('[data-product-json]');
+  let product = null;
+  try {
+    product = JSON.parse(productJSON.textContent);
+  } catch(e) {
+    console.warn('Could not parse product JSON');
+  }
+  
+  function getSelectedVariant() {
+    if (!product) return null;
+    const checkedInputs = Array.from(container.querySelectorAll('input[name^="option"]:checked'));
+    const selectedOptions = checkedInputs.map(function(inp) {
+      return inp.value;
+    });
+    
+    return product.variants.find(function(v) {
+      return selectedOptions.every(function(opt, idx) {
+        return v.options[idx] === opt;
       });
     });
-
-    // Arrow navigation
-    const prevBtn = document.querySelector('.modern-gallery__nav--prev');
-    const nextBtn = document.querySelector('.modern-gallery__nav--next');
-    let currentIndex = 0;
-
-    function goToSlide(index) {
-      if (index < 0) index = slides.length - 1;
-      if (index >= slides.length) index = 0;
-
-      currentIndex = index;
-
-      slides.forEach(function(slide, i) {
-        slide.classList.toggle('is-active', i === index);
-      });
-
-      thumbnails.forEach(function(t, i) {
-        t.classList.toggle('is-active', i === index);
-        t.setAttribute('aria-current', i === index ? 'true' : 'false');
-      });
-
-      const counter = document.querySelector('[data-current-index]');
-      if (counter) counter.textContent = index + 1;
+  }
+  
+  function updateVariantUI(variant) {
+    if (!variant) return;
+    
+    // Update price
+    const priceEl = container.querySelector('.modern-product__price');
+    const compareEl = container.querySelector('.modern-product__price-compare');
+    const saveBadge = container.querySelector('.modern-product__save-badge');
+    
+    if (priceEl) {
+      priceEl.textContent = (variant.price / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+      priceEl.classList.toggle('modern-product__price--sale', variant.compare_at_price > variant.price);
     }
-
-    if (prevBtn) {
-      prevBtn.addEventListener('click', function() {
-        goToSlide(currentIndex - 1);
-      });
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener('click', function() {
-        goToSlide(currentIndex + 1);
-      });
-    }
-
-    // Variant swatch click handler - properly triggers image change
-    console.log('=== VARIANT SCRIPT INITIALIZING ===');
-    const variantSwatches = document.querySelectorAll('.modern-variant-swatch');
-    console.log('Found variant swatches:', variantSwatches.length);
-    if (variantSwatches.length > 0) {
-      console.log('First swatch classes:', variantSwatches[0].className);
-    }
-
-    // Function to update gallery image based on media ID
-    function switchToMedia(mediaId) {
-      console.log('=== SWITCH TO MEDIA ===');
-      console.log('Looking for media ID:', mediaId, 'Type:', typeof mediaId);
-
-      const slideData = Array.from(slides).map(s => ({
-        mediaId: s.getAttribute('data-media-id'),
-        index: s.getAttribute('data-index')
-      }));
-      console.log('Available slides with media IDs:', JSON.stringify(slideData, null, 2));
-
-      // Try exact match first
-      let targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
-      console.log('Target slide found (exact match):', targetSlide);
-
-      // If not found, try converting mediaId to different formats
-      if (!targetSlide) {
-        console.log('Not found with exact match, trying alternatives...');
-        const mediaIdNum = parseInt(mediaId);
-        console.log('Trying numeric:', mediaIdNum);
-        targetSlide = document.querySelector('.modern-gallery__slide[data-media-id="' + mediaIdNum + '"]');
-        console.log('Target slide found (numeric):', targetSlide);
+    if (compareEl) {
+      if (variant.compare_at_price > variant.price) {
+        compareEl.textContent = (variant.compare_at_price / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+        compareEl.style.display = '';
+      } else {
+        compareEl.style.display = 'none';
       }
-
-      if (!targetSlide) {
-        console.log('Not found, trying as string without quotes...');
-        targetSlide = document.querySelector(`.modern-gallery__slide[data-media-id='${mediaId}']`);
-        console.log('Target slide found (alt):', targetSlide);
+    }
+    if (saveBadge) {
+      const savings = variant.compare_at_price - variant.price;
+      if (savings > 0) {
+        saveBadge.textContent = 'Save ' + (savings / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+        saveBadge.style.display = '';
+      } else {
+        saveBadge.style.display = 'none';
       }
-
+    }
+    
+    // Update hidden variant ID
+    const variantInput = container.querySelector('input[name="id"]');
+    if (variantInput) variantInput.value = variant.id;
+    
+    // Update add to cart button
+    const addBtn = container.querySelector('[data-add-to-cart]');
+    if (addBtn) {
+      const btnText = addBtn.querySelector('.modern-add-to-cart__default');
+      if (btnText) btnText.textContent = variant.available ? 'Add to Cart' : 'Sold Out';
+      addBtn.disabled = !variant.available;
+    }
+    
+    // Switch to variant image
+    if (variant.featured_media) {
+      const targetSlide = container.querySelector('.modern-gallery__slide[data-media-id="' + variant.featured_media.id + '"]');
       if (targetSlide) {
         const slideIndex = parseInt(targetSlide.getAttribute('data-index'));
-        console.log('✅ Slide index:', slideIndex);
-
-        // Update slides
-        slides.forEach(function(slide, i) {
-          slide.classList.toggle('is-active', i === slideIndex);
-        });
-
-        // Update thumbnails
-        thumbnails.forEach(function(t, i) {
-          t.classList.toggle('is-active', i === slideIndex);
-          t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
-        });
-
-        // Update counter
-        const counter = document.querySelector('[data-current-index]');
-        if (counter) counter.textContent = slideIndex + 1;
-
-        console.log('✅ Successfully switched to slide', slideIndex);
-        return true;
-      }
-
-      console.log('❌ Could not find slide for media ID:', mediaId);
-      return false;
-    }
-
-    // Function to handle variant price update
-    function updateVariantPrice(variant) {
-      console.log('=== UPDATING PRICE ===');
-      console.log('Variant:', variant.title, 'Price:', variant.price);
-
-      const priceWrapper = document.querySelector('.modern-product__price-wrapper');
-      console.log('Price wrapper found:', priceWrapper);
-
-      if (priceWrapper) {
-        const hasComparePrice = variant.compare_at_price && variant.compare_at_price > variant.price;
-
-        console.log('Has compare price:', hasComparePrice);
-
-        if (hasComparePrice) {
-          const newHTML = `
-            <span class="modern-product__price modern-product__price--sale">
-              $${(variant.price / 100).toFixed(2)}
-            </span>
-            <span class="modern-product__price-compare">
-              $${(variant.compare_at_price / 100).toFixed(2)}
-            </span>
-            <span class="modern-product__save-badge">
-              Save $${((variant.compare_at_price - variant.price) / 100).toFixed(2)}
-            </span>
-          `;
-          console.log('Setting price HTML (with compare):', newHTML);
-          priceWrapper.innerHTML = newHTML;
-        } else {
-          const newHTML = `
-            <span class="modern-product__price">
-              $${(variant.price / 100).toFixed(2)}
-            </span>
-          `;
-          console.log('Setting price HTML (no compare):', newHTML);
-          priceWrapper.innerHTML = newHTML;
-        }
-
-        // Add sold out badge if needed
-        if (!variant.available) {
-          priceWrapper.innerHTML += '<span class="modern-product__sold-badge">Sold Out</span>';
-        }
-
-        console.log('Price updated. New innerHTML:', priceWrapper.innerHTML.substring(0, 200));
-      } else {
-        console.log('❌ Price wrapper not found!');
-      }
-
-      // Update hidden variant ID input for Buy Now button
-      const variantIdInput = document.querySelector('input[name="id"]');
-      if (variantIdInput) {
-        console.log('Updating hidden variant ID input to:', variant.id);
-        variantIdInput.value = variant.id;
-      }
-
-      // Update the variant selected value display
-      const selectedValueSpans = document.querySelectorAll('.modern-variant-selected-value');
-      selectedValueSpans.forEach(function(span, index) {
-        if (variant.options[index]) {
-          console.log('Updating selected value display', index, 'to:', variant.options[index]);
-          span.textContent = variant.options[index];
-        }
-      });
-    }
-
-    // Function to get variant from selected options
-    function getSelectedVariant() {
-      const productJSON = document.querySelector('[data-product-json]');
-      if (!productJSON) {
-        console.log('No product JSON found');
-        return null;
-      }
-
-      try {
-        const product = JSON.parse(productJSON.textContent);
-
-        // Get all checked variant inputs
-        const checkedInputs = Array.from(document.querySelectorAll('input[name^="option"]')).filter(i => i.checked);
-        const selectedOptions = checkedInputs.map(i => ({
-          name: i.name,
-          value: i.value,
-          position: parseInt(i.name.replace('option', ''))
-        }));
-
-        console.log('=== CHECKED INPUTS ===');
-        selectedOptions.forEach(opt => {
-          console.log(`  Option ${opt.position}: ${opt.value}`);
-        });
-
-        // Create array of selected values in order (option1, option2, option3)
-        const selectedValues = [];
-        for (let i = 1; i <= 3; i++) {
-          const found = selectedOptions.find(opt => opt.position === i);
-          if (found) {
-            selectedValues.push(found.value);
-          }
-        }
-
-        console.log('Selected values array:', selectedValues);
-
-        // Find variant that matches ALL selected values
-        const variant = product.variants.find(v => {
-          const match = selectedValues.every((val, idx) => v.options[idx] === val);
-          return match;
-        });
-
-        if (variant) {
-          console.log('✅ Found variant:', variant.title, 'ID:', variant.id);
-          console.log('  Variant options:', variant.options);
-          console.log('  Featured image:', variant.featured_image);
-          console.log('  Attached media:', variant.attached_to_media);
-        } else {
-          console.log('❌ No variant found for:', selectedValues);
-          console.log('Available variants:');
-          product.variants.forEach(v => console.log('  ', v.title, v.options, 'ID:', v.id));
-        }
-
-        return variant;
-      } catch (error) {
-        console.error('Error parsing product JSON:', error);
-        return null;
+        goToSlide(slideIndex);
       }
     }
-
-    // Alternative: Find slide by variant's attached media position
-    function findSlideForVariant(variant) {
-      if (!variant) return null;
-
-      // Try featured_media first (Liquid uses this)
-      if (variant.featured_media && variant.featured_media.id) {
-        const slide = document.querySelector(`.modern-gallery__slide[data-media-id="${variant.featured_media.id}"]`);
-        if (slide) {
-          console.log('Found slide via featured_media.id');
-          return slide;
-        }
-      }
-
-      // Try featured_image (JSON uses this)
-      if (variant.featured_image && variant.featured_image.id) {
-        const slide = document.querySelector(`.modern-gallery__slide[data-media-id="${variant.featured_image.id}"]`);
-        if (slide) {
-          console.log('Found slide via featured_image.id');
-          return slide;
-        }
-      }
-
-      // Try attached_to_media
-      if (variant.attached_to_media && variant.attached_to_media.position) {
-        const slide = document.querySelector(`.modern-gallery__slide[data-index="${variant.attached_to_media.position - 1}"]`);
-        if (slide) {
-          console.log('Found slide via attached_to_media.position');
-          return slide;
-        }
-      }
-
-      console.log('Could not find slide for variant');
-      return null;
-    }
-
-    // Handle variant swatch click - find complete variant and switch to its image
-    console.log('Setting up variant swatch click handlers...');
-    variantSwatches.forEach(function(swatch, index) {
-      console.log('Setting up click handler for swatch', index, swatch);
-      swatch.addEventListener('click', function(e) {
-        console.log('=== SWATCH CLICKED ===', index);
-        e.preventDefault();
-
-        // The input is NOT inside the label - it's a sibling
-        // Use the label's 'for' attribute to find the input
-        const inputId = swatch.getAttribute('for');
-        console.log('Looking for input with ID:', inputId);
-        const input = document.getElementById(inputId);
-        console.log('Found input:', input);
-
-        if (input) {
-          console.log('Before check - input.checked:', input.checked);
-          input.checked = true;
-          console.log('After check - input.checked:', input.checked);
-
-          // Update ALL swatch visual states - remove is-selected from all, add to clicked
-          console.log('Updating visual selection state...');
-          variantSwatches.forEach(function(s) {
-            s.classList.remove('is-selected');
-            s.setAttribute('aria-selected', 'false');
-          });
-          swatch.classList.add('is-selected');
-          swatch.setAttribute('aria-selected', 'true');
-
-          // Small delay to ensure DOM is updated, then get variant
-          setTimeout(function() {
-            // Verify all checked inputs
-            const allChecked = Array.from(document.querySelectorAll('input[name^="option"]')).filter(i => i.checked);
-            console.log('All checked inputs after click:', allChecked.map(i => ({ name: i.name, value: i.value })));
-
-            // Get the complete selected variant (all options)
-            const variant = getSelectedVariant();
-            if (variant) {
-              console.log('=== VARIANT CLICKED ===');
-              console.log('Variant title:', variant.title);
-              console.log('Variant ID:', variant.id);
-
-              // Try to find and switch to the variant's slide
-              const slide = findSlideForVariant(variant);
-              if (slide) {
-                const slideIndex = parseInt(slide.getAttribute('data-index'));
-                console.log('✅ Switching to slide index:', slideIndex);
-
-                // Update slides
-                slides.forEach(function(s, i) {
-                  s.classList.toggle('is-active', i === slideIndex);
-                });
-
-                // Update thumbnails
-                thumbnails.forEach(function(t, i) {
-                  t.classList.toggle('is-active', i === slideIndex);
-                  t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
-                });
-
-                // Update counter
-                const counter = document.querySelector('[data-current-index]');
-                if (counter) counter.textContent = slideIndex + 1;
-              } else {
-                console.log('⚠️ No slide found for this variant');
-              }
-
-              // Update price
-              updateVariantPrice(variant);
-            } else {
-              console.log('❌ No variant found for selection');
-            }
-          }, 10);
-        }
-      });
-    });
-    console.log('Variant swatch handlers set up');
-
-    // Initialize default selection states - add black border to checked inputs
-    console.log('=== INITIALIZING DEFAULT SELECTION ===');
-    const defaultChecked = document.querySelectorAll('input[name^="option"]:checked');
-    console.log('Default checked inputs:', defaultChecked.length);
-    defaultChecked.forEach(function(input) {
-      const swatch = document.querySelector('.modern-variant-swatch[for="' + input.id + '"]');
-      if (swatch) {
-        console.log('Adding is-selected to:', input.value);
-        swatch.classList.add('is-selected');
-        swatch.setAttribute('aria-selected', 'true');
-      }
-    });
-
-    // Also handle input change for keyboard navigation
-    const variantInputs = document.querySelectorAll('input[name^="option"]');
-    variantInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        // Update visual state for swatches in the same option group
+  }
+  
+  // Variant swatch click handlers
+  const variantSwatches = container.querySelectorAll('.modern-variant-swatch');
+  variantSwatches.forEach(function(swatch) {
+    swatch.addEventListener('click', function(e) {
+      e.preventDefault();
+      const inputId = swatch.getAttribute('for');
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.checked = true;
+        
+        // Update visual state
         const optionName = input.name;
-        console.log('Input changed for:', optionName, 'Value:', input.value);
-
-        // Update all swatches for this option
-        const relatedInputs = document.querySelectorAll('input[name="' + optionName + '"]');
-        relatedInputs.forEach(function(inp) {
-          const swatch = document.querySelector('.modern-variant-swatch[for="' + inp.id + '"]');
-          if (swatch) {
-            if (inp.checked) {
-              swatch.classList.add('is-selected');
-              swatch.setAttribute('aria-selected', 'true');
-            } else {
-              swatch.classList.remove('is-selected');
-              swatch.setAttribute('aria-selected', 'false');
-            }
+        container.querySelectorAll('input[name="' + optionName + '"]').forEach(function(inp) {
+          const sw = container.querySelector('.modern-variant-swatch[for="' + inp.id + '"]');
+          if (sw) {
+            sw.classList.toggle('is-selected', inp.checked);
+            sw.setAttribute('aria-selected', inp.checked ? 'true' : 'false');
           }
         });
-
+        
+        // Update variant
         const variant = getSelectedVariant();
-        if (variant) {
-          console.log('=== VARIANT CHANGED VIA INPUT ===');
-          console.log('Variant title:', variant.title);
-
-          // Try to find and switch to the variant's slide
-          const slide = findSlideForVariant(variant);
-          if (slide) {
-            const slideIndex = parseInt(slide.getAttribute('data-index'));
-            slides.forEach(function(s, i) {
-              s.classList.toggle('is-active', i === slideIndex);
-            });
-            thumbnails.forEach(function(t, i) {
-              t.classList.toggle('is-active', i === slideIndex);
-              t.setAttribute('aria-current', i === slideIndex ? 'true' : 'false');
-            });
-            const counter = document.querySelector('[data-current-index]');
-            if (counter) counter.textContent = slideIndex + 1;
-          }
-
-          // Update price
-          updateVariantPrice(variant);
-        }
-      });
+        if (variant) updateVariantUI(variant);
+      }
     });
-
-    // Read More functionality
-    const readMoreBtns = document.querySelectorAll('.read-more-btn');
-    readMoreBtns.forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const container = this.closest('.modern-product__description');
-        const shortDesc = container.querySelector('.description-short');
-        const fullDesc = container.querySelector('.description-full');
-
-        if (fullDesc && shortDesc) {
-          if (fullDesc.style.display === 'none') {
-            shortDesc.style.display = 'none';
-            fullDesc.style.display = 'block';
-            btn.textContent = '...read less';
-          } else {
-            shortDesc.style.display = '';
-            fullDesc.style.display = 'none';
-            btn.textContent = '...read more';
-          }
-        }
-      });
-    });
-
-    // Image Zoom functionality
-    const zoomWrappers = document.querySelectorAll('[data-can-zoom]');
-    const zoomModal = document.querySelector('[data-zoom-modal]');
-    const zoomClose = document.querySelector('[data-close-zoom]');
-
-    if (zoomWrappers.length > 0 && zoomModal) {
-      zoomWrappers.forEach(function(wrapper) {
-        wrapper.addEventListener('click', function() {
-          const img = wrapper.querySelector('img');
-          const zoomImg = document.querySelector('[data-zoom-image]');
-          const hiddenImg = wrapper.querySelector('[data-media-src-hidden]');
-
-          if (zoomImg && hiddenImg) {
-            zoomImg.src = hiddenImg.src;
-            zoomModal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-          }
-        });
-      });
-
-      // Close zoom
-      const closeElements = document.querySelectorAll('[data-close-zoom]');
-      closeElements.forEach(function(el) {
-        el.addEventListener('click', function() {
-          zoomModal.setAttribute('aria-hidden', 'true');
-          document.body.style.overflow = '';
-        });
-      });
-
-      // Close on escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && zoomModal.getAttribute('aria-hidden') === 'false') {
-          zoomModal.setAttribute('aria-hidden', 'true');
-          document.body.style.overflow = '';
-        }
-      });
+  });
+  
+  // Initialize default swatch selection
+  container.querySelectorAll('input[name^="option"]:checked').forEach(function(input) {
+    const swatch = container.querySelector('.modern-variant-swatch[for="' + input.id + '"]');
+    if (swatch) {
+      swatch.classList.add('is-selected');
+      swatch.setAttribute('aria-selected', 'true');
     }
-  })();
+  });
+  
+  // ========== READ MORE ==========
+  const readMoreBtns = container.querySelectorAll('.read-more-btn');
+  readMoreBtns.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const descContainer = btn.closest('.modern-product__description');
+      const shortDesc = descContainer.querySelector('.description-short');
+      const fullDesc = descContainer.querySelector('.description-full');
+      
+      if (fullDesc && shortDesc) {
+        if (fullDesc.style.display === 'none' || fullDesc.style.display === '') {
+          shortDesc.style.display = 'none';
+          fullDesc.style.display = 'block';
+          btn.textContent = '...read less';
+        } else {
+          shortDesc.style.display = '';
+          fullDesc.style.display = 'none';
+          btn.textContent = '...read more';
+        }
+      }
+    });
+  });
+  
+  // ========== IMAGE ZOOM ==========
+  const zoomModal = container.querySelector('[data-zoom-modal]');
+  if (zoomModal) {
+    container.querySelectorAll('[data-can-zoom]').forEach(function(wrapper) {
+      wrapper.addEventListener('click', function() {
+        const hiddenImg = wrapper.querySelector('[data-media-src-hidden]');
+        const zoomImg = zoomModal.querySelector('[data-zoom-image]');
+        if (hiddenImg && zoomImg) {
+          zoomImg.src = hiddenImg.src;
+          zoomModal.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+    
+    zoomModal.querySelectorAll('[data-close-zoom]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        zoomModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      });
+    });
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && zoomModal.getAttribute('aria-hidden') === 'false') {
+        zoomModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+  
+  // ========== TABLE HORIZONTAL SCROLL ==========
+  function initTableScroll() {
+    const tables = container.querySelectorAll('.modern-product__description table');
+    tables.forEach(function(table) {
+      if (!table.parentElement.classList.contains('modern-table-scroll')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'modern-table-wrapper';
+        const scrollContainer = document.createElement('div');
+        scrollContainer.className = 'modern-table-scroll';
+        
+        table.parentNode.insertBefore(wrapper, table);
+        scrollContainer.appendChild(table);
+        wrapper.appendChild(scrollContainer);
+        
+        function checkScroll() {
+          if (scrollContainer.scrollWidth > scrollContainer.clientWidth) {
+            const remaining = scrollContainer.scrollWidth - scrollContainer.clientWidth - scrollContainer.scrollLeft;
+            wrapper.classList.toggle('can-scroll-right', remaining > 5);
+          } else {
+            wrapper.classList.remove('can-scroll-right');
+          }
+        }
+        scrollContainer.addEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        setTimeout(checkScroll, 100);
+      }
+    });
+  }
+  initTableScroll();
+  
+  console.log('Product page fully initialized');
+});
 </script>
 
 {% stylesheet %}
@@ -958,7 +723,7 @@
   @media screen and (min-width: 990px) {
     .modern-product-section__container {
       display: grid !important;
-      grid-template-columns: 1fr 1fr !important;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; /* Critical: Prevent content from pushing width */
       gap: clamp(48px, 8vw, 80px) !important;
       align-items: start;
     }
@@ -987,7 +752,8 @@
     }
   }
 
-  /* Gallery Styles - Sharp edges */
+
+  /* Gallery Styles - Soft Rounded edges */
   .modern-product-section__gallery {
     position: sticky;
     top: calc(var(--header-height, 80px) + 20px);
@@ -996,41 +762,19 @@
 
   .modern-gallery__main {
     position: relative;
-    border-radius: 0;
+    border-radius: 10px;
     overflow: hidden;
     background: rgb(var(--color-foreground-rgb) / 0.02);
     box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
     cursor: grab;
+    width: 100%;
   }
-
+  
   /* Mobile - Remove sticky on mobile to prevent stuck issue */
   @media screen and (max-width: 989px) {
     .modern-product-section__gallery {
       position: static !important;
     }
-  }
-
-  .modern-gallery__main {
-    position: relative;
-    border-radius: 0;
-    overflow: hidden;
-    background: rgb(var(--color-foreground-rgb) / 0.02);
-    box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
-    cursor: grab;
-    width: 100%;
-  }
-
-  .modern-gallery__main:active {
-    cursor: grabbing;
-  }
-
-  .modern-gallery__viewport {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    touch-action: pan-y;
-    user-select: none;
-    width: 100%;
-    overflow: hidden;
   }
 
   .modern-gallery__main:active {
@@ -1045,6 +789,7 @@
     width: 100%;
     max-width: 100%;
     overflow: hidden;
+    border-radius: 10px;
   }
 
   .modern-gallery__slide {
@@ -1068,6 +813,7 @@
     align-items: center;
     justify-content: center;
     background: rgb(255 255 255 / 0.5);
+    border-radius: 10px;
   }
 
   .modern-gallery__image {
@@ -1075,6 +821,7 @@
     height: 100%;
     object-fit: contain;
     transition: transform 0.3s ease;
+    border-radius: 10px;
   }
 
   .modern-gallery__image-wrapper:hover .modern-gallery__image {
@@ -1089,12 +836,14 @@
   .modern-gallery__model-wrapper {
     width: 100%;
     height: 100%;
+    border-radius: 10px;
   }
 
   .modern-gallery__video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 10px;
   }
 
   .modern-gallery__placeholder {
@@ -1103,6 +852,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 10px;
   }
 
   .modern-gallery__placeholder svg {
@@ -1111,7 +861,7 @@
     opacity: 0.2;
   }
 
-  /* Gallery Navigation - Sharp edges */
+  /* Gallery Navigation - Rounded */
   .modern-gallery__nav {
     position: absolute;
     top: 50%;
@@ -1124,7 +874,7 @@
     background: rgb(255 255 255 / 0.95);
     backdrop-filter: blur(10px);
     border: none;
-    border-radius: 0;
+    border-radius: 10px;
     cursor: pointer;
     opacity: 0;
     transition: all 0.3s ease;
@@ -1154,7 +904,7 @@
     outline-offset: 2px;
   }
 
-  /* Zoom Hint - Sharp edges */
+  /* Zoom Hint - Rounded */
   .modern-gallery__zoom-hint {
     position: absolute;
     bottom: 16px;
@@ -1166,7 +916,7 @@
     background: rgb(0 0 0 / 0.6);
     backdrop-filter: blur(10px);
     color: #fff;
-    border-radius: 0;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 500;
     z-index: 2;
@@ -1176,7 +926,7 @@
     flex-shrink: 0;
   }
 
-  /* Thumbnails - Sharp edges */
+  /* Thumbnails - Rounded */
   .modern-gallery__thumbnails {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -1187,7 +937,7 @@
   .modern-gallery__thumbnail {
     position: relative;
     aspect-ratio: 1;
-    border-radius: 0;
+    border-radius: 10px;
     overflow: hidden;
     border: 2px solid transparent;
     background: rgb(var(--color-foreground-rgb) / 0.03);
@@ -1214,6 +964,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 10px;
   }
 
   .modern-gallery__thumbnail-badge {
@@ -1227,7 +978,7 @@
     justify-content: center;
     background: rgb(0 0 0 / 0.7);
     color: #fff;
-    border-radius: 0;
+    border-radius: 10px;
   }
 
   /* Media Count */
@@ -1316,7 +1067,7 @@
     padding: 4px 10px;
     background: rgb(var(--color-sale-rgb, 230 57 70) / 0.1);
     color: var(--color-sale, #e63946);
-    border-radius: 0;
+    border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
   }
@@ -1325,7 +1076,7 @@
     padding: 6px 14px;
     background: rgb(var(--color-foreground-rgb) / 0.1);
     color: rgb(var(--color-foreground-rgb) / 0.6);
-    border-radius: 0;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
   }
@@ -1342,7 +1093,7 @@
     color: rgb(var(--color-foreground-rgb) / 0.75);
   }
 
-  /* Trust Badges - Sharp edges */
+  /* Trust Badges - Rounded */
   .modern-trust-badges {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1358,7 +1109,7 @@
     gap: 12px;
     padding: 12px 16px;
     background: rgb(var(--color-foreground-rgb) / 0.03);
-    border-radius: 0;
+    border-radius: 10px;
   }
 
   .modern-trust-badge__icon {
@@ -1368,7 +1119,7 @@
     width: 40px;
     height: 40px;
     background: rgb(var(--color-foreground-rgb) / 0.05);
-    border-radius: 0;
+    border-radius: 10px;
     color: currentColor;
     flex-shrink: 0;
   }
@@ -1379,23 +1130,26 @@
     line-height: 1.4;
   }
 
-  /* Accordion - Sharp edges */
+  /* Accordion - Rounded */
   .modern-accordion {
     border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: 0;
-    overflow: hidden;
+    border-radius: 10px;
+  }
+  /* overflow: hidden;  <-- REMOVED: This clips content that tries to scroll! */
   }
 
   .modern-accordion__summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 20px;
+    padding: 20px; /* Padding keeps text/arrow away from borders */
     background: transparent;
     border: none;
     cursor: pointer;
     user-select: none;
     list-style: none;
+    width: 100%; /* Force full width */
+    box-sizing: border-box; /* Ensure padding is included in width */
   }
 
   .modern-accordion__summary::-webkit-details-marker {
@@ -1403,10 +1157,11 @@
   }
 
   .modern-accordion__title {
-    font-size: 15px;
+    font-size: 16px; /* Slightly larger title */
     font-weight: 600;
     margin: 0;
     padding: 0;
+    padding-left: 30px; /* User requested padding */
     border: none;
     background: none;
   }
@@ -1418,7 +1173,7 @@
 
   .modern-accordion__icon {
     flex-shrink: 0;
-    transition: transform 0.2s ease;
+    transition: transform 0.3s ease; /* Smoother transition */
   }
 
   details[open] .modern-accordion__icon {
@@ -1426,14 +1181,35 @@
   }
 
   .modern-accordion__content {
-    padding: 0 20px 20px;
+    padding: 10px 24px 24px; /* More padding overall, especially top */
+    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.05); /* Subtle separator */
   }
 
   /* Description Content */
   .modern-product__description {
     font-size: 15px;
-    line-height: 1.7;
+    line-height: 1.8;
     color: rgb(var(--color-foreground-rgb) / 0.8);
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
+    margin-top: 16px; /* Increased margin from header */
+  }
+
+  /* Read More Button - Blue */
+  .read-more-btn {
+    color: #40C4FF;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 4px;
+    transition: color 0.2s ease;
+  }
+
+  .read-more-btn:hover {
+    color: #00B0FF;
+    text-decoration: underline;
   }
 
   .modern-product__description *:first-child {
@@ -1444,37 +1220,7 @@
     margin-bottom: 0;
   }
 
-  /* Read More Styles */
-  .read-more-btn {
-    color: #40C4FF;
-    cursor: pointer;
-    font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    transition: opacity 0.2s ease;
-  }
-
-  .read-more-btn:hover {
-    opacity: 0.8;
-  }
-
-  .description-short {
-    margin-bottom: 0;
-  }
-
-  .description-short .read-more-btn {
-    display: inline-block;
-    margin-left: 4px;
-  }
-
-  .description-full {
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+  /* Clean up headers */
 
   .modern-product__description h1,
   .modern-product__description h2,
@@ -1510,6 +1256,138 @@
 
   .modern-product__description li {
     margin-bottom: 8px;
+  }
+
+  /* Responsive Table - SCROLLABLE (Standard) */
+  .modern-product__description table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin: 20px 0;
+    border-collapse: collapse;
+    table-layout: auto !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+  
+  /* If wrapped by JS, we can relax the display, but wrapper handles scroll */
+  .modern-table-scroll table {
+    display: table !important;
+    width: 100% !important;
+    white-space: nowrap; 
+  }
+
+  .modern-product__description table td,
+  .modern-product__description table th {
+    padding: 10px 12px;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    white-space: nowrap !important; /* Force scroll */
+    min-width: 100px; /* Ensure columns aren't too small */
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .modern-product__description table th {
+    font-weight: 600;
+    background: rgb(var(--color-foreground-rgb) / 0.02);
+  }
+
+  /* Restore Scroll Wrapper Styles */
+  .modern-table-wrapper {
+    position: relative;
+    margin: 20px 0;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    border-radius: 4px;
+    background: rgb(var(--color-background-rgb));
+  }
+
+  /* Scroll container behavior */
+  .modern-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    padding-bottom: 8px; /* Space for scrollbar */
+    
+    /* Scrollbar Styling */
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-foreground-rgb) / 0.5) rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  .modern-table-scroll::-webkit-scrollbar {
+    display: block !important; /* Show scrollbar */
+    height: 8px;
+  }
+
+  .modern-table-scroll::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-foreground-rgb) / 0.5);
+    border-radius: 4px;
+  }
+
+  .modern-table-scroll::-webkit-scrollbar-track {
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  /* Scroll Hint Indicator */
+  .modern-table-wrapper::after {
+    display: block !important;
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 8px;
+    width: 40px;
+    background: linear-gradient(to right, transparent, rgb(var(--color-background-rgb)));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+  }
+
+  .modern-table-wrapper.can-scroll-right::after {
+    opacity: 1;
+  }
+
+  .modern-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    padding-bottom: 8px; /* Space for scrollbar */
+    
+    /* Scrollbar Styling */
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-foreground-rgb) / 0.5) rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  .modern-table-scroll::-webkit-scrollbar {
+    height: 8px; /* Slightly taller for easier touch */
+  }
+
+  .modern-table-scroll::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-foreground-rgb) / 0.5);
+    border-radius: 4px;
+  }
+
+  .modern-table-scroll::-webkit-scrollbar-track {
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  /* Scroll Hint Indicator */
+  .modern-table-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 8px;
+    width: 40px;
+    background: linear-gradient(to right, transparent, rgb(var(--color-background-rgb)));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .modern-table-wrapper.can-scroll-right::after {
+    opacity: 1;
   }
 
   /* Zoom Modal - Sharp edges */

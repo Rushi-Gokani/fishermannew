@@ -470,20 +470,29 @@
   /* Megamenu Dropdown */
   .categories-dropdown {
     position: absolute;
-    top: calc(100% + 15px);
-    left: 50%;
-    transform: translateX(-50%);
+    top: 100%; /* Position directly below */
+    left: 0;
+    transform: none;
+    background: transparent; /* Transparent container */
+    padding-top: 20px; /* Physical bridge for the gap */
+    display: none;
+    width: 850px;
+    z-index: 1001;
+  }
+  
+  .categories-dropdown-inner {
     background: #ffffff;
     backdrop-filter: blur(20px);
     color: #0f172a;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
     border-radius: 20px;
-    display: none;
-    width: 850px;
-    z-index: 1001;
-    overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    width: 100%;
   }
+
+  /* .categories-dropdown::before removed safely */
   .categories-wrapper:hover .categories-dropdown { display: flex; }
 
   .dropdown-sidebar {
@@ -510,8 +519,11 @@
   }
 
   .dropdown-content-area { flex: 1; min-height: 400px; background: transparent; }
-  .content-panel { display: none; padding: 30px; grid-template-columns: repeat(2, 1fr) 200px; gap: 30px; }
-  .content-panel.active { display: grid; }
+  .custom-mega-panel { display: none; padding: 30px; justify-content: space-between; gap: 20px; width: 100%; }
+  .menus-group { display: flex; gap: 30px; }
+  .custom-mega-panel.active { display: flex; }
+  .panel-column { flex: 0 0 auto; min-width: 120px; }
+  .promo-column { width: 280px; flex-shrink: 0; }
   .panel-column h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: #40c4ff; margin-bottom: 15px; }
   .panel-column ul { list-style: none; padding: 0; margin: 0; }
   .panel-column li { margin-bottom: 8px; }
@@ -548,6 +560,57 @@
   .mobile-drawer__link:hover { color: #40c4ff; padding-left: 10px; }
   .mobile-drawer__overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; }
   .mobile-drawer__overlay.active { display: block; }
+  .mobile-drawer__list { list-style: none; padding: 0; margin: 0; }
+
+  /* Mobile Submenus */
+  .mobile-drawer__section-title {
+    padding: 20px 0 10px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-top: 10px;
+  }
+  .mobile-drawer__item.has-submenu .mobile-drawer__submenu-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+  .mobile-drawer__submenu {
+    display: none;
+    padding-left: 15px;
+    margin-bottom: 20px;
+  }
+  .mobile-drawer__submenu.active {
+    display: block;
+  }
+  .mobile-submenu-group { margin-bottom: 15px; }
+  .mobile-submenu-group span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #40c4ff;
+    display: block;
+    margin-bottom: 5px;
+  }
+  .mobile-submenu-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .mobile-submenu-group li a {
+    font-size: 15px;
+    color: #64748b;
+    text-decoration: none;
+    display: block;
+    padding: 5px 0;
+  }
+  .mobile-submenu-group li a:hover { color: #0f172a; }
 
   /* Modals */
   .search-modal {
@@ -637,6 +700,7 @@
           </button>
           
           <div class="categories-dropdown">
+            <div class="categories-dropdown-inner">
             <div class="dropdown-sidebar">
               {% for block in section.blocks %}
                 {% if block.type == 'category_group' %}
@@ -650,10 +714,13 @@
             <div class="dropdown-content-area">
               {% for block in section.blocks %}
                 {% if block.type == 'category_group' %}
-                  <div class="content-panel {% if forloop.first %}active{% endif %}" id="panel-{{ block.id }}">
+                  <div class="custom-mega-panel {% if forloop.first %}active{% endif %}" id="panel-{{ block.id }}" data-layout-fix="true">
+                    <div class="menus-group">
                     {% if block.settings.menu_1 != blank %}
                       <div class="panel-column">
-                        <h4>{{ block.settings.menu_1_heading }}</h4>
+                        {% if block.settings.menu_1_heading != blank %}
+                          <h4>{{ block.settings.menu_1_heading }}</h4>
+                        {% endif %}
                         <ul>
                           {% for link in block.settings.menu_1.links %}
                             <li><a href="{{ link.url }}">{{ link.title }}</a></li>
@@ -663,7 +730,9 @@
                     {% endif %}
                     {% if block.settings.menu_2 != blank %}
                       <div class="panel-column">
-                        <h4>{{ block.settings.menu_2_heading }}</h4>
+                        {% if block.settings.menu_2_heading != blank %}
+                          <h4>{{ block.settings.menu_2_heading }}</h4>
+                        {% endif %}
                         <ul>
                           {% for link in block.settings.menu_2.links %}
                             <li><a href="{{ link.url }}">{{ link.title }}</a></li>
@@ -671,8 +740,21 @@
                         </ul>
                       </div>
                     {% endif %}
-                    {% if block.settings.promo_image != blank %}
+                    {% if block.settings.menu_3 != blank %}
                       <div class="panel-column">
+                        {% if block.settings.menu_3_heading != blank %}
+                          <h4>{{ block.settings.menu_3_heading }}</h4>
+                        {% endif %}
+                        <ul>
+                          {% for link in block.settings.menu_3.links %}
+                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                    </div>
+                    {% if block.settings.promo_image != blank %}
+                      <div class="panel-column promo-column">
                         <a href="{{ block.settings.promo_link | default: '#' }}" class="promo-card">
                           {{ block.settings.promo_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
                           <div class="promo-overlay">
@@ -685,6 +767,7 @@
                   </div>
                 {% endif %}
               {% endfor %}
+            </div>
             </div>
           </div>
         </div>
@@ -770,6 +853,9 @@
       </div>
 
       <div class="header-icons">
+        <button class="icon-btn search-trigger" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"/></svg>
+        </button>
         {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
           <cart-drawer-component class="cart-drawer" {% if settings.auto_open_cart_drawer %}auto-open{% endif %}>
             <button class="icon-btn" aria-label="Cart" on:click="/open">
@@ -834,6 +920,59 @@
           <a href="{{ link.url }}" class="mobile-drawer__link">{{ link.title }}</a>
         </li>
       {% endfor %}
+
+      {% if category_blocks.size > 0 %}
+        <li class="mobile-drawer__item has-submenu">
+          <button class="mobile-drawer__link mobile-drawer__submenu-trigger">
+            {{ section.settings.categories_label }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="mobile-drawer__submenu">
+            <ul class="mobile-drawer__list">
+              {% for block in category_blocks %}
+                <li class="mobile-drawer__item has-submenu">
+                  <button class="mobile-drawer__link mobile-drawer__submenu-trigger">
+                    {{ block.settings.heading }}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+                  <div class="mobile-drawer__submenu">
+                    {% if block.settings.menu_1 != blank %}
+                      <div class="mobile-submenu-group">
+                        {% if block.settings.menu_1_heading != blank %}<span>{{ block.settings.menu_1_heading }}</span>{% endif %}
+                        <ul>
+                          {% for link in block.settings.menu_1.links %}
+                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                    {% if block.settings.menu_2 != blank %}
+                      <div class="mobile-submenu-group">
+                        {% if block.settings.menu_2_heading != blank %}<span>{{ block.settings.menu_2_heading }}</span>{% endif %}
+                        <ul>
+                          {% for link in block.settings.menu_2.links %}
+                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                    {% if block.settings.menu_3 != blank %}
+                      <div class="mobile-submenu-group">
+                        {% if block.settings.menu_3_heading != blank %}<span>{{ block.settings.menu_3_heading }}</span>{% endif %}
+                        <ul>
+                          {% for link in block.settings.menu_3.links %}
+                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </li>
+      {% endif %}
     </ul>
   </nav>
 </div>
@@ -955,7 +1094,7 @@
     }
 
     const sidebarItems = document.querySelectorAll('.sidebar-item');
-    const contentPanels = document.querySelectorAll('.content-panel');
+    const contentPanels = document.querySelectorAll('.custom-mega-panel');
     const categoriesWrapper = document.querySelector('.categories-wrapper');
     const categoriesDropdown = document.querySelector('.categories-dropdown');
     const categoriesButton = document.querySelector('.categories-btn');
@@ -974,20 +1113,41 @@
         }, 120);
       };
 
-      [categoriesWrapper, categoriesDropdown].forEach((el) => {
-        el.addEventListener('pointerenter', openDropdown);
-        el.addEventListener('pointerleave', closeDropdown);
+      // Simplified Interaction Logic
+      const openDropdown = () => {
+        clearTimeout(dropdownTimer);
+        categoriesWrapper.classList.add('is-open');
+      };
+
+      const closeDropdown = () => {
+        clearTimeout(dropdownTimer);
+        dropdownTimer = setTimeout(() => {
+          categoriesWrapper.classList.remove('is-open');
+        }, 150);
+      };
+
+      // Only attach listeners to wrapper (padding handles the hit area)
+      categoriesWrapper.addEventListener('mouseenter', openDropdown);
+      categoriesWrapper.addEventListener('mouseleave', closeDropdown);
+
+      // Handle Click to Toggle
+      categoriesButton?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (categoriesWrapper.classList.contains('is-open')) {
+             closeDropdown(); // Use close function
+        } else {
+             openDropdown();
+        }
       });
-
+      
+      // Accessibility
       categoriesButton?.addEventListener('focus', openDropdown);
-      categoriesButton?.addEventListener('blur', closeDropdown);
-
       categoriesDropdown.querySelectorAll('a, button').forEach((el) => {
         el.addEventListener('focus', openDropdown);
         el.addEventListener('blur', (event) => {
-          if (!categoriesDropdown.contains(event.relatedTarget)) {
-            closeDropdown();
-          }
+            if (!categoriesDropdown.contains(event.relatedTarget)) {
+                closeDropdown();
+            }
         });
       });
     }
@@ -1054,6 +1214,25 @@
       mobileMenuTrigger.addEventListener('click', openDrawer);
       mobileDrawerClose?.addEventListener('click', closeDrawer);
       mobileDrawerOverlay.addEventListener('click', closeDrawer);
+      
+      // Mobile Submenu Toggles
+      const submenuTriggers = document.querySelectorAll('.mobile-drawer__submenu-trigger');
+      submenuTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function() {
+          const submenu = this.nextElementSibling;
+          const icon = this.querySelector('svg');
+          
+          if(submenu) {
+            submenu.classList.toggle('active');
+            // Rotate icon if needed
+            if(submenu.classList.contains('active')) {
+               icon.style.transform = 'rotate(180deg)';
+            } else {
+               icon.style.transform = 'rotate(0deg)';
+            }
+          }
+        });
+      });
     }
   });
 </script>

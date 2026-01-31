@@ -15,6 +15,8 @@ class ModernProductPage {
     this.initQuantity();
     this.initAddToCart();
     this.initPickupAvailability();
+    this.initReadMore();
+    this.initTableScroll();
   }
 
   // ========== Gallery ==========
@@ -470,6 +472,70 @@ class ModernProductPage {
 
       if (variant) {
         pickup.fetchAvailability(variant.id);
+      }
+    });
+  }
+
+  // ========== Read More & Table Scroll ==========
+  initReadMore() {
+    const readMoreBtns = this.container.querySelectorAll('.read-more-btn');
+    readMoreBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const container = btn.closest('.modern-product__description');
+        const shortDesc = container.querySelector('.description-short');
+        const fullDesc = container.querySelector('.description-full');
+
+        if (fullDesc && shortDesc) {
+          if (fullDesc.style.display === 'none') {
+            shortDesc.style.display = 'none';
+            fullDesc.style.display = 'block';
+            btn.textContent = '...read less';
+          } else {
+            shortDesc.style.display = '';
+            fullDesc.style.display = 'none';
+            btn.textContent = '...read more';
+          }
+        }
+      });
+    });
+  }
+
+  initTableScroll() {
+    const descTables = this.container.querySelectorAll('.modern-product__description table');
+    descTables.forEach((table) => {
+      if (!table.parentElement.classList.contains('modern-table-scroll')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'modern-table-wrapper';
+        
+        const scrollContainer = document.createElement('div');
+        scrollContainer.className = 'modern-table-scroll';
+        
+        table.parentNode.insertBefore(wrapper, table);
+        scrollContainer.appendChild(table);
+        wrapper.appendChild(scrollContainer);
+
+        // Check scroll state
+        const checkScroll = () => {
+          if (scrollContainer.scrollWidth > scrollContainer.clientWidth) {
+            const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+            const remaining = maxScroll - scrollContainer.scrollLeft;
+            
+            if (remaining > 5) {
+              wrapper.classList.add('can-scroll-right');
+            } else {
+              wrapper.classList.remove('can-scroll-right');
+            }
+          } else {
+            wrapper.classList.remove('can-scroll-right');
+          }
+        };
+
+        scrollContainer.addEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        
+        // Initial check
+        setTimeout(checkScroll, 100);
       }
     });
   }

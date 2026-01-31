@@ -15,6 +15,17 @@
   endif
 %}
 
+{% style %}
+  .resource-list__item,
+  .collection-card__image,
+  .resource-image,
+  .image-block__image,
+  .collection-card .image-block {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+{% endstyle %}
+
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 
 <div

@@ -37,24 +37,45 @@
 
   <!-- Image Section -->
   <div class="product-card-image-wrapper-{{ section_id }}">
-    {% if product.featured_image %}
-      <img
-        src="{{ product.featured_image | image_url: width: 400 }}"
-        alt="{{ product.featured_image.alt | escape }}"
-        loading="lazy"
-        width="400"
-        height="400"
-        class="product-card-image-{{ section_id }}"
-      >
-    {% else %}
-      {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: section_id }}
+    <div class="product-card-slider-wrapper-{{ section_id }}">
+      <div class="product-card-slider-container-{{ section_id }}" id="slider-{{ section_id }}-{{ product.id }}">
+        {% if product.images.size > 0 %}
+          {% for image in product.images limit: 3 %}
+            <img
+              src="{{ image | image_url: width: 400 }}"
+              alt="{{ image.alt | escape }}"
+              loading="lazy"
+              width="400"
+              height="400"
+              class="product-card-image-{{ section_id }}"
+              draggable="false"
+            >
+          {% endfor %}
+        {% else %}
+          {{ 'product-' | append: product.id | placeholder_svg_tag: 'product-card-image-' | append: section_id }}
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Arrows -->
+    {% if product.images.size > 1 %}
+      <button class="product-card-arrow-{{ section_id }} product-card-arrow-prev-{{ section_id }}" aria-label="Previous image">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <button class="product-card-arrow-{{ section_id }} product-card-arrow-next-{{ section_id }}" aria-label="Next image">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
     {% endif %}
 
     <!-- Pagination Dots -->
     {% if product.images.size > 1 %}
       <div class="product-card-dots-{{ section_id }}" id="dots-{{ section_id }}-{{ product.id }}">
         {% for image in product.images limit: 3 %}
-          <span class="product-card-dot-{{ section_id }}{% if forloop.first %} active{% endif %}" data-image-index="{{ forloop.index }}"></span>
+          <span class="product-card-dot-{{ section_id }}{% if forloop.first %} active{% endif %}" data-image-index="{{ forloop.index | minus: 1 }}"></span>
         {% endfor %}
       </div>
     {% else %}
@@ -103,45 +124,163 @@
 </div>
 
 {% comment %}
-  Image gallery JavaScript for this specific card
+  Image gallery JavaScript with touch slider support
 {% endcomment %}
 <script>
   (function() {
-    const dotsContainer = document.getElementById('dots-{{ section_id }}-{{ product.id }}');
-    const imageWrapper = dotsContainer?.closest('.product-card-image-wrapper-{{ section_id }}');
-    const image = imageWrapper?.querySelector('.product-card-image-{{ section_id }}');
+    const cardId = '{{ section_id }}-{{ product.id }}';
+    const slider = document.getElementById('slider-' + cardId);
+    const dotsContainer = document.getElementById('dots-' + cardId);
     const dots = dotsContainer?.querySelectorAll('.product-card-dot-{{ section_id }}');
+    const imageWrapper = dotsContainer?.closest('.product-card-image-wrapper-{{ section_id }}');
+    const prevArrow = imageWrapper?.querySelector('.product-card-arrow-prev-{{ section_id }}');
+    const nextArrow = imageWrapper?.querySelector('.product-card-arrow-next-{{ section_id }}');
+    const productUrl = '{{ product.url }}';
 
-    if (dots && dots.length > 1 && image) {
-      const images = [
-        {{ product.featured_image | image_url: width: 400 | json }},
-        {% for image in product.images limit: 2 offset: 1 %}
-          {{ image | image_url: width: 400 | json }}{% unless forloop.last %},{% endunless %}
-        {% endfor %}
-      ].filter(Boolean);
+    if (!slider || !dots || dots.length <= 1) return;
 
-      let currentIndex = 0;
+    let currentIndex = 0;
+    let isDragging = false;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationID;
+    let startTime = 0;
+    const totalSlides = dots.length;
 
-      dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-          if (images[index]) {
-            image.src = images[index];
-            dots.forEach(d => d.classList.remove('active'));
-            dot.classList.add('active');
-            currentIndex = index;
-          }
-        });
+    function updateDots(index) {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
       });
-
-      // Auto-advance images every 3 seconds
-      setInterval(() => {
-        currentIndex = (currentIndex + 1) % Math.min(images.length, 3);
-        if (images[currentIndex]) {
-          image.src = images[currentIndex];
-          dots.forEach(d => d.classList.remove('active'));
-          dots[currentIndex].classList.add('active');
-        }
-      }, 3000);
     }
+
+    function updateArrows(index) {
+      if (prevArrow) prevArrow.disabled = index === 0;
+      if (nextArrow) nextArrow.disabled = index === totalSlides - 1;
+    }
+
+    function setSliderPosition() {
+      slider.style.transform = `translateX(${currentTranslate}%)`;
+    }
+
+    function slideTo(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+
+      currentIndex = index;
+      currentTranslate = index * -100;
+      prevTranslate = currentTranslate;
+      slider.style.transition = 'transform 0.3s ease-out';
+      setSliderPosition();
+      updateDots(index);
+      updateArrows(index);
+    }
+
+    // Touch events
+    slider.addEventListener('touchstart', touchStart);
+    slider.addEventListener('touchmove', touchMove);
+    slider.addEventListener('touchend', touchEnd);
+
+    // Mouse events
+    slider.addEventListener('mousedown', touchStart);
+    slider.addEventListener('mouseup', touchEnd);
+    slider.addEventListener('mouseleave', () => {
+      if (isDragging) {
+        isDragging = false;
+        slider.style.transition = 'transform 0.3s ease-out';
+        slideTo(currentIndex);
+      }
+    });
+    slider.addEventListener('mousemove', touchMove);
+
+    function touchStart(event) {
+      isDragging = true;
+      startTime = Date.now();
+      startPos = getPositionX(event);
+      slider.style.transition = 'none'; // distinct transition for drag
+      animationID = requestAnimationFrame(animation);
+    }
+
+    function touchMove(event) {
+      if (isDragging) {
+        const currentPosition = getPositionX(event);
+        const diff = currentPosition - startPos;
+        // Calculate percentage movement based on slider width
+        const movePercent = (diff / slider.offsetWidth) * 100;
+        currentTranslate = prevTranslate + movePercent;
+      }
+    }
+
+    function touchEnd() {
+      isDragging = false;
+      cancelAnimationFrame(animationID);
+
+      const movedBy = currentTranslate - prevTranslate;
+      const timeDiff = Date.now() - startTime;
+      
+      // If moved significantly or quick swipe
+      if (movedBy < -20 || (movedBy < -5 && timeDiff < 300)) {
+        if (currentIndex < totalSlides - 1) currentIndex += 1;
+      } else if (movedBy > 20 || (movedBy > 5 && timeDiff < 300)) {
+        if (currentIndex > 0) currentIndex -= 1;
+      } else if (Math.abs(movedBy) < 1) {
+         // Clicked/Tapped without much movement - navigate to product
+         window.location.href = productUrl;
+         return;
+      }
+
+      slideTo(currentIndex);
+    }
+
+    function getPositionX(event) {
+      return event.type.includes('mouse') ? event.clientX : event.touches[0].clientX;
+    }
+
+    function animation() {
+      setSliderPosition();
+      if (isDragging) requestAnimationFrame(animation);
+    }
+
+    // Initialize events for touch and mouse
+    // handled by addEventListener above
+
+    // Dot clicks
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // prevent card click
+        slideTo(index);
+      });
+    });
+
+    // Arrow clicks
+    if (prevArrow) {
+      prevArrow.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        slideTo(currentIndex - 1);
+      });
+    }
+
+    if (nextArrow) {
+      nextArrow.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        slideTo(currentIndex + 1);
+      });
+    }
+
+    // Initial arrow state
+    updateArrows(0);
+
+    // Auto-advance
+    // let autoSlideInterval =  setInterval(() => {
+    //   if (!isDragging) {
+    //      let nextIndex = (currentIndex + 1) % totalSlides;
+    //      slideTo(nextIndex);
+    //   }
+    // }, 4000); 
+    // Commented out auto-slide to prevent interference with user interaction on mobile, 
+    // or we can keep it but clear on interaction.
   })();
 </script>
