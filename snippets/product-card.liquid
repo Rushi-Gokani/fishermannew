@@ -177,7 +177,7 @@
     transition: transform 0.3s ease;
     cursor: grab;
     width: 100%;
-    touch-action: pan-x pinch-zoom;
+    touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -509,7 +509,7 @@
 
     let currentIndex = 0;
     let isDragging = false;
-    let startPos = 0;
+    let startX = 0;
     let currentTranslate = 0;
     let startTime = 0;
 
@@ -541,7 +541,7 @@
 
       currentIndex = index;
       currentTranslate = index * -100;
-      slider.style.transform = `translateX(${currentTranslate}%)`;
+      slider.style.transform = 'translateX(' + currentTranslate + '%)';
       updateDots(index);
       updateArrows(index);
     }
@@ -550,7 +550,8 @@
 
     // Arrow button clicks
     if (prevArrow) {
-      prevArrow.addEventListener('click', () => {
+      prevArrow.addEventListener('click', function(e) {
+        e.stopPropagation();
         if (currentIndex > 0) {
           slideTo(currentIndex - 1);
         }
@@ -558,56 +559,69 @@
     }
 
     if (nextArrow) {
-      nextArrow.addEventListener('click', () => {
+      nextArrow.addEventListener('click', function(e) {
+        e.stopPropagation();
         if (currentIndex < totalSlides - 1) {
           slideTo(currentIndex + 1);
         }
       });
     }
 
-    // Pointer Events for unified touch/mouse handling
-    let startX = 0;
-    let currentX = 0;
-
     // Prevent default drag behavior on images
-    slider.querySelectorAll('img').forEach(img => {
-      img.addEventListener('dragstart', (e) => e.preventDefault());
+    slider.querySelectorAll('img').forEach(function(img) {
+      img.addEventListener('dragstart', function(e) { e.preventDefault(); });
+      img.style.pointerEvents = 'none';
     });
 
-    function handlePointerDown(e) {
-      if (e.target.closest('.product-card-arrow-{{ card_id }}')) return;
+    function getClientX(e) {
+      if (e.touches && e.touches.length > 0) {
+        return e.touches[0].clientX;
+      }
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        return e.changedTouches[0].clientX;
+      }
+      return e.clientX || 0;
+    }
+
+    // Touch start handler
+    function handleTouchStart(e) {
+      if (e.target.closest('.product-card-arrow-' + cardId)) return;
       
       isDragging = true;
-      startX = e.clientX;
-      slider.classList.add('dragging');
+      startX = getClientX(e);
       startTime = Date.now();
-      slider.setPointerCapture(e.pointerId); // Capture pointer to handle outside releases
-      e.preventDefault(); // Prevent default touch actions like text selection
+      slider.classList.add('dragging');
     }
 
-    function handlePointerMove(e) {
+    // Touch move handler
+    function handleTouchMove(e) {
       if (!isDragging) return;
       
-      currentX = e.clientX;
-      const diff = currentX - startX;
-      const movePercent = diff / slider.offsetWidth * 100;
-      slider.style.transform = `translateX(${currentTranslate + movePercent}%)`;
+      var currentX = getClientX(e);
+      var diff = currentX - startX;
+      var movePercent = (diff / slider.offsetWidth) * 100;
+      slider.style.transform = 'translateX(' + (currentTranslate + movePercent) + '%)';
+      
+      // Prevent page scrolling during horizontal swipe
+      if (Math.abs(diff) > 10) {
+        e.preventDefault();
+      }
     }
 
-    function handlePointerUp(e) {
+    // Touch end handler
+    function handleTouchEnd(e) {
       if (!isDragging) return;
       
       isDragging = false;
       slider.classList.remove('dragging');
-      slider.releasePointerCapture(e.pointerId);
 
-      const endX = e.clientX;
-      const diff = endX - startX;
-      const absDiff = Math.abs(diff);
-      const swiped = absDiff > 30; // Reduced threshold for easier mobile swiping
-      const timeDiff = Date.now() - startTime;
+      var endX = getClientX(e);
+      var diff = endX - startX;
+      var absDiff = Math.abs(diff);
+      var timeDiff = Date.now() - startTime;
 
-      if (swiped && timeDiff < 500) { // Increased time window for swipe detection
+      // Determine if this was a swipe
+      if (absDiff > 30 && timeDiff < 500) {
         if (diff < 0 && currentIndex < totalSlides - 1) {
           slideTo(currentIndex + 1);
         } else if (diff > 0 && currentIndex > 0) {
@@ -617,32 +631,89 @@
         }
       } else {
         slideTo(currentIndex);
-        // Navigate if it was a tap (very small movement)
-        if (absDiff < 10) {
-           const url = slider.getAttribute('data-product-url');
-           if (url) window.location.href = url;
+        // Navigate if it was a tap
+        if (absDiff < 10 && timeDiff < 300) {
+          var url = slider.getAttribute('data-product-url');
+          if (url) window.location.href = url;
         }
       }
     }
 
-    function handlePointerCancel(e) {
+    // Mouse handlers
+    function handleMouseDown(e) {
+      if (e.target.closest('.product-card-arrow-' + cardId)) return;
+      
+      e.preventDefault();
+      isDragging = true;
+      startX = e.clientX;
+      startTime = Date.now();
+      slider.classList.add('dragging');
+      
+      // Add move and up listeners to document so we track even if mouse leaves element
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    function handleMouseMove(e) {
+      if (!isDragging) return;
+      
+      var currentX = e.clientX;
+      var diff = currentX - startX;
+      var movePercent = (diff / slider.offsetWidth) * 100;
+      slider.style.transform = 'translateX(' + (currentTranslate + movePercent) + '%)';
+    }
+
+    function handleMouseUp(e) {
+      if (!isDragging) return;
+      
+      isDragging = false;
+      slider.classList.remove('dragging');
+      
+      // Remove document listeners
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+
+      var endX = e.clientX;
+      var diff = endX - startX;
+      var absDiff = Math.abs(diff);
+      var timeDiff = Date.now() - startTime;
+
+      if (absDiff > 30 && timeDiff < 500) {
+        if (diff < 0 && currentIndex < totalSlides - 1) {
+          slideTo(currentIndex + 1);
+        } else if (diff > 0 && currentIndex > 0) {
+          slideTo(currentIndex - 1);
+        } else {
+          slideTo(currentIndex);
+        }
+      } else {
+        slideTo(currentIndex);
+        if (absDiff < 10 && timeDiff < 300) {
+          var url = slider.getAttribute('data-product-url');
+          if (url) window.location.href = url;
+        }
+      }
+    }
+
+    // Attach touch events to slider
+    slider.addEventListener('touchstart', handleTouchStart, { passive: true });
+    slider.addEventListener('touchmove', handleTouchMove, { passive: false });
+    slider.addEventListener('touchend', handleTouchEnd, { passive: true });
+    slider.addEventListener('touchcancel', function() {
       if (isDragging) {
         isDragging = false;
         slider.classList.remove('dragging');
         slideTo(currentIndex);
       }
-    }
+    });
 
-    slider.addEventListener('pointerdown', handlePointerDown);
-    slider.addEventListener('pointermove', handlePointerMove);
-    slider.addEventListener('pointerup', handlePointerUp);
-    slider.addEventListener('pointercancel', handlePointerCancel);
-    // Removed pointerleave handler - it was incorrectly canceling valid swipes on mobile
+    // Attach mouse event only for mousedown on slider
+    slider.addEventListener('mousedown', handleMouseDown);
 
     // Dot clicks
     if (dots) {
-      dots.forEach((dot, index) => {
-        dot.addEventListener('click', (e) => {
+      dots.forEach(function(dot, index) {
+        dot.addEventListener('click', function(e) {
           e.stopPropagation();
           slideTo(index);
         });
