@@ -120,12 +120,7 @@
     border-radius: 10px;
   }
 
-  /* Navigation arrows */
-  .product-card-slider-{{ card_id }}:hover .product-card-arrow-{{ card_id }} {
-    opacity: 1;
-    visibility: visible;
-  }
-
+  /* Navigation arrows - visible by default for smooth swiping */
   .product-card-arrow-{{ card_id }} {
     position: absolute;
     top: 50%;
@@ -139,8 +134,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
+    opacity: 1;
+    visibility: visible;
     transition: all 0.3s ease;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -163,7 +158,6 @@
   .product-card-arrow-{{ card_id }}:disabled {
     opacity: 0.3;
     cursor: not-allowed;
-    visibility: hidden;
   }
 
   .product-card-arrow-{{ card_id }} svg {

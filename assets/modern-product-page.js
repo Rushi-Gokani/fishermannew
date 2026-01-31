@@ -213,13 +213,26 @@ class ModernProductPage {
       input.addEventListener('change', () => this.handleVariantChange());
     });
 
-    // Swatch selection - prevent default behavior
-    this.variantSelects.querySelectorAll('[data-variant-swatch]').forEach(swatch => {
+    // Swatch selection - the radio input is a SIBLING of the label, not a child
+    this.variantSelects.querySelectorAll('.modern-variant-swatch').forEach(swatch => {
       swatch.addEventListener('click', (e) => {
         e.preventDefault();
-        const input = swatch.querySelector('input[type="radio"]');
-        if (input) {
+        // Input is the previous sibling of the label/swatch
+        const input = swatch.previousElementSibling;
+        if (input && input.type === 'radio' && !input.disabled) {
           input.checked = true;
+          
+          // Update visual states for all swatches in this option group
+          const optionWrapper = swatch.closest('.modern-variant-options');
+          if (optionWrapper) {
+            optionWrapper.querySelectorAll('.modern-variant-swatch').forEach(sw => {
+              const swInput = sw.previousElementSibling;
+              if (swInput && swInput.type === 'radio') {
+                sw.classList.toggle('is-selected', swInput.checked);
+              }
+            });
+          }
+          
           this.handleVariantChange();
         }
       });
@@ -227,11 +240,7 @@ class ModernProductPage {
       swatch.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          const input = swatch.querySelector('input[type="radio"]');
-          if (input) {
-            input.checked = true;
-            this.handleVariantChange();
-          }
+          swatch.click();
         }
       });
     });
@@ -268,19 +277,37 @@ class ModernProductPage {
     // Update price
     const priceWrapper = this.container.querySelector('.modern-product__price-wrapper');
     if (priceWrapper && variant) {
-      const priceEl = priceWrapper.querySelector('.modern-product__price');
-      const compareEl = priceWrapper.querySelector('.modern-product__price-compare');
-      const saveBadge = priceWrapper.querySelector('.modern-product__save-badge');
+      const priceEl = priceWrapper.querySelector('[data-product-price]');
+      const compareEl = priceWrapper.querySelector('[data-compare-price]');
+      const saveBadge = priceWrapper.querySelector('[data-save-badge]');
       const soldBadge = priceWrapper.querySelector('.modern-product__sold-badge');
+
+      // FALLBACK: Try variant compare_at_price first, then product-level
+      let comparePrice = variant.compare_at_price;
+      if (comparePrice === null || comparePrice === undefined || comparePrice === 0 || comparePrice === '') {
+        comparePrice = this.productJSON.compare_at_price || 0;
+      }
+      
+      const hasDiscount = comparePrice > 0 && comparePrice > variant.price;
+      const discountPercent = hasDiscount ? Math.round((comparePrice - variant.price) / comparePrice * 100) : 0;
+      
+      console.log('External JS - Price update:', { 
+        price: variant.price, 
+        variant_compare: variant.compare_at_price,
+        product_compare: this.productJSON.compare_at_price,
+        using_compare: comparePrice, 
+        hasDiscount, 
+        discountPercent 
+      });
 
       if (priceEl) {
         priceEl.textContent = this.formatMoney(variant.price);
-        priceEl.classList.toggle('modern-product__price--sale', variant.compare_at_price > variant.price);
+        priceEl.classList.toggle('modern-product__price--sale', hasDiscount);
       }
 
       if (compareEl) {
-        if (variant.compare_at_price > variant.price) {
-          compareEl.textContent = this.formatMoney(variant.compare_at_price);
+        if (hasDiscount) {
+          compareEl.textContent = this.formatMoney(comparePrice);
           compareEl.style.display = '';
         } else {
           compareEl.style.display = 'none';
@@ -288,9 +315,8 @@ class ModernProductPage {
       }
 
       if (saveBadge) {
-        const savings = variant.compare_at_price - variant.price;
-        if (savings > 0) {
-          saveBadge.textContent = `Save ${this.formatMoney(savings)}`;
+        if (hasDiscount) {
+          saveBadge.textContent = `Save ${discountPercent}%`;
           saveBadge.style.display = '';
         } else {
           saveBadge.style.display = 'none';
@@ -301,6 +327,27 @@ class ModernProductPage {
         soldBadge.style.display = variant.available ? 'none' : '';
       }
     }
+
+    // Update SALE badge on image
+    const saleBadge = this.container.querySelector('[data-sale-badge]');
+    const saleText = this.container.querySelector('[data-sale-text]');
+    if (saleBadge) {
+      // FALLBACK: Try variant compare_at_price first, then product-level
+      let saleComparePrice = variant.compare_at_price;
+      if (saleComparePrice === null || saleComparePrice === undefined || saleComparePrice === 0 || saleComparePrice === '') {
+        saleComparePrice = this.productJSON.compare_at_price || 0;
+      }
+      
+      const hasDiscount = saleComparePrice > 0 && saleComparePrice > variant.price;
+      if (hasDiscount) {
+        const discountPercent = Math.round((saleComparePrice - variant.price) / saleComparePrice * 100);
+        if (saleText) saleText.textContent = `SALE ${discountPercent}% OFF`;
+        saleBadge.style.display = '';
+      } else {
+        saleBadge.style.display = 'none';
+      }
+    }
+
 
     // Update add to cart button
     const addToCart = this.container.querySelector('[data-add-to-cart]');

@@ -23,6 +23,18 @@
     <div class="modern-product-section__gallery">
       <!-- Main Image Display -->
       <div class="modern-gallery__main">
+        <!-- Sale Badge -->
+        {%- assign show_sale_badge = false -%}
+        {%- assign sale_discount = 0 -%}
+        {%- assign cv = product.selected_or_first_available_variant -%}
+        {%- if cv.compare_at_price != nil and cv.compare_at_price > cv.price -%}
+          {%- assign show_sale_badge = true -%}
+          {%- assign sale_discount = cv.compare_at_price | minus: cv.price | times: 100.0 | divided_by: cv.compare_at_price | round -%}
+        {%- endif -%}
+        <div class="modern-gallery__sale-badge" data-sale-badge style="{% unless show_sale_badge %}display: none;{% endunless %}">
+          <span data-sale-text>SALE {{ sale_discount }}% OFF</span>
+        </div>
+        
         <div class="modern-gallery__viewport">
           {% if product.media.size > 0 %}
             {% for media in product.media %}
@@ -233,23 +245,37 @@
 
       <!-- Price -->
       <div class="modern-product__price-wrapper">
-        {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-          <span class="modern-product__price modern-product__price--sale">
-            {{ product.selected_or_first_available_variant.price | money }}
-          </span>
-          <span class="modern-product__price-compare">
-            {{ product.selected_or_first_available_variant.compare_at_price | money }}
-          </span>
-          <span class="modern-product__save-badge">
-            Save {{ product.selected_or_first_available_variant.compare_at_price_minus_price | money }}
-          </span>
-        {%- else -%}
-          <span class="modern-product__price">
-            {{ product.selected_or_first_available_variant.price | money }}
-          </span>
+        {%- assign current_var = product.selected_or_first_available_variant -%}
+        {%- assign has_discount = false -%}
+        {%- assign discount_percent = 0 -%}
+        {%- assign compare_price = nil -%}
+        {%- assign current_price = current_var.price -%}
+        
+        {%- comment -%} Check variant compare_at_price first, then product-level {%- endcomment -%}
+        {%- if current_var.compare_at_price != nil and current_var.compare_at_price != blank and current_var.compare_at_price > 0 -%}
+          {%- assign compare_price = current_var.compare_at_price -%}
+        {%- elsif product.compare_at_price != nil and product.compare_at_price != blank and product.compare_at_price > 0 -%}
+          {%- assign compare_price = product.compare_at_price -%}
+        {%- endif -%}
+        
+        {%- if compare_price != nil and compare_price > current_price -%}
+          {%- assign has_discount = true -%}
+          {%- assign savings = compare_price | minus: current_price -%}
+          {%- assign discount_percent = savings | times: 100.0 | divided_by: compare_price | round -%}
         {%- endif -%}
 
-        {%- if product.selected_or_first_available_variant.available == false -%}
+
+        <span class="modern-product__price{% if has_discount %} modern-product__price--sale{% endif %}" data-product-price>
+          {{ current_price | money }}
+        </span>
+        <span class="modern-product__price-compare" data-compare-price style="{% unless has_discount %}display: none;{% endunless %}">
+          {%- if compare_price != nil -%}{{ compare_price | money }}{%- endif -%}
+        </span>
+        <span class="modern-product__save-badge" data-save-badge style="{% unless has_discount %}display: none;{% endunless %}">
+          Save {{ discount_percent }}%
+        </span>
+
+        {%- if current_var.available == false -%}
           <span class="modern-product__sold-badge">Sold Out</span>
         {%- endif -%}
 
@@ -500,8 +526,19 @@ document.addEventListener('DOMContentLoaded', function() {
   let product = null;
   try {
     product = JSON.parse(productJSON.textContent);
+    console.log('Product loaded with', product.variants.length, 'variants');
   } catch(e) {
     console.warn('Could not parse product JSON');
+  }
+  
+  // Format money helper
+  function formatMoney(cents) {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(cents / 100);
   }
   
   function getSelectedVariant() {
@@ -511,42 +548,83 @@ document.addEventListener('DOMContentLoaded', function() {
       return inp.value;
     });
     
-    return product.variants.find(function(v) {
+    console.log('Selected options:', selectedOptions);
+    
+    const variant = product.variants.find(function(v) {
       return selectedOptions.every(function(opt, idx) {
         return v.options[idx] === opt;
       });
     });
+    
+    console.log('Found variant:', variant ? variant.id : 'none', 'compare_at_price:', variant ? variant.compare_at_price : 'N/A');
+    return variant;
   }
   
-  function updateVariantUI(variant) {
+  function updatePriceDisplay(variant) {
     if (!variant) return;
     
-    // Update price
-    const priceEl = container.querySelector('.modern-product__price');
-    const compareEl = container.querySelector('.modern-product__price-compare');
-    const saveBadge = container.querySelector('.modern-product__save-badge');
+    const priceEl = container.querySelector('[data-product-price]');
+    const compareEl = container.querySelector('[data-compare-price]');
+    const saveBadge = container.querySelector('[data-save-badge]');
+    const saleBadge = container.querySelector('[data-sale-badge]');
+    const saleText = container.querySelector('[data-sale-text]');
     
-    if (priceEl) {
-      priceEl.textContent = (variant.price / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
-      priceEl.classList.toggle('modern-product__price--sale', variant.compare_at_price > variant.price);
+    // Calculate discount - FALLBACK to product.compare_at_price if variant doesn't have it
+    const currentPrice = variant.price;
+    // Try variant compare_at_price first, then fall back to product level
+    let comparePrice = variant.compare_at_price;
+    if (comparePrice === null || comparePrice === undefined || comparePrice === 0) {
+      comparePrice = product.compare_at_price;
     }
+    
+    const hasValidCompare = comparePrice !== null && comparePrice !== undefined && comparePrice > 0;
+    const hasDiscount = hasValidCompare && comparePrice > currentPrice;
+    const discountPercent = hasDiscount ? Math.round((comparePrice - currentPrice) / comparePrice * 100) : 0;
+    
+    console.log('Price update - current:', currentPrice, 'variant.compare:', variant.compare_at_price, 'product.compare:', product.compare_at_price, 'using:', comparePrice, 'hasDiscount:', hasDiscount);
+    
+    // Update current price
+    if (priceEl) {
+      priceEl.textContent = formatMoney(currentPrice);
+      priceEl.classList.toggle('modern-product__price--sale', hasDiscount);
+    }
+    
+    // Update compare-at price
     if (compareEl) {
-      if (variant.compare_at_price > variant.price) {
-        compareEl.textContent = (variant.compare_at_price / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+      if (hasDiscount) {
+        compareEl.textContent = formatMoney(comparePrice);
         compareEl.style.display = '';
       } else {
         compareEl.style.display = 'none';
       }
     }
+    
+    // Update save badge
     if (saveBadge) {
-      const savings = variant.compare_at_price - variant.price;
-      if (savings > 0) {
-        saveBadge.textContent = 'Save ' + (savings / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+      if (hasDiscount) {
+        saveBadge.textContent = 'Save ' + discountPercent + '%';
         saveBadge.style.display = '';
       } else {
         saveBadge.style.display = 'none';
       }
     }
+    
+    // Update SALE badge on image
+    if (saleBadge) {
+      if (hasDiscount) {
+        if (saleText) saleText.textContent = 'SALE ' + discountPercent + '% OFF';
+        saleBadge.style.display = '';
+      } else {
+        saleBadge.style.display = 'none';
+      }
+    }
+  }
+  
+  function updateVariantUI(variant) {
+    if (!variant) return;
+    
+    // Update prices
+    updatePriceDisplay(variant);
     
     // Update hidden variant ID
     const variantInput = container.querySelector('input[name="id"]');
@@ -568,43 +646,65 @@ document.addEventListener('DOMContentLoaded', function() {
         goToSlide(slideIndex);
       }
     }
+    
+    // Update selected value text
+    variant.options.forEach(function(optValue, idx) {
+      const valueSpan = container.querySelector('[data-option-index="' + idx + '"].modern-variant-selected-value');
+      if (valueSpan) valueSpan.textContent = optValue;
+    });
   }
   
-  // Variant swatch click handlers
-  const variantSwatches = container.querySelectorAll('.modern-variant-swatch');
-  variantSwatches.forEach(function(swatch) {
+  // Update swatch visual states
+  function updateSwatchStates() {
+    container.querySelectorAll('.modern-variant-options').forEach(function(optionsWrapper) {
+      const checkedInput = optionsWrapper.querySelector('input[type="radio"]:checked');
+      optionsWrapper.querySelectorAll('.modern-variant-swatch').forEach(function(swatch) {
+        const swatchInput = swatch.previousElementSibling;
+        if (swatchInput && swatchInput.type === 'radio') {
+          swatch.classList.toggle('is-selected', swatchInput.checked);
+        }
+      });
+    });
+  }
+  
+  // Main variant change handler
+  function handleVariantChange() {
+    console.log('Variant change triggered');
+    updateSwatchStates();
+    const variant = getSelectedVariant();
+    if (variant) {
+      updateVariantUI(variant);
+    }
+  }
+  
+  // Listen to radio input changes (works for both click on label and programmatic changes)
+  container.querySelectorAll('input[name^="option"]').forEach(function(input) {
+    input.addEventListener('change', handleVariantChange);
+  });
+  
+  // Also listen to swatch clicks directly for better UX
+  container.querySelectorAll('.modern-variant-swatch').forEach(function(swatch) {
     swatch.addEventListener('click', function(e) {
-      e.preventDefault();
-      const inputId = swatch.getAttribute('for');
-      const input = document.getElementById(inputId);
-      if (input) {
+      // Find the associated input (should be previous sibling)
+      const input = swatch.previousElementSibling;
+      if (input && input.type === 'radio' && !input.disabled) {
         input.checked = true;
-        
-        // Update visual state
-        const optionName = input.name;
-        container.querySelectorAll('input[name="' + optionName + '"]').forEach(function(inp) {
-          const sw = container.querySelector('.modern-variant-swatch[for="' + inp.id + '"]');
-          if (sw) {
-            sw.classList.toggle('is-selected', inp.checked);
-            sw.setAttribute('aria-selected', inp.checked ? 'true' : 'false');
-          }
-        });
-        
-        // Update variant
-        const variant = getSelectedVariant();
-        if (variant) updateVariantUI(variant);
+        // Manually trigger change event
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    
+    // Also handle keyboard events for accessibility
+    swatch.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        swatch.click();
       }
     });
   });
   
-  // Initialize default swatch selection
-  container.querySelectorAll('input[name^="option"]:checked').forEach(function(input) {
-    const swatch = container.querySelector('.modern-variant-swatch[for="' + input.id + '"]');
-    if (swatch) {
-      swatch.classList.add('is-selected');
-      swatch.setAttribute('aria-selected', 'true');
-    }
-  });
+  // Initialize default swatch selection on page load
+  updateSwatchStates();
   
   // ========== READ MORE ==========
   const readMoreBtns = container.querySelectorAll('.read-more-btn');
@@ -629,32 +729,151 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
+  // ========== TOUCH SWIPE SUPPORT FOR GALLERY ==========
+  const gallery = container.querySelector('.modern-gallery__viewport');
+  if (gallery && slides.length > 1) {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const swipeThreshold = 50;
+    
+    gallery.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    
+    gallery.addEventListener('touchend', function(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      const diffX = touchStartX - touchEndX;
+      const diffY = Math.abs(touchStartY - touchEndY);
+      
+      // Only swipe if horizontal movement is greater than vertical
+      if (Math.abs(diffX) > swipeThreshold && Math.abs(diffX) > diffY) {
+        if (diffX > 0) {
+          // Swipe left - next slide
+          goToSlide(currentIndex + 1);
+        } else {
+          // Swipe right - previous slide
+          goToSlide(currentIndex - 1);
+        }
+      }
+    }, { passive: true });
+  }
+  
   // ========== IMAGE ZOOM ==========
   const zoomModal = container.querySelector('[data-zoom-modal]');
+  let zoomCurrentIndex = 0;
+  const zoomableSlides = Array.from(container.querySelectorAll('.modern-gallery__slide'));
+  
+  function openZoom(index) {
+    if (!zoomModal) return;
+    const slide = zoomableSlides[index];
+    if (!slide) return;
+    
+    const hiddenImg = slide.querySelector('[data-media-src-hidden]');
+    const zoomImg = zoomModal.querySelector('[data-zoom-image]');
+    if (hiddenImg && zoomImg) {
+      zoomImg.src = hiddenImg.src;
+      zoomCurrentIndex = index;
+      zoomModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // Hide header when zoom is open
+      document.body.classList.add('zoom-modal-open');
+    }
+  }
+  
+  function closeZoom() {
+    if (!zoomModal) return;
+    zoomModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // Show header when zoom is closed
+    document.body.classList.remove('zoom-modal-open');
+  }
+  
+  function navigateZoom(direction) {
+    const newIndex = zoomCurrentIndex + direction;
+    if (newIndex < 0 || newIndex >= zoomableSlides.length) return;
+    
+    const slide = zoomableSlides[newIndex];
+    const hiddenImg = slide.querySelector('[data-media-src-hidden]');
+    const zoomImg = zoomModal.querySelector('[data-zoom-image]');
+    if (hiddenImg && zoomImg) {
+      zoomImg.src = hiddenImg.src;
+      zoomCurrentIndex = newIndex;
+    }
+  }
+  
   if (zoomModal) {
-    container.querySelectorAll('[data-can-zoom]').forEach(function(wrapper) {
+    // Open zoom on click
+    container.querySelectorAll('[data-can-zoom]').forEach(function(wrapper, idx) {
       wrapper.addEventListener('click', function() {
-        const hiddenImg = wrapper.querySelector('[data-media-src-hidden]');
-        const zoomImg = zoomModal.querySelector('[data-zoom-image]');
-        if (hiddenImg && zoomImg) {
-          zoomImg.src = hiddenImg.src;
-          zoomModal.setAttribute('aria-hidden', 'false');
-          document.body.style.overflow = 'hidden';
-        }
+        openZoom(idx);
       });
     });
     
+    // Close zoom
     zoomModal.querySelectorAll('[data-close-zoom]').forEach(function(el) {
-      el.addEventListener('click', function() {
-        zoomModal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-      });
+      el.addEventListener('click', closeZoom);
     });
     
+    // Zoom navigation buttons
+    const zoomPrevBtn = zoomModal.querySelector('[data-zoom-prev]');
+    const zoomNextBtn = zoomModal.querySelector('[data-zoom-next]');
+    
+    if (zoomPrevBtn) {
+      zoomPrevBtn.addEventListener('click', function() {
+        navigateZoom(-1);
+      });
+    }
+    if (zoomNextBtn) {
+      zoomNextBtn.addEventListener('click', function() {
+        navigateZoom(1);
+      });
+    }
+    
+    // Touch swipe support for zoom modal
+    const zoomContent = zoomModal.querySelector('.modern-zoom-modal__content');
+    if (zoomContent) {
+      let zoomTouchStartX = 0;
+      let zoomTouchEndX = 0;
+      let zoomTouchStartY = 0;
+      let zoomTouchEndY = 0;
+      
+      zoomContent.addEventListener('touchstart', function(e) {
+        zoomTouchStartX = e.changedTouches[0].screenX;
+        zoomTouchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+      
+      zoomContent.addEventListener('touchend', function(e) {
+        zoomTouchEndX = e.changedTouches[0].screenX;
+        zoomTouchEndY = e.changedTouches[0].screenY;
+        const diffX = zoomTouchStartX - zoomTouchEndX;
+        const diffY = Math.abs(zoomTouchStartY - zoomTouchEndY);
+        
+        if (Math.abs(diffX) > 50 && Math.abs(diffX) > diffY) {
+          if (diffX > 0) {
+            // Swipe left - next
+            navigateZoom(1);
+          } else {
+            // Swipe right - previous
+            navigateZoom(-1);
+          }
+        }
+      }, { passive: true });
+    }
+    
+    // Keyboard navigation
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && zoomModal.getAttribute('aria-hidden') === 'false') {
-        zoomModal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
+      if (zoomModal.getAttribute('aria-hidden') === 'false') {
+        if (e.key === 'Escape') {
+          closeZoom();
+        } else if (e.key === 'ArrowLeft') {
+          navigateZoom(-1);
+        } else if (e.key === 'ArrowRight') {
+          navigateZoom(1);
+        }
       }
     });
   }
@@ -694,6 +913,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% stylesheet %}
+  /* Hide header when zoom modal is open */
+  body.zoom-modal-open .shopify-section-group-header-group {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
   /* Modern Product Section - Base Styles */
   .modern-product-section {
     position: relative;
@@ -926,6 +1152,29 @@ document.addEventListener('DOMContentLoaded', function() {
     flex-shrink: 0;
   }
 
+  /* Sale Badge - Top Corner */
+  .modern-gallery__sale-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #e63946, #ff6b6b);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+    animation: salePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes salePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
   /* Thumbnails - Rounded */
   .modern-gallery__thumbnails {
     display: grid;
@@ -939,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', function() {
     aspect-ratio: 1;
     border-radius: 10px;
     overflow: hidden;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     background: rgb(var(--color-foreground-rgb) / 0.03);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -952,7 +1201,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   .modern-gallery__thumbnail.is-active {
     border-color: currentColor;
-    box-shadow: 0 0 0 2px currentColor;
+    box-shadow: 0 0 0 1px currentColor;
   }
 
   .modern-gallery__thumbnail:focus-visible {
@@ -1394,7 +1643,7 @@ document.addEventListener('DOMContentLoaded', function() {
   .modern-zoom-modal {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 999999 !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1406,11 +1655,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   .modern-zoom-modal__backdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    background: rgb(0 0 0 / 0.9);
+    background: rgb(0 0 0 / 0.95);
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 1;
   }
 
   .modern-zoom-modal[aria-hidden="false"] .modern-zoom-modal__backdrop {
@@ -1418,7 +1668,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   .modern-zoom-modal__close {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 20px;
     width: 48px;
@@ -1428,12 +1678,12 @@ document.addEventListener('DOMContentLoaded', function() {
     justify-content: center;
     background: rgb(255 255 255 / 0.1);
     border: none;
-    border-radius: 0;
+    border-radius: 50%;
     cursor: pointer;
     color: #fff;
     opacity: 0;
     transition: all 0.3s ease;
-    z-index: 2;
+    z-index: 10;
   }
 
   .modern-zoom-modal[aria-hidden="false"] .modern-zoom-modal__close {
@@ -1451,6 +1701,7 @@ document.addEventListener('DOMContentLoaded', function() {
     opacity: 0;
     transform: scale(0.95);
     transition: all 0.3s ease;
+    z-index: 5;
   }
 
   .modern-zoom-modal[aria-hidden="false"] .modern-zoom-modal__content {
@@ -1551,11 +1802,25 @@ document.addEventListener('DOMContentLoaded', function() {
       flex: 0 0 70px;
       width: 70px;
       scroll-snap-align: start;
+      border: none;
+      box-shadow: none;
     }
 
+    .modern-gallery__thumbnail:hover,
+    .modern-gallery__thumbnail.is-active,
+    .modern-gallery__thumbnail:focus-visible {
+      border: none;
+      box-shadow: none;
+      outline: none;
+      transform: none;
+    }
+
+    /* Mobile Gallery Navigation - Always Visible */
     .modern-gallery__nav {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
+      opacity: 0.9 !important;
+      background: rgb(255 255 255 / 0.85);
     }
 
     .modern-gallery__nav--prev {
@@ -1565,17 +1830,67 @@ document.addEventListener('DOMContentLoaded', function() {
     .modern-gallery__nav--next {
       right: 8px;
     }
-
-    .modern-trust-badges {
-      grid-template-columns: 1fr;
+    
+    /* Mobile Zoom Modal - Full screen responsive */
+    .modern-zoom-modal__content {
+      max-width: 100vw;
+      max-height: 100vh;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    
+    .modern-zoom-modal__image {
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      touch-action: pan-y pinch-zoom;
+    }
+    
+    .modern-zoom-modal__nav {
+      width: 44px;
+      height: 44px;
+      background: rgb(0 0 0 / 0.5);
+      border-radius: 50%;
     }
 
     .modern-zoom-modal__nav--prev {
-      left: 8px;
+      left: 10px;
     }
 
     .modern-zoom-modal__nav--next {
-      right: 8px;
+      right: 10px;
+    }
+    
+    .modern-zoom-modal__close {
+      top: 10px;
+      right: 10px;
+      width: 44px;
+      height: 44px;
+      background: rgb(0 0 0 / 0.5);
+      border-radius: 50%;
+    }
+    
+    /* Swipe hint indicator for mobile */
+    .modern-gallery__main::after {
+      content: '';
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 4px;
+      background: rgb(0 0 0 / 0.2);
+      border-radius: 2px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .modern-trust-badges {
+      grid-template-columns: 1fr;
     }
   }
 

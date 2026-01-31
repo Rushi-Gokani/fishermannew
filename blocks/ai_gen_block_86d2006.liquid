@@ -170,7 +170,44 @@
     pointer-events: none;
   }
 
-  @media screen and (min-width: 750px) {
+  /* iPad/Tablet specific styles (750px - 1024px) */
+  @media screen and (min-width: 750px) and (max-width: 1024px) {
+    .trending-collections-grid-{{ ai_gen_id }} {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: visible;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .trending-collections-item-{{ ai_gen_id }} {
+      flex: 0 0 auto;
+      min-width: unset;
+      width: calc((100% - 75px) / 6);
+      max-width: 110px;
+    }
+
+    .trending-collections-image-wrapper-{{ ai_gen_id }} {
+      width: 90px;
+      height: 90px;
+    }
+
+    .trending-collections-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.85 }}px;
+    }
+
+    .trending-collections-label-{{ ai_gen_id }} {
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .trending-collections-container-{{ ai_gen_id }} {
+      padding: 0 30px;
+    }
+  }
+
+  /* Desktop styles (above 1024px) */
+  @media screen and (min-width: 1025px) {
     .trending-collections-grid-{{ ai_gen_id }} {
       flex-wrap: nowrap;
       overflow-x: visible;
