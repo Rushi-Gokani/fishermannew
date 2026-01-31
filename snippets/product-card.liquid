@@ -511,6 +511,7 @@
     let isDragging = false;
     let startX = 0;
     let currentTranslate = 0;
+    let prevTranslate = 0;
     let startTime = 0;
 
     const totalSlides = {{ product.media.size | default: 1 | at_most: 3 }};
@@ -541,6 +542,7 @@
 
       currentIndex = index;
       currentTranslate = index * -100;
+      prevTranslate = currentTranslate;
       slider.style.transform = 'translateX(' + currentTranslate + '%)';
       updateDots(index);
       updateArrows(index);
@@ -590,7 +592,9 @@
       isDragging = true;
       startX = getClientX(e);
       startTime = Date.now();
+      prevTranslate = currentIndex * -100;
       slider.classList.add('dragging');
+      slider.style.transition = 'none';
     }
 
     // Touch move handler
@@ -600,10 +604,11 @@
       var currentX = getClientX(e);
       var diff = currentX - startX;
       var movePercent = (diff / slider.offsetWidth) * 100;
-      slider.style.transform = 'translateX(' + (currentTranslate + movePercent) + '%)';
+      currentTranslate = prevTranslate + movePercent;
+      slider.style.transform = 'translateX(' + currentTranslate + '%)';
       
       // Prevent page scrolling during horizontal swipe
-      if (Math.abs(diff) > 10) {
+      if (Math.abs(diff) > 10 && e.cancelable) {
         e.preventDefault();
       }
     }
@@ -614,6 +619,7 @@
       
       isDragging = false;
       slider.classList.remove('dragging');
+      slider.style.transition = 'transform 0.3s ease';
 
       var endX = getClientX(e);
       var diff = endX - startX;
@@ -647,7 +653,9 @@
       isDragging = true;
       startX = e.clientX;
       startTime = Date.now();
+      prevTranslate = currentIndex * -100;
       slider.classList.add('dragging');
+      slider.style.transition = 'none';
       
       // Add move and up listeners to document so we track even if mouse leaves element
       document.addEventListener('mousemove', handleMouseMove);
@@ -660,7 +668,8 @@
       var currentX = e.clientX;
       var diff = currentX - startX;
       var movePercent = (diff / slider.offsetWidth) * 100;
-      slider.style.transform = 'translateX(' + (currentTranslate + movePercent) + '%)';
+      currentTranslate = prevTranslate + movePercent;
+      slider.style.transform = 'translateX(' + currentTranslate + '%)';
     }
 
     function handleMouseUp(e) {
@@ -668,6 +677,7 @@
       
       isDragging = false;
       slider.classList.remove('dragging');
+      slider.style.transition = 'transform 0.3s ease';
       
       // Remove document listeners
       document.removeEventListener('mousemove', handleMouseMove);
