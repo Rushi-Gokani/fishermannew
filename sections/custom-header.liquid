@@ -614,25 +614,25 @@
 
   /* Modals */
   .search-modal {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); z-index: 2000; display: none; align-items: flex-start; justify-content: center; padding-top: 80px; opacity: 0; transition: opacity 0.3s ease;
+    position: fixed; inset: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-start; justify-content: center; padding-top: 80px; opacity: 0; transition: opacity 0.3s ease;
   }
   .search-modal.active { display: flex; opacity: 1; }
-  .search-modal__content { background: #1e293b; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-  .search-modal__close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; }
-  .search-modal__close:hover { color: #fff; }
+  .search-modal__content { background: #ffffff; padding: 20px 25px; border-radius: 15px; width: 90%; max-width: 600px; position: relative; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15); }
+  .search-modal__close { display: none; }
+  .search-modal__close:hover { color: #0f172a; background: rgba(0,0,0,0.05); }
   .search-modal__form { display: flex; gap: 10px; }
-  .search-modal__input { flex: 1; padding: 12px 20px; border: 1px solid #334155; border-radius: 10px; font-size: 16px; background: #0f172a; color: #fff; }
+  .search-modal__input { flex: 1; padding: 12px 20px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; background: #f8fafc; color: #0f172a; }
   .search-modal__input:focus { border-color: #40c4ff; outline: none; }
   .search-modal__submit { background: #40c4ff; color: #0f172a; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
   .search-modal__submit:hover { background: #81d4fa; }
   
   .predictive-search-results { margin-top: 20px; max-height: 400px; overflow-y: auto; display: none; }
   .predictive-search-results.has-results { display: block; }
-  .predictive-search-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #334155; text-decoration: none; color: #e2e8f0; }
-  .predictive-search-item:hover { background-color: rgba(255,255,255,0.05); }
+  .predictive-search-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #e2e8f0; text-decoration: none; color: #334155; }
+  .predictive-search-item:hover { background-color: rgba(0,0,0,0.03); }
   .predictive-search-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
-  .predictive-search-item__title { font-weight: 600; font-size: 14px; display: block; color: #fff; }
-  .predictive-search-item__price { font-size: 13px; color: #94a3b8; }
+  .predictive-search-item__title { font-weight: 600; font-size: 14px; display: block; color: #0f172a; }
+  .predictive-search-item__price { font-size: 13px; color: #64748b; }
 </style>
 
 {% capture header_logo_markup %}
@@ -1001,17 +1001,19 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Search Modal Logic
-    const searchTrigger = document.querySelector('.search-trigger');
+    const searchTriggers = document.querySelectorAll('.search-trigger');
     const searchModal = document.getElementById('searchModal');
     const searchClose = document.querySelector('.search-modal__close');
     const searchInput = document.querySelector('.search-modal__input');
     const predictiveSearchResults = document.getElementById('predictive-search-results');
 
-    if (searchTrigger && searchModal) {
-      searchTrigger.addEventListener('click', function(e) {
-        e.preventDefault();
-        searchModal.classList.add('active');
-        setTimeout(() => searchInput.focus(), 100); // Focus input
+    if (searchTriggers.length > 0 && searchModal) {
+      searchTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          searchModal.classList.add('active');
+          setTimeout(() => searchInput.focus(), 100);
+        });
       });
 
       const closeModal = () => {
@@ -1101,19 +1103,6 @@
 
     if (categoriesWrapper && categoriesDropdown) {
       let dropdownTimer;
-      const openDropdown = () => {
-        clearTimeout(dropdownTimer);
-        categoriesWrapper.classList.add('is-open');
-      };
-
-      const closeDropdown = () => {
-        clearTimeout(dropdownTimer);
-        dropdownTimer = setTimeout(() => {
-          categoriesWrapper.classList.remove('is-open');
-        }, 120);
-      };
-
-      // Simplified Interaction Logic
       const openDropdown = () => {
         clearTimeout(dropdownTimer);
         categoriesWrapper.classList.add('is-open');
