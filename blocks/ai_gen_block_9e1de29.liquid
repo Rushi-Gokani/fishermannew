@@ -107,13 +107,16 @@
   .ai-featured-brands-container-{{ ai_gen_id }} {
     max-width: 1400px;
     margin: 0 auto;
+    padding: 0 20px;
   }
 
   .ai-featured-brands-header-wrapper-{{ ai_gen_id }} {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0 0 {{ block.settings.heading_spacing }}px 0;
+    margin: 0 0 40px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
   }
 
   .ai-featured-brands-heading-{{ ai_gen_id }} {
@@ -125,24 +128,45 @@
     letter-spacing: 0.05em;
     margin: 0;
     text-align: left;
+    position: relative;
   }
 
   .ai-featured-brands-view-all-{{ ai_gen_id }} {
     font-family: var(--font-body-family);
-    font-size: 16px;
+    font-size: 14px;
     color: {{ block.settings.view_all_color }};
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.3s ease;
   }
 
   .ai-featured-brands-view-all-{{ ai_gen_id }}:hover {
-    text-decoration: underline;
+    opacity: 0.7;
+    text-decoration: none;
+  }
+  
+  .ai-featured-brands-view-all-{{ ai_gen_id }}::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    margin-bottom: 1px;
   }
 
   .ai-featured-brands-marquee-wrapper-{{ ai_gen_id }} {
     overflow: hidden;
     position: relative;
     width: 100%;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
 
   .ai-featured-brands-marquee-{{ ai_gen_id }} {
@@ -150,6 +174,7 @@
     gap: {{ block.settings.logo_spacing }}px;
     animation: ai-marquee-scroll-{{ ai_gen_id }} {{ block.settings.scroll_speed }}s linear infinite;
     will-change: transform;
+    padding: 10px 0;
   }
 
   {% if block.settings.pause_on_hover %}
@@ -162,6 +187,7 @@
     display: flex;
     gap: {{ block.settings.logo_spacing }}px;
     flex-shrink: 0;
+    align-items: center;
   }
 
   .ai-featured-brands-logo-item-{{ ai_gen_id }} {
@@ -170,6 +196,7 @@
     align-items: center;
     justify-content: center;
     height: {{ block.settings.logo_height }}px;
+    transition: transform 0.3s ease;
   }
 
   .ai-featured-brands-logo-link-{{ ai_gen_id }} {
@@ -178,11 +205,6 @@
     justify-content: center;
     height: 100%;
     text-decoration: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .ai-featured-brands-logo-link-{{ ai_gen_id }}:hover {
-    opacity: 0.7;
   }
 
   .ai-featured-brands-logo-img-{{ ai_gen_id }} {
@@ -190,7 +212,13 @@
     width: auto;
     max-width: {{ block.settings.logo_max_width }}px;
     object-fit: contain;
-    filter: {{ block.settings.logo_filter }};
+    filter: {{ block.settings.logo_filter | default: 'grayscale(100%) opacity(0.7)' }};
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .ai-featured-brands-logo-item-{{ ai_gen_id }}:hover .ai-featured-brands-logo-img-{{ ai_gen_id }} {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.1);
   }
 
   .ai-featured-brands-placeholder-{{ ai_gen_id }} {
@@ -199,12 +227,13 @@
     justify-content: center;
     height: {{ block.settings.logo_height }}px;
     width: {{ block.settings.logo_max_width }}px;
-    background-color: #f5f5f5;
+    background-color: #f9f9f9;
     border-radius: 8px;
     color: #999;
     font-size: 14px;
     text-align: center;
     padding: 20px;
+    border: 1px dashed #e0e0e0;
   }
 
   @keyframes ai-marquee-scroll-{{ ai_gen_id }} {
@@ -220,18 +249,24 @@
     .ai-featured-brands-heading-{{ ai_gen_id }} {
       font-size: {{ block.settings.heading_size | times: 0.7 }}px;
     }
+    
+    .ai-featured-brands-header-wrapper-{{ ai_gen_id }} {
+        margin-bottom: 24px;
+        flex-direction: row;
+        align-items: center;
+    }
 
     .ai-featured-brands-logo-item-{{ ai_gen_id }} {
-      height: {{ block.settings.logo_height | times: 0.7 }}px;
+      height: {{ block.settings.logo_height | times: 0.8 }}px;
     }
 
     .ai-featured-brands-logo-img-{{ ai_gen_id }} {
-      max-width: {{ block.settings.logo_max_width | times: 0.7 }}px;
+      max-width: {{ block.settings.logo_max_width | times: 0.8 }}px;
     }
 
     .ai-featured-brands-placeholder-{{ ai_gen_id }} {
-      height: {{ block.settings.logo_height | times: 0.7 }}px;
-      width: {{ block.settings.logo_max_width | times: 0.7 }}px;
+      height: {{ block.settings.logo_height | times: 0.8 }}px;
+      width: {{ block.settings.logo_max_width | times: 0.8 }}px;
     }
   }
 {% endstyle %}
