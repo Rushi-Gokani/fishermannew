@@ -167,6 +167,36 @@
         "padding-block-end": 0
       }
     },
+    "single_featured_product_highlight": {
+      "type": "single-featured-product",
+      "name": "Featured Product Highlight",
+      "settings": {
+        "section_title": "Featured Product",
+        "section_subtitle": "Our best seller this month",
+        "product": "",
+        "layout": "image-left",
+        "color_scheme": "scheme-4",
+        "show_badge": true,
+        "badge_text": "",
+        "show_vendor": true,
+        "show_reviews": true,
+        "show_secondary_image": true,
+        "show_thumbnails": true,
+        "show_description": true,
+        "description_words": 25,
+        "show_variants": true,
+        "show_quantity": true,
+        "add_to_cart_text": "Add to Cart",
+        "show_view_details": true,
+        "view_details_text": "View Details",
+        "show_trust_badges": true,
+        "trust_badge_1": "Free Shipping",
+        "trust_badge_2": "Secure Checkout",
+        "trust_badge_3": "24/7 Support",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
     "product_list_fa6P9H": {
       "type": "product-list",
       "blocks": {
@@ -1814,6 +1844,7 @@
   "order": [
     "hero_jVaWmY",
     "1769171605a59eb342",
+    "single_featured_product_highlight",
     "product_list_fa6P9H",
     "176916634157ac5daa",
     "marquee_QXzHMY",

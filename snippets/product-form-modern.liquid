@@ -41,7 +41,7 @@
             <div class="modern-variant-options" data-option-index="{{ forloop.index0 }}">
               {%- for value in option.values -%}
                 {%- liquid
-                  assign option_disabled = false
+                  assign option_disabled = true
                   assign option_swatch_img = null
                   assign variant_with_image = null
                   assign variant_for_value = null
@@ -60,9 +60,9 @@
 
                     if matches_value
                       assign variant_for_value = variant
-                      unless variant.available
-                        assign option_disabled = true
-                      endunless
+                      if variant.available
+                        assign option_disabled = false
+                      endif
                       
                       # Grab image from the first matching variant that has one, or keep updating? 
                       # Usually we want the first specific one, or the one corresponding to current other selections.

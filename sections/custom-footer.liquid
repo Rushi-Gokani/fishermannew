@@ -76,57 +76,53 @@
         <!-- Localization Selectors -->
         <div class="custom-footer__selectors">
           {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
-            <localization-form>
-              {% form 'localization', id: 'FooterCountryForm', class: 'localization-form' %}
-                <div class="no-js-hidden">
-                  <div class="disclosure">
-                    <button type="button" class="disclosure__button localization-form__select localization-selector link link--text caption-large" aria-expanded="false" aria-controls="FooterCountryList" aria-describedby="FooterCountryLabel">
-                      {{ localization.country.name }} ({{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }})
-                      <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
-                      </svg>
-                    </button>
-                    <ul id="FooterCountryList" role="list" class="disclosure__list list-unstyled" hidden>
-                      {%- for country in localization.available_countries -%}
-                        <li class="disclosure__item" tabindex="-1">
-                          <a class="disclosure__link link link--text caption-large{% if country.iso_code == localization.country.iso_code %} disclosure__link--active{% endif %} focus-inset" href="#" {% if country.iso_code == localization.country.iso_code %} aria-current="true"{% endif %} data-value="{{ country.iso_code }}">
-                            {{ country.name }} <span class="localization-form__currency">({{ country.currency.iso_code }} {{ country.currency.symbol }})</span>
-                          </a>
-                        </li>
-                      {%- endfor -%}
-                    </ul>
-                  </div>
-                  <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+            <div class="footer-localization footer-localization--country">
+              {% form 'localization', id: 'FooterCountryForm', class: 'footer-localization__form' %}
+                <div class="footer-localization__disclosure">
+                  <button type="button" class="footer-localization__button" aria-expanded="false" aria-controls="FooterCountryList">
+                    {{ localization.country.name }} ({{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }})
+                    <svg aria-hidden="true" focusable="false" class="footer-localization__caret" viewBox="0 0 10 6">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"/>
+                    </svg>
+                  </button>
+                  <ul id="FooterCountryList" class="footer-localization__list" role="listbox" hidden>
+                    {%- for country in localization.available_countries -%}
+                      <li class="footer-localization__item" role="option" {% if country.iso_code == localization.country.iso_code %}aria-selected="true"{% endif %}>
+                        <button type="button" class="footer-localization__option{% if country.iso_code == localization.country.iso_code %} footer-localization__option--active{% endif %}" data-value="{{ country.iso_code }}">
+                          {{ country.name }} <span class="footer-localization__currency">({{ country.currency.iso_code }} {{ country.currency.symbol }})</span>
+                        </button>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
                 </div>
+                <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
               {% endform %}
-            </localization-form>
+            </div>
           {%- endif -%}
 
           {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
-            <localization-form>
-              {% form 'localization', id: 'FooterLanguageForm', class: 'localization-form' %}
-                <div class="no-js-hidden">
-                  <div class="disclosure">
-                    <button type="button" class="disclosure__button localization-form__select localization-selector link link--text caption-large" aria-expanded="false" aria-controls="FooterLanguageList" aria-describedby="FooterLanguageLabel">
-                      {{ localization.language.endonym_name | capitalize }}
-                      <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
-                      </svg>
-                    </button>
-                    <ul id="FooterLanguageList" role="list" class="disclosure__list list-unstyled" hidden>
-                      {%- for language in localization.available_languages -%}
-                        <li class="disclosure__item" tabindex="-1">
-                          <a class="disclosure__link link link--text caption-large{% if language.iso_code == localization.language.iso_code %} disclosure__link--active{% endif %} focus-inset" href="#" hreflang="{{ language.iso_code }}" lang="{{ language.iso_code }}"{% if language.iso_code == localization.language.iso_code %} aria-current="true"{% endif %} data-value="{{ language.iso_code }}">
-                            {{ language.endonym_name | capitalize }}
-                          </a>
-                        </li>
-                      {%- endfor -%}
-                    </ul>
-                  </div>
-                  <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
+            <div class="footer-localization footer-localization--language">
+              {% form 'localization', id: 'FooterLanguageForm', class: 'footer-localization__form' %}
+                <div class="footer-localization__disclosure">
+                  <button type="button" class="footer-localization__button" aria-expanded="false" aria-controls="FooterLanguageList">
+                    {{ localization.language.endonym_name | capitalize }}
+                    <svg aria-hidden="true" focusable="false" class="footer-localization__caret" viewBox="0 0 10 6">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"/>
+                    </svg>
+                  </button>
+                  <ul id="FooterLanguageList" class="footer-localization__list" role="listbox" hidden>
+                    {%- for language in localization.available_languages -%}
+                      <li class="footer-localization__item" role="option" {% if language.iso_code == localization.language.iso_code %}aria-selected="true"{% endif %}>
+                        <button type="button" class="footer-localization__option{% if language.iso_code == localization.language.iso_code %} footer-localization__option--active{% endif %}" data-value="{{ language.iso_code }}" hreflang="{{ language.iso_code }}" lang="{{ language.iso_code }}">
+                          {{ language.endonym_name | capitalize }}
+                        </button>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
                 </div>
+                <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
               {% endform %}
-            </localization-form>
+            </div>
           {%- endif -%}
         </div>
         
@@ -191,7 +187,8 @@
     position: relative;
     font-size: 15px;
     line-height: 1.7;
-    overflow: hidden;
+    overflow: visible;
+    z-index: 5;
   }
 
   .custom-footer::before {
@@ -419,6 +416,152 @@
     color: #226bcb;
   }
 
+  /* Footer Localization Dropup Styles */
+  .footer-localization {
+    position: relative;
+  }
+
+  .footer-localization__form {
+    margin: 0;
+  }
+
+  .footer-localization__disclosure {
+    position: relative;
+  }
+
+  .footer-localization__button {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(108, 178, 235, 0.35);
+    padding: 8px 16px;
+    color: #3e5676;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    transition: border-color 0.2s, background-color 0.2s;
+    font-weight: 600;
+    font-family: inherit;
+  }
+
+  .footer-localization__button:hover {
+    border-color: #2f80ed;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .footer-localization__button[aria-expanded="true"] {
+    border-color: #2f80ed;
+    background: #fff;
+  }
+
+
+
+  .footer-localization__caret {
+    width: 10px;
+    height: 6px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .footer-localization__button[aria-expanded="true"] .footer-localization__caret {
+    transform: rotate(180deg);
+  }
+
+  /* Dropup list - opens upward */
+  .footer-localization__list {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    min-width: 200px;
+    max-width: 280px;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid rgba(108, 178, 235, 0.35);
+    border-radius: 12px;
+    box-shadow: 0 -4px 20px rgba(0, 40, 80, 0.12), 0 -2px 8px rgba(0, 40, 80, 0.08);
+    padding: 8px 0;
+    margin: 0;
+    list-style: none;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .footer-localization__list:not([hidden]) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .footer-localization__list[hidden] {
+    display: none;
+  }
+
+  .footer-localization__item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer-localization__option {
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: #3e5676;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    display: block;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+  }
+
+  .footer-localization__option:hover {
+    background: rgba(47, 128, 237, 0.08);
+    color: #2f80ed;
+  }
+
+  .footer-localization__option--active {
+    color: #2f80ed;
+    font-weight: 600;
+    background: rgba(47, 128, 237, 0.06);
+  }
+
+  .footer-localization__option--active::before {
+    content: '✓';
+    margin-right: 8px;
+    font-weight: 700;
+  }
+
+  .footer-localization__currency {
+    color: #70839b;
+    font-size: 12px;
+  }
+
+  /* Custom scrollbar for dropup list */
+  .footer-localization__list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .footer-localization__list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  .footer-localization__list::-webkit-scrollbar-thumb {
+    background: rgba(47, 128, 237, 0.3);
+    border-radius: 3px;
+  }
+
+  .footer-localization__list::-webkit-scrollbar-thumb:hover {
+    background: rgba(47, 128, 237, 0.5);
+  }
+
   /* Wave Animation */
   .waveWrapper {
     overflow: hidden;
@@ -537,6 +680,84 @@
     }
   }
 {% endstylesheet %}
+
+{% javascript %}
+  // Footer Localization Dropup Functionality
+  (function() {
+    const footerLocalizations = document.querySelectorAll('.footer-localization');
+
+    footerLocalizations.forEach(localization => {
+      const button = localization.querySelector('.footer-localization__button');
+      const list = localization.querySelector('.footer-localization__list');
+      const form = localization.querySelector('.footer-localization__form');
+      const hiddenInput = form?.querySelector('input[type="hidden"]');
+      const options = localization.querySelectorAll('.footer-localization__option');
+
+      if (!button || !list) return;
+
+      // Toggle dropup on button click
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other dropups first
+        document.querySelectorAll('.footer-localization__button[aria-expanded="true"]').forEach(btn => {
+          if (btn !== button) {
+            btn.setAttribute('aria-expanded', 'false');
+            const btnList = btn.closest('.footer-localization__disclosure')?.querySelector('.footer-localization__list');
+            if (btnList) btnList.setAttribute('hidden', '');
+          }
+        });
+        
+        // Toggle current dropup
+        button.setAttribute('aria-expanded', !isExpanded);
+        if (isExpanded) {
+          list.setAttribute('hidden', '');
+        } else {
+          list.removeAttribute('hidden');
+        }
+      });
+
+      // Handle option selection
+      options.forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.preventDefault();
+          const value = option.getAttribute('data-value');
+          
+          if (value && hiddenInput && form) {
+            hiddenInput.value = value;
+            form.submit();
+          }
+        });
+      });
+    });
+
+    // Close dropups when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.footer-localization')) {
+        document.querySelectorAll('.footer-localization__button[aria-expanded="true"]').forEach(btn => {
+          btn.setAttribute('aria-expanded', 'false');
+          const list = btn.closest('.footer-localization__disclosure')?.querySelector('.footer-localization__list');
+          if (list) list.setAttribute('hidden', '');
+        });
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.footer-localization__button[aria-expanded="true"]').forEach(btn => {
+          btn.setAttribute('aria-expanded', 'false');
+          const list = btn.closest('.footer-localization__disclosure')?.querySelector('.footer-localization__list');
+          if (list) list.setAttribute('hidden', '');
+          btn.focus();
+        });
+      }
+    });
+  })();
+{% endjavascript %}
 
 {% schema %}
 {
