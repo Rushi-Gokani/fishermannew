@@ -690,7 +690,7 @@
       const button = localization.querySelector('.footer-localization__button');
       const list = localization.querySelector('.footer-localization__list');
       const form = localization.querySelector('.footer-localization__form');
-      const hiddenInput = form?.querySelector('input[type="hidden"]');
+      const hiddenInput = form?.querySelector('input[name="locale_code"], input[name="country_code"]');
       const options = localization.querySelectorAll('.footer-localization__option');
 
       if (!button || !list) return;

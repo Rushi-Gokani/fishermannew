@@ -548,69 +548,124 @@
     .custom-header-container { height: auto; padding: 0; }
   }
 
-  /* Mobile Drawer */
+  /* Premium Mobile Drawer */
   .mobile-drawer {
-    position: fixed; top: 0; left: -100%; width: 85%; height: 100%; background: #ffffff; z-index: 2001; transition: left 0.3s ease; padding: 30px;
-    border-right: 1px solid rgba(0,0,0,0.1);
+    position: fixed; 
+    top: 0; 
+    left: -100%; 
+    width: 85%; 
+    max-width: 400px;
+    height: 100%; 
+    background: #ffffff; 
+    z-index: 2001; 
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+    padding: 0;
+    border-right: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0 20px 20px 0;
   }
   .mobile-drawer.active { left: 0; }
-  .mobile-drawer__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-  .mobile-drawer__close { background: none; border: none; color: #0f172a; cursor: pointer; padding: 5px; }
-  .mobile-drawer__link { color: #0f172a; text-decoration: none; font-size: 18px; font-weight: 600; display: block; margin-bottom: 20px; transition: color 0.2s, padding 0.2s; }
-  .mobile-drawer__link:hover { color: #40c4ff; padding-left: 10px; }
-  .mobile-drawer__overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; }
-  .mobile-drawer__overlay.active { display: block; }
-  .mobile-drawer__list { list-style: none; padding: 0; margin: 0; }
 
-  /* Mobile Submenus */
-  .mobile-drawer__section-title {
-    padding: 20px 0 10px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #94a3b8;
-    border-top: 1px solid rgba(0,0,0,0.05);
-    margin-top: 10px;
+  /* Premium Header */
+  .mobile-drawer__header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 24px 30px; 
+    background: linear-gradient(to right, #f8fafc, #ffffff);
+    border-bottom: 1px solid #f1f5f9;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
-  .mobile-drawer__item.has-submenu .mobile-drawer__submenu-trigger {
+  .mobile-drawer__header .header-logo-text { font-size: 22px; font-weight: 800; color: #0f172a; }
+
+  .mobile-drawer__close { 
+    background: #f1f5f9;
+    border: none; 
+    color: #64748b; 
+    cursor: pointer; 
+    width: 36px; 
+    height: 36px;
+    border-radius: 50%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    width: 100%;
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-align: left;
+    justify-content: center;
+    transition: all 0.2s;
   }
+  .mobile-drawer__close:hover { background: #e2e8f0; color: #0f172a; }
+
+  /* Navigation Area */
+  .mobile-drawer__nav { padding: 10px 0; }
+  .mobile-drawer__list { list-style: none; padding: 0; margin: 0; }
+  
+  .mobile-drawer__item {
+    border-bottom: 1px solid #f8fafc;
+    padding: 0 30px;
+    transition: background 0.2s;
+  }
+  .mobile-drawer__item:last-child { border-bottom: none; }
+
+  .mobile-drawer__link { 
+    color: #334155; 
+    text-decoration: none; 
+    font-size: 16px; 
+    font-weight: 600; 
+    display: block; 
+    padding: 18px 0; 
+    transition: color 0.2s; 
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+  .mobile-drawer__link:hover { color: #40c4ff; }
+
+  /* Premium Toggle Button */
+  .mobile-drawer__submenu-trigger {
+    width: 32px !important; 
+    height: 32px !important;
+    background: #f8fafc !important; 
+    color: #64748b;
+    border-radius: 50%;
+    margin-left: 10px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .mobile-drawer__submenu-trigger:hover, 
+  .mobile-drawer__submenu.active ~ .mobile-drawer__submenu-trigger { /* Note: This selector won't work with current HTML structure, reliance on JS class toggle is better */ }
+  
+  .mobile-drawer__submenu-trigger svg { width: 14px; height: 14px; stroke-width: 2.5px; }
+
+  /* Submenu Styling */
   .mobile-drawer__submenu {
     display: none;
-    padding-left: 15px;
-    margin-bottom: 20px;
+    background: #f8fafc;
+    margin: 0 -30px 0 -30px;
+    padding: 15px 30px;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
   }
-  .mobile-drawer__submenu.active {
-    display: block;
+  .mobile-drawer__submenu.active { display: block; animation: slideDown 0.3s ease-out forwards; }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .mobile-submenu-group { margin-bottom: 15px; }
-  .mobile-submenu-group span {
-    font-size: 13px;
-    font-weight: 700;
-    color: #40c4ff;
-    display: block;
-    margin-bottom: 5px;
-  }
-  .mobile-submenu-group ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .mobile-submenu-group li a {
-    font-size: 15px;
+
+  .mobile-drawer__submenu .mobile-drawer__item { padding: 0; border: none; }
+  .mobile-drawer__submenu .mobile-drawer__link {
+    font-size: 14px;
+    padding: 10px 0 10px 15px;
+    font-weight: 500;
     color: #64748b;
-    text-decoration: none;
-    display: block;
-    padding: 5px 0;
+    border-left: 2px solid transparent;
   }
-  .mobile-submenu-group li a:hover { color: #0f172a; }
+  .mobile-drawer__submenu .mobile-drawer__link:hover {
+    color: #0f172a;
+    border-left-color: #40c4ff;
+    background: linear-gradient(to right, rgba(64,196,255,0.05), transparent);
+  }
 
   /* Modals */
   .search-modal {
@@ -701,73 +756,82 @@
           
           <div class="categories-dropdown">
             <div class="categories-dropdown-inner">
-            <div class="dropdown-sidebar">
-              {% for block in section.blocks %}
-                {% if block.type == 'category_group' %}
-                  <div class="sidebar-item {% if forloop.first %}active{% endif %}" data-target="panel-{{ block.id }}">
-                    {{ block.settings.heading }}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-                  </div>
-                {% endif %}
+            {% assign first_category_block = section.blocks | where: 'type', 'category_group' | first %}
+            {% if first_category_block %}
+            <div class="dropdown-sidebar" style="padding: 10px 0;">
+              {% if first_category_block.settings.menu_1_heading != blank %}
+                 <h4 style="padding: 0 24px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: #40c4ff; margin-bottom: 10px; margin-top:10px;">{{ first_category_block.settings.menu_1_heading }}</h4>
+              {% endif %}
+              
+              {% for link in first_category_block.settings.menu_1.links %}
+                <div class="sidebar-item {% if forloop.first %}active{% endif %}" data-target="menu-child-{{ forloop.index }}">
+                  <span>{{ link.title }}</span>
+                  {% if link.links.size > 0 %}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                  {% endif %}
+                </div>
               {% endfor %}
             </div>
+            
             <div class="dropdown-content-area">
-              {% for block in section.blocks %}
-                {% if block.type == 'category_group' %}
-                  <div class="custom-mega-panel {% if forloop.first %}active{% endif %}" id="panel-{{ block.id }}" data-layout-fix="true">
-                    <div class="menus-group">
-                    {% if block.settings.menu_1 != blank %}
-                      <div class="panel-column">
-                        {% if block.settings.menu_1_heading != blank %}
-                          <h4>{{ block.settings.menu_1_heading }}</h4>
-                        {% endif %}
+              {% for link in first_category_block.settings.menu_1.links %}
+                <div class="custom-mega-panel {% if forloop.first %}active{% endif %}" id="menu-child-{{ forloop.index }}">
+                  <div class="menus-group">
+                    <div class="panel-column">
+                      <h4>{{ link.title }}</h4>
+                      {% if link.links.size > 0 %}
                         <ul>
-                          {% for link in block.settings.menu_1.links %}
-                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                          {% for child_link in link.links %}
+                            <li><a href="{{ child_link.url }}">{{ child_link.title }}</a></li>
                           {% endfor %}
                         </ul>
-                      </div>
-                    {% endif %}
-                    {% if block.settings.menu_2 != blank %}
-                      <div class="panel-column">
-                        {% if block.settings.menu_2_heading != blank %}
-                          <h4>{{ block.settings.menu_2_heading }}</h4>
-                        {% endif %}
-                        <ul>
-                          {% for link in block.settings.menu_2.links %}
-                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                          {% endfor %}
-                        </ul>
-                      </div>
-                    {% endif %}
-                    {% if block.settings.menu_3 != blank %}
-                      <div class="panel-column">
-                        {% if block.settings.menu_3_heading != blank %}
-                          <h4>{{ block.settings.menu_3_heading }}</h4>
-                        {% endif %}
-                        <ul>
-                          {% for link in block.settings.menu_3.links %}
-                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                          {% endfor %}
-                        </ul>
-                      </div>
-                    {% endif %}
+                      {% else %}
+                        <p style="color: #94a3b8; font-size: 13px;">No sub-categories</p>
+                      {% endif %}
                     </div>
-                    {% if block.settings.promo_image != blank %}
-                      <div class="panel-column promo-column">
-                        <a href="{{ block.settings.promo_link | default: '#' }}" class="promo-card">
-                          {{ block.settings.promo_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
-                          <div class="promo-overlay">
-                            <span class="promo-title">{{ block.settings.promo_title }}</span>
-                            <span class="promo-subtitle">{{ block.settings.promo_subtitle }}</span>
-                          </div>
-                        </a>
-                      </div>
-                    {% endif %}
                   </div>
-                {% endif %}
+
+                  {% assign promo_image = first_category_block.settings.promo_image %}
+                  {% assign promo_title = first_category_block.settings.promo_title %}
+                  {% assign promo_subtitle = first_category_block.settings.promo_subtitle %}
+                  {% assign promo_link = first_category_block.settings.promo_link %}
+
+                  {% comment %} Dynamic Content Override {% endcomment %}
+                  {% if link.type == 'collection_link' %}
+                    {% assign associated_collection = link.object %}
+                    {% if associated_collection.products.first != blank %}
+                      {% assign promo_image = associated_collection.products.first.featured_image %}
+                      {% assign promo_title = associated_collection.products.first.title %}
+                      {% assign promo_subtitle = associated_collection.products.first.price | money %}
+                      {% assign promo_link = associated_collection.products.first.url %}
+                    {% elsif associated_collection.image != blank %}
+                       {% assign promo_image = associated_collection.image %}
+                       {% assign promo_title = associated_collection.title %}
+                       {% assign promo_subtitle = 'Explore Collection' %}
+                       {% assign promo_link = associated_collection.url %}
+                    {% endif %}
+                  {% elsif link.type == 'product_link' and link.object.featured_image != blank %}
+                     {% assign promo_image = link.object.featured_image %}
+                     {% assign promo_title = link.object.title %}
+                     {% assign promo_subtitle = link.object.price | money %}
+                     {% assign promo_link = link.url %}
+                  {% endif %}
+
+                  {% if promo_image != blank %}
+                    <div class="panel-column promo-column">
+                      <a href="{{ promo_link | default: '#' }}" class="promo-card">
+                        {{ promo_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
+                        <div class="promo-overlay">
+                          <span class="promo-title">{{ promo_title }}</span>
+                          <span class="promo-subtitle">{{ promo_subtitle }}</span>
+                        </div>
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
               {% endfor %}
             </div>
+            {% endif %}
             </div>
           </div>
         </div>
@@ -922,56 +986,86 @@
       {% endfor %}
 
       {% if category_blocks.size > 0 %}
-        <li class="mobile-drawer__item has-submenu">
-          <button class="mobile-drawer__link mobile-drawer__submenu-trigger">
-            {{ section.settings.categories_label }}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="mobile-drawer__submenu">
-            <ul class="mobile-drawer__list">
-              {% for block in category_blocks %}
-                <li class="mobile-drawer__item has-submenu">
-                  <button class="mobile-drawer__link mobile-drawer__submenu-trigger">
-                    {{ block.settings.heading }}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-                  </button>
-                  <div class="mobile-drawer__submenu">
-                    {% if block.settings.menu_1 != blank %}
-                      <div class="mobile-submenu-group">
-                        {% if block.settings.menu_1_heading != blank %}<span>{{ block.settings.menu_1_heading }}</span>{% endif %}
-                        <ul>
-                          {% for link in block.settings.menu_1.links %}
-                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                          {% endfor %}
-                        </ul>
+          {% assign first_category_block = category_blocks | first %}
+          {% if first_category_block %}
+                {% if first_category_block.settings.menu_1 != blank %}
+                  {% for link in first_category_block.settings.menu_1.links %}
+                    <li class="mobile-drawer__item {% if link.links.size > 0 %}has-submenu{% endif %}">
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <a href="{{ link.url }}" class="mobile-drawer__link" style="flex: 1; margin-bottom: 0;">{{ link.title }}</a>
+                        {% if link.links.size > 0 %}
+                          <button class="mobile-drawer__submenu-trigger" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer;">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                          </button>
+                        {% endif %}
                       </div>
-                    {% endif %}
-                    {% if block.settings.menu_2 != blank %}
-                      <div class="mobile-submenu-group">
-                        {% if block.settings.menu_2_heading != blank %}<span>{{ block.settings.menu_2_heading }}</span>{% endif %}
-                        <ul>
-                          {% for link in block.settings.menu_2.links %}
-                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                          {% endfor %}
-                        </ul>
+                      {% if link.links.size > 0 %}
+                        <div class="mobile-drawer__submenu">
+                          <ul class="mobile-drawer__list">
+                            {% for child_link in link.links %}
+                              <li class="mobile-drawer__item">
+                                <a href="{{ child_link.url }}" class="mobile-drawer__link" style="font-size: 15px; font-weight: 500; color: #64748b; padding-left: 20px;">{{ child_link.title }}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                {% endif %}
+
+                {% if first_category_block.settings.menu_2 != blank %}
+                   {% for link in first_category_block.settings.menu_2.links %}
+                    <li class="mobile-drawer__item {% if link.links.size > 0 %}has-submenu{% endif %}">
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <a href="{{ link.url }}" class="mobile-drawer__link" style="flex: 1; margin-bottom: 0;">{{ link.title }}</a>
+                        {% if link.links.size > 0 %}
+                          <button class="mobile-drawer__submenu-trigger" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer;">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                          </button>
+                        {% endif %}
                       </div>
-                    {% endif %}
-                    {% if block.settings.menu_3 != blank %}
-                      <div class="mobile-submenu-group">
-                        {% if block.settings.menu_3_heading != blank %}<span>{{ block.settings.menu_3_heading }}</span>{% endif %}
-                        <ul>
-                          {% for link in block.settings.menu_3.links %}
-                            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                          {% endfor %}
-                        </ul>
+                      {% if link.links.size > 0 %}
+                        <div class="mobile-drawer__submenu">
+                          <ul class="mobile-drawer__list">
+                            {% for child_link in link.links %}
+                              <li class="mobile-drawer__item">
+                                <a href="{{ child_link.url }}" class="mobile-drawer__link" style="font-size: 15px; font-weight: 500; color: #64748b; padding-left: 20px;">{{ child_link.title }}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                {% endif %}
+
+                {% if first_category_block.settings.menu_3 != blank %}
+                   {% for link in first_category_block.settings.menu_3.links %}
+                    <li class="mobile-drawer__item {% if link.links.size > 0 %}has-submenu{% endif %}">
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <a href="{{ link.url }}" class="mobile-drawer__link" style="flex: 1; margin-bottom: 0;">{{ link.title }}</a>
+                        {% if link.links.size > 0 %}
+                          <button class="mobile-drawer__submenu-trigger" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer;">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                          </button>
+                        {% endif %}
                       </div>
-                    {% endif %}
-                  </div>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </li>
+                      {% if link.links.size > 0 %}
+                        <div class="mobile-drawer__submenu">
+                          <ul class="mobile-drawer__list">
+                            {% for child_link in link.links %}
+                              <li class="mobile-drawer__item">
+                                <a href="{{ child_link.url }}" class="mobile-drawer__link" style="font-size: 15px; font-weight: 500; color: #64748b; padding-left: 20px;">{{ child_link.title }}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                {% endif %}
+          {% endif %}
       {% endif %}
     </ul>
   </nav>
@@ -1207,17 +1301,29 @@
       // Mobile Submenu Toggles
       const submenuTriggers = document.querySelectorAll('.mobile-drawer__submenu-trigger');
       submenuTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function() {
-          const submenu = this.nextElementSibling;
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          let submenu = this.nextElementSibling;
+          
+          // Fallback to finding it in parent (for new structure where button is sibling to link in a div)
+          if (!submenu || !submenu.classList.contains('mobile-drawer__submenu')) {
+              const parentItem = this.closest('.mobile-drawer__item');
+              if (parentItem) {
+                  submenu = parentItem.querySelector('.mobile-drawer__submenu');
+              }
+          }
+          
           const icon = this.querySelector('svg');
           
           if(submenu) {
             submenu.classList.toggle('active');
             // Rotate icon if needed
             if(submenu.classList.contains('active')) {
-               icon.style.transform = 'rotate(180deg)';
+               if(icon) icon.style.transform = 'rotate(180deg)';
             } else {
-               icon.style.transform = 'rotate(0deg)';
+               if(icon) icon.style.transform = 'rotate(0deg)';
             }
           }
         });
