@@ -10,7 +10,7 @@
 {
   "sections": {
     "main": {
-      "type": "premium-brands-grid",
+      "type": "brands-grid",
       "blocks": {
         "brand_1": {
           "type": "collection",

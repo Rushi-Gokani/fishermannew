@@ -362,6 +362,20 @@
 
   <!-- Image Section with Swipeable Slider -->
   <div class="product-card-image-wrapper-{{ card_id }}">
+    {%- assign is_best_seller = false -%}
+    {%- for collection in product.collections -%}
+      {%- if collection.title == 'Best Sellers' -%}
+        {%- assign is_best_seller = true -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+    
+    {%- if is_best_seller -%}
+      <img src="https://cdn.shopify.com/s/files/1/0665/2887/0715/files/1722944964203-352234792-BADGES1.png?v=1722945193" 
+           alt="Best Seller"
+           class="best-seller-badge-image"
+           style="position: absolute; top: 10px; left: 10px; z-index: 5; width: 70px; height: auto;">
+    {%- endif -%}
     {% if on_sale and discount_percent > 0 %}
       <div class="product-card-discount-badge-{{ card_id }}">
         Save {{ discount_percent | round }}%
