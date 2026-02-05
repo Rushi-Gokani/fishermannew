@@ -126,12 +126,17 @@
         };
 
         window.handleFloBuyNowBtn = function(event) {
-            if (event) event.preventDefault();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            }
+            
             const button = event.currentTarget || event.target;
             let variantId = button ? button.dataset.variantId : null;
 
             // Fallback: Attempt to find the form and variant ID if not on the button
-            if (!variantId) {
+            if (!variantId && button) {
                 const form = button.closest('form') || document.querySelector('form[action*="/cart/add"]');
                 if (form) {
                     const variantInput = form.querySelector('[name="id"]');
@@ -149,7 +154,11 @@
             }
 
             if (variantId && window.Shopflo && window.Shopflo.checkout) {
-                window.Shopflo.checkout([{ variantId: parseInt(variantId), quantity: 1 }]);
+                const payload = [{ variantId: parseInt(variantId), quantity: 1 }];
+                console.log('Shopflo Checkout Payload:', payload);
+                window.Shopflo.checkout(payload).catch(err => {
+                    console.error('Shopflo Checkout Error:', err);
+                });
             } else if (variantId) {
                  // Fallback if Shopflo not ready but we have variant
                  window.location.href = '/cart/' + variantId + ':1';
@@ -157,6 +166,7 @@
                  // Final fallback
                  window.location.href = '/checkout';
             }
+            return false;
         };
 
         let observerInstance;
