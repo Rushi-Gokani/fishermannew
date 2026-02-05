@@ -17,7 +17,7 @@
           "settings": {
             "section_height": 80,
             "mobile_section_height": 60,
-            "overlay_opacity": 30,
+            "overlay_opacity": 0,
             "text_color": "#ffffff",
             "heading_size": 56,
             "subheading_size": 18,
