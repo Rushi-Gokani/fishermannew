@@ -180,6 +180,60 @@
     },
     "product_page_modern_Br9FHH": {
       "type": "product-page-modern",
+      "blocks": {
+        "breadcrumbs_3GnGgE": {
+          "type": "breadcrumbs",
+          "settings": {}
+        },
+        "title_XfyJBf": {
+          "type": "title",
+          "settings": {}
+        },
+        "price_UKzzJi": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker_Dw7d93": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "quantity_selector_QCbQFQ": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons_Uzcza3": {
+          "type": "buy_buttons",
+          "settings": {}
+        },
+        "razorpay_trusted_business_rtb_widget_aNgxRH": {
+          "type": "shopify://apps/razorpay-trusted-business/blocks/rtb-widget/a54835d4-011c-47fe-94db-3731e39152d6",
+          "settings": {}
+        },
+        "razorpay_affordability_widget_affordability_block_xYLNya": {
+          "type": "shopify://apps/razorpay-affordability-widget/blocks/affordability-block/5bf9b115-5933-4c1b-ade0-ef564b250852",
+          "settings": {}
+        },
+        "description_EFDYEG": {
+          "type": "description",
+          "settings": {}
+        },
+        "selleasy_lb_upsell_addon_block_FWxMz9": {
+          "type": "shopify://apps/selleasy/blocks/lb-upsell-addon-block/790c1a03-a71f-4bc1-9869-00dad526d3c2",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "breadcrumbs_3GnGgE",
+        "title_XfyJBf",
+        "price_UKzzJi",
+        "variant_picker_Dw7d93",
+        "quantity_selector_QCbQFQ",
+        "buy_buttons_Uzcza3",
+        "razorpay_trusted_business_rtb_widget_aNgxRH",
+        "razorpay_affordability_widget_affordability_block_xYLNya",
+        "description_EFDYEG",
+        "selleasy_lb_upsell_addon_block_FWxMz9"
+      ],
       "custom_css": [
         ".modern-product__description h2 {font-size: 20px !important;}",
         ".modern-product__description h3 {font-size: 20px !important;}"
@@ -187,7 +241,6 @@
       "name": "Modern Product Page",
       "settings": {
         "show_breadcrumbs": true,
-        "show_short_description": true,
         "enable_zoom": true,
         "show_trust_badges": true,
         "trust_badge_1_icon": "truck",
