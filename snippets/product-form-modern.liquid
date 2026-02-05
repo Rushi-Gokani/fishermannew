@@ -210,12 +210,9 @@
         <!-- Dynamic Checkout / Buy Now Button -->
         {% if enable_payment_button and current_variant.available %}
           <div class="modern-buy-now-wrapper">
-            <!-- {{ form | payment_button }} -->
-             <div class="shopify-payment-button">
-              <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNow(null, null, this)" class="shopify-payment-button__button shopify-payment-button__button--unbranded" name="flo-buy-now-button">
+              <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNow(null, null, this)" class="modern-add-to-cart modern-btn-primary" style="background: white; color: #40C4FF; border: 2px solid #40C4FF;" name="flo-buy-now-button">
                 {{ 'Buy Now' }}
               </button>
-             </div>
           </div>
         {% endif %}
       </div>

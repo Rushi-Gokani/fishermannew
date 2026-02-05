@@ -47,39 +47,81 @@
         }
 
         function handleFloBuyNow(variantId, specificQty, btnElement) {
+            console.log("Shopflo: handleFloBuyNow called", {variantId, specificQty, btnElement});
+            
             // Resolve variantId: Use provided, or find input[name="id"] in closest form/container
             let finalVariantId = variantId;
+            
             if (!finalVariantId && btnElement) {
-                const form = btnElement.closest('form') || btnElement.closest('product-form') || document;
-                const idInput = form.querySelector('input[name="id"]');
-                if (idInput) finalVariantId = idInput.value;
+                // 1. Try finding input inside the closest form
+                const form = btnElement.closest('form');
+                if (form) {
+                    const idInput = form.querySelector('input[name="id"]');
+                    if (idInput) finalVariantId = idInput.value;
+                    
+                    // 2. If not in form, try finding input linked to this form by form attribute
+                    if (!finalVariantId && form.id) {
+                         const linkedInput = document.querySelector(`input[name="id"][form="${form.id}"]`);
+                         if(linkedInput) finalVariantId = linkedInput.value;
+                    }
+                }
+                
+                // 3. Try finding input in the product section container
+                if(!finalVariantId) {
+                     const section = btnElement.closest('.modern-product-section') || btnElement.closest('.product-section') || btnElement.closest('section');
+                     if(section) {
+                         const idInput = section.querySelector('input[name="id"]');
+                         if(idInput) finalVariantId = idInput.value;
+                     }
+                }
             }
+            // 4. Last resort: Global search (risky if multiple products, but fallback)
+            if(!finalVariantId) {
+                 const idInput = document.querySelector('input[name="id"]');
+                 if(idInput) finalVariantId = idInput.value;
+            }
+            
+            console.log("Shopflo: Resolved Variant ID:", finalVariantId);
 
             // Resolve quantity: Use specificQty, or find input[name="quantity"]
             let quantity = specificQty;
             if (!quantity) {
-                // If btnElement provided, try to find quantity input nearby first
-                let qtyInput;
-                if(btnElement) {
-                     const form = btnElement.closest('form') || btnElement.closest('product-form');
-                     if(form) qtyInput = form.querySelector('input[name="quantity"]');
-                }
+                 let qtyInput;
+                 // Try finding relative to button first
+                 if(btnElement) {
+                     const form = btnElement.closest('form');
+                     if(form) {
+                        qtyInput = form.querySelector('input[name="quantity"]');
+                        if(!qtyInput && form.id) {
+                            qtyInput = document.querySelector(`input[name="quantity"][form="${form.id}"]`);
+                        }
+                     }
+                     if(!qtyInput) {
+                        const section = btnElement.closest('.modern-product-section') || btnElement.closest('section');
+                        if(section) qtyInput = section.querySelector('input[name="quantity"]');
+                     }
+                 }
+                // Global fallback
                 if(!qtyInput) qtyInput = document.querySelector('input[name="quantity"]');
                 
                 quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
             }
+            console.log("Shopflo: Resolved Quantity:", quantity);
             
             if(!finalVariantId) {
                 console.error("Shopflo: Could not resolve variant ID");
+                alert("Error: Could not resolve product variant. Please try again.");
                 return;
             }
 
             if (window.shopflo && window.shopflo.checkout) {
+                console.log("Shopflo: Invoking checkout");
                 window.shopflo.checkout([{
                     variant_id: parseInt(finalVariantId),
                     quantity: quantity
                 }]);
             } else {
+                 console.warn("Shopflo: Integration not ready, using fallback");
                  // Fallback: Add to cart and go to checkout
                  const formData = {
                     'items': [{
@@ -93,6 +135,9 @@
                     body: JSON.stringify(formData)
                  }).then(() => {
                      window.location.href = '/checkout';
+                 }).catch(e => {
+                     console.error("Shopflo Fallback Error:", e);
+                     alert("Could not proceed to checkout.");
                  });
             }
         }

@@ -452,7 +452,9 @@
 
                       <!-- Dynamic Checkout -->
                       <div class="modern-buy-now-wrapper">
-                        {{ form | payment_button }}
+                        <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNow(null, null, this)" class="modern-add-to-cart modern-btn-primary" style="background: white; color: #40C4FF; border: 2px solid #40C4FF;" name="flo-buy-now-button">
+                          {{ 'Buy Now' }}
+                        </button>
                       </div>
                     </div>
                   </div>
