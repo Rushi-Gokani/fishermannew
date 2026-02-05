@@ -36,6 +36,47 @@
     {% endif %}
 
     <script src="https://bridge.shopflo.com/js/shopflo.bundle.js" async></script>
+    <script>
+        function handleFloCheckoutBtn() {
+            if (window.shopflo && window.shopflo.checkout) {
+                window.shopflo.checkout();
+            } else {
+                console.warn('Shopflo not loaded, falling back to default checkout');
+                window.location.href = '/checkout';
+            }
+        }
+
+        function handleFloBuyNow(variantId, specificQty) {
+            // Resolve quantity: Use specificQty if provided, otherwise try to find an input, else default to 1
+            let quantity = specificQty;
+            if (!quantity) {
+                const qtyInput = document.querySelector('input[name="quantity"]');
+                quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+            }
+
+            if (window.shopflo && window.shopflo.checkout) {
+                window.shopflo.checkout([{
+                    variant_id: variantId,
+                    quantity: quantity
+                }]);
+            } else {
+                 // Fallback: Add to cart and go to checkout
+                 const formData = {
+                    'items': [{
+                        'id': variantId,
+                        'quantity': quantity
+                    }]
+                 };
+                 fetch(window.Shopify.routes.root + 'cart/add.js', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                 }).then(() => {
+                     window.location.href = '/checkout';
+                 });
+            }
+        }
+    </script>
     {{ content_for_header }}
   </head>
 
@@ -114,120 +155,6 @@
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
     {% endif %}
-    <script>
-      (function initFloBuyNowToggle() {
-        // Expose functions globally
-        window.handleFloCheckoutBtn = function() {
-           if (window.Shopflo && window.Shopflo.openFloCheckout) {
-              window.Shopflo.openFloCheckout();
-           } else {
-              window.location.href = '/checkout';
-           }
-        };
 
-        window.handleFloBuyNowBtn = function(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-            }
-            
-            const button = event.currentTarget || event.target;
-            let variantId = button ? button.dataset.variantId : null;
-
-            // Fallback: Attempt to find the form and variant ID if not on the button
-            if (!variantId && button) {
-                const form = button.closest('form') || document.querySelector('form[action*="/cart/add"]');
-                if (form) {
-                    const variantInput = form.querySelector('[name="id"]');
-                    if (variantInput) variantId = variantInput.value;
-                }
-            }
-
-            if (!variantId && window.location.search) {
-                 const urlParams = new URLSearchParams(window.location.search);
-                 variantId = urlParams.get('variant');
-            }
-             // Fallback for product page if meta is available
-            if (!variantId && window.product && window.product.dataset && window.product.dataset.selectedVariantId) {
-                variantId = window.product.dataset.selectedVariantId;
-            }
-
-            if (variantId && window.Shopflo && window.Shopflo.checkout) {
-                const payload = [{ variantId: parseInt(variantId), quantity: 1 }];
-                console.log('Shopflo Checkout Payload:', payload);
-                window.Shopflo.checkout(payload).catch(err => {
-                    console.error('Shopflo Checkout Error:', err);
-                });
-            } else if (variantId) {
-                 // Fallback if Shopflo not ready but we have variant
-                 window.location.href = '/cart/' + variantId + ':1';
-            } else {
-                 // Final fallback
-                 window.location.href = '/checkout';
-            }
-            return false;
-        };
-
-        let observerInstance;
-        // Changed to class selector to support multiple buttons (product cards + main product)
-        const floButtonSelector = '.flo-buy-now-button'; 
-        const addButtonSelector = 'button[name="add"]';
-        let variantListenerAttached = false;
-
-        function toggleFloButton(addButton, floButtons) {
-          if (!floButtons || floButtons.length === 0 || !addButton) {
-            return;
-          }
-
-          const isVariantAvailable = !addButton.disabled;
-          floButtons.forEach(btn => {
-              btn.style.setProperty('display', isVariantAvailable ? 'block' : 'none', 'important');
-          });
-        }
-
-        function handleVariantChange() {
-          // Re-query buttons as they might be dynamic
-          const floButtons = document.querySelectorAll(floButtonSelector);
-          const addButton = document.querySelector(addButtonSelector);
-          toggleFloButton(addButton, floButtons);
-        }
-
-        function initializeObserver() {
-          if (observerInstance) {
-            observerInstance.disconnect();
-            observerInstance = null;
-          }
-
-          const floButtons = document.querySelectorAll(floButtonSelector);
-          const addButton = document.querySelector(addButtonSelector);
-
-          if (!floButtons.length || !addButton) {
-            return;
-          }
-
-          toggleFloButton(addButton, floButtons);
-
-          observerInstance = new MutationObserver(() => toggleFloButton(addButton, floButtons));
-          observerInstance.observe(addButton, { attributes: true, attributeFilter: ['disabled'] });
-
-          if (!variantListenerAttached) {
-            document.addEventListener('variant:changed', handleVariantChange);
-            variantListenerAttached = true;
-          }
-        }
-
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initializeObserver);
-        } else {
-          initializeObserver();
-        }
-
-        document.addEventListener('shopify:section:load', initializeObserver);
-        document.addEventListener('shopify:section:unload', initializeObserver);
-        document.addEventListener('shopify:section:select', initializeObserver);
-        document.addEventListener('shopify:block:select', initializeObserver);
-      })();
-    </script>
   </body>
 </html>

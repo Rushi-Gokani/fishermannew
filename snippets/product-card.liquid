@@ -490,8 +490,11 @@
     {% if sold_out %}
       <button class="product-card-buy-btn-{{ card_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
     {% else %}
-      <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNowBtn(event)" class="product-card-buy-btn-{{ card_id }}" name="flo-buy-now-button">
-        {{ 'Buy It Now' }}
+      <button type="button" class="product-card-buy-btn-{{ card_id }}" onclick="handleAddToCart(event, {{ product.selected_or_first_available_variant.id }})">
+        {{ 'Add to Cart' }}
+      </button>
+      <button type="button" class="product-card-buy-btn-{{ card_id }}" style="margin-top: 5px; background: transparent; color: inherit; border: 1px solid currentColor;" onclick="event.stopPropagation(); handleFloBuyNow({{ product.selected_or_first_available_variant.id }}, 1)">
+        Buy Now
       </button>
     {% endif %}
   </div>
@@ -507,5 +510,73 @@
     } else {
       console.log('Removed from wishlist:', productHandle);
     }
+  }
+
+  function handleAddToCart(event, variantId) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const button = event.currentTarget;
+    const originalText = button.textContent;
+    button.textContent = 'Adding...';
+    button.disabled = true;
+
+    // Dynamically find section IDs to update (Cart Drawer, Cart Bubble)
+    const sections = [];
+    document.querySelectorAll('cart-items-component').forEach(el => {
+        if (el.dataset.sectionId) sections.push(el.dataset.sectionId);
+    });
+    // Add cart-icon-bubble section if present (often requires specific ID targeting or is part of header)
+    // We rely on component-cart-items to handle its own section update if included, 
+    // or if we miss it, the event dispatch will trigger a re-render fallback if configured.
+
+    const formData = {
+     'items': [{
+      'id': variantId,
+      'quantity': 1
+      }],
+      'sections': sections,
+      'sections_url': window.location.pathname
+    };
+
+    fetch(window.Shopify.routes.root + 'cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => {
+      return response.json();
+    })
+    .then(data => {
+      // Dispatch event to open drawer and update content
+      // Structure matches CartAddEvent/CartUpdateEvent expectations in component-cart-items.js
+      const eventDetail = {
+          resource: data, 
+          sourceId: 'product-card', 
+          data: {
+              source: 'product-card',
+              itemCount: 1, 
+              sections: data.sections
+          }
+      };
+
+      document.dispatchEvent(new CustomEvent('cart:update', { 
+          bubbles: true, 
+          detail: eventDetail 
+      }));
+      
+      button.textContent = 'Added';
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.disabled = false;
+      }, 2000);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      button.textContent = originalText;
+      button.disabled = false;
+    });
   }
 </script>

@@ -109,9 +109,13 @@
     {% if sold_out %}
       <button class="product-card-buy-btn-{{ section_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
     {% else %}
-      <button type="button" class="flo-buy-now-button product-card-buy-btn-{{ section_id }}" onclick="handleFloBuyNowBtn(event)" name="flo-buy-now-button" data-variant-id="{{ product.selected_or_first_available_variant.id }}">
-        {{ 'Buy It Now' }}
-      </button>
+      <form method="post" action="/cart/add" onsubmit="event.stopPropagation();" class="product-card-buy-form-{{ section_id }}" style="margin: 0;">
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <input type="hidden" name="return_to" value="/checkout">
+        <button type="submit" class="product-card-buy-btn-{{ section_id }} button button--primary" onclick="event.stopPropagation();">
+          {{ 'Buy It Now' }}
+        </button>
+      </form>
     {% endif %}
   </div>
 </div>

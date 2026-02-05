@@ -230,16 +230,11 @@
             form_obj: form
           %}
           
-          <div class="shopify-payment-button">
-            <button type="button" class="flo-buy-now-button shopify-payment-button__button shopify-payment-button__button--unbranded" onclick="handleFloBuyNowBtn(event)" name="flo-buy-now-button" data-variant-id="{{ product.selected_or_first_available_variant.id }}" style="display: none;">
-              {{ 'Buy It Now' }}
-            </button>
-          </div>
+          <button type="button" class="button button--secondary" style="width: 100%; margin-top: var(--gap-sm);" onclick="handleFloBuyNow({{ product.selected_or_first_available_variant.id }})">Buy Now</button>
         </div>
       {%- endform -%}
     </product-form-component>
   {%- else -%}
-    <div class="product-form-buttons">
       <button
         type="submit"
         name="add"
@@ -250,6 +245,7 @@
       </button>
     </div>
   {%- endif -%}
+
 </span>
 
 {% if block_settings.show_pickup_availability %}
