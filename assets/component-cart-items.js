@@ -29,6 +29,7 @@ class CartItemsComponent extends Component {
     super.connectedCallback();
 
     document.addEventListener(ThemeEvents.cartUpdate, this.#handleCartUpdate);
+    document.addEventListener('cart:refresh', () => sectionRenderer.renderSection(this.sectionId, { cache: false }));
     document.addEventListener(ThemeEvents.discountUpdate, this.handleDiscountUpdate);
     document.addEventListener(ThemeEvents.quantitySelectorUpdate, this.#debouncedOnChange);
   }

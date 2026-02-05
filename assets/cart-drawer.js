@@ -16,6 +16,7 @@ class CartDrawerComponent extends DialogComponent {
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener(CartAddEvent.eventName, this.#handleCartAdd);
+    document.addEventListener('ajaxProduct:added', this.#handleCartAdd);
     this.addEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
   }
 
