@@ -223,14 +223,16 @@
             add_to_cart_text: add_to_cart_text
           %}
 
+          {% comment %}
           {% content_for 'block',
             type: 'accelerated-checkout',
             id: 'accelerated-checkout',
             can_add_to_cart: can_add_to_cart,
             form_obj: form
           %}
+          {% endcomment %}
           
-          <button type="button" class="button button--secondary" style="width: 100%; margin-top: var(--gap-sm);" onclick="handleFloBuyNow({{ product.selected_or_first_available_variant.id }})">Buy Now</button>
+          <button type="button" class="button button--primary" style="width: 100%; margin-top: var(--gap-sm);" onclick="handleFloBuyNow({{ product.selected_or_first_available_variant.id }})">Buy Now</button>
         </div>
       {%- endform -%}
     </product-form-component>
@@ -765,10 +767,6 @@
           "settings": {
             "style_class": "button-secondary"
           }
-        },
-        "accelerated-checkout": {
-          "type": "accelerated-checkout",
-          "static": true
         }
       }
     }

@@ -493,9 +493,7 @@
       <button type="button" class="product-card-buy-btn-{{ card_id }}" onclick="handleAddToCart(event, {{ product.selected_or_first_available_variant.id }})">
         {{ 'Add to Cart' }}
       </button>
-      <button type="button" class="product-card-buy-btn-{{ card_id }}" style="margin-top: 5px; background: transparent; color: inherit; border: 1px solid currentColor;" onclick="event.stopPropagation(); handleFloBuyNow({{ product.selected_or_first_available_variant.id }}, 1)">
-        Buy Now
-      </button>
+
     {% endif %}
   </div>
 </card-slider>
