@@ -379,33 +379,23 @@
 
               <!-- Right: Product -->
               <div class="tps-card-product">
-                {% if block.settings.product_link != blank %}
-                  <a href="{{ block.settings.product_link }}" class="tps-product-link" aria-label="View {{ block.settings.product_title }}">
-                {% else %}
-                  <div class="tps-product-link">
-                {% endif %}
-
-                {% if block.settings.product_image != blank %}
-                  <div class="tps-product-image">
-                    {{
-                      block.settings.product_image
-                      | image_url: width: 200
-                      | image_tag: loading: 'lazy', alt: block.settings.product_title
-                    }}
-                  </div>
-                {% else %}
-                  <div class="tps-product-image">
-                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
-                  </div>
-                {% endif %}
-
-                {% if block.settings.product_title != blank %}
-                  <p class="tps-product-title">{{ block.settings.product_title }}</p>
-                {% endif %}
-
-                {% if block.settings.product_link != blank %}
+                {% assign product = block.settings.product %}
+                {% if product != blank %}
+                  <a href="{{ product.url }}" class="tps-product-link" aria-label="View {{ product.title }}">
+                    <div class="tps-product-image">
+                      {{
+                        product.featured_image
+                        | image_url: width: 200
+                        | image_tag: loading: 'lazy', alt: product.title
+                      }}
+                    </div>
+                    <p class="tps-product-title">{{ product.title }}</p>
                   </a>
                 {% else %}
+                  <div class="tps-product-link">
+                    <div class="tps-product-image">
+                      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                    </div>
                   </div>
                 {% endif %}
               </div>
@@ -636,22 +626,9 @@
           "info": "Recommended size: 100x100px"
         },
         {
-          "type": "image_picker",
-          "id": "product_image",
-          "label": "Product Image",
-          "info": "Recommended size: 200x200px"
-        },
-        {
-          "type": "text",
-          "id": "product_title",
-          "label": "Product Title",
-          "default": "Freeze Dried Strawberry Mix"
-        },
-        {
-          "type": "url",
-          "id": "product_link",
-          "label": "Product Link",
-          "info": "Optional: Makes the product image and title clickable"
+          "type": "product",
+          "id": "product",
+          "label": "Product"
         }
       ]
     }
@@ -666,7 +643,7 @@
             "rating": 5,
             "review_text": "Amazing quality! The freeze dried fruits are so crunchy and flavorful. My kids love them as snacks!",
             "reviewer_name": "Sarah Johnson",
-            "product_title": "Freeze Dried Strawberry Mix"
+            "product": ""
           }
         },
         {
@@ -675,7 +652,7 @@
             "rating": 5,
             "review_text": "The best healthy snacks I've found. Perfect for work and travel. Highly recommend the mango variety!",
             "reviewer_name": "Michael Chen",
-            "product_title": "Tropical Fruit Assortment"
+            "product": ""
           }
         },
         {
@@ -684,7 +661,7 @@
             "rating": 4,
             "review_text": "Great taste and excellent packaging. The fruits stay fresh for a long time. Will buy again!",
             "reviewer_name": "Priya Patel",
-            "product_title": "Mixed Berry Crunch"
+            "product": ""
           }
         },
         {
@@ -693,7 +670,7 @@
             "rating": 5,
             "review_text": "Love these snacks! No added sugar, just pure fruit taste. The apple crisps are my favorite.",
             "reviewer_name": "Emma Wilson",
-            "product_title": "Apple Cinnamon Crisps"
+            "product": ""
           }
         }
       ]
