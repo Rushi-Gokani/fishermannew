@@ -114,7 +114,7 @@
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
     {% endif %}
-  <script>
+    <script>
       (function initFloBuyNowToggle() {
         // Expose functions globally
         window.handleFloCheckoutBtn = function() {
@@ -127,13 +127,16 @@
 
         window.handleFloBuyNowBtn = function(event) {
             if (event) event.preventDefault();
-            // Attempt to find the form and variant ID
-            const form = event.target.closest('form') || document.querySelector('form[action*="/cart/add"]');
-            let variantId;
+            const button = event.currentTarget || event.target;
+            let variantId = button ? button.dataset.variantId : null;
 
-            if (form) {
-                const variantInput = form.querySelector('[name="id"]');
-                if (variantInput) variantId = variantInput.value;
+            // Fallback: Attempt to find the form and variant ID if not on the button
+            if (!variantId) {
+                const form = button.closest('form') || document.querySelector('form[action*="/cart/add"]');
+                if (form) {
+                    const variantInput = form.querySelector('[name="id"]');
+                    if (variantInput) variantId = variantInput.value;
+                }
             }
 
             if (!variantId && window.location.search) {
@@ -157,23 +160,27 @@
         };
 
         let observerInstance;
-        const floButtonSelector = '#flo-buy-now-button';
+        // Changed to class selector to support multiple buttons (product cards + main product)
+        const floButtonSelector = '.flo-buy-now-button'; 
         const addButtonSelector = 'button[name="add"]';
         let variantListenerAttached = false;
 
-        function toggleFloButton(addButton, floButton) {
-          if (!floButton || !addButton) {
+        function toggleFloButton(addButton, floButtons) {
+          if (!floButtons || floButtons.length === 0 || !addButton) {
             return;
           }
 
           const isVariantAvailable = !addButton.disabled;
-          floButton.style.setProperty('display', isVariantAvailable ? 'block' : 'none', 'important');
+          floButtons.forEach(btn => {
+              btn.style.setProperty('display', isVariantAvailable ? 'block' : 'none', 'important');
+          });
         }
 
         function handleVariantChange() {
-          const floButton = document.querySelector(floButtonSelector);
+          // Re-query buttons as they might be dynamic
+          const floButtons = document.querySelectorAll(floButtonSelector);
           const addButton = document.querySelector(addButtonSelector);
-          toggleFloButton(addButton, floButton);
+          toggleFloButton(addButton, floButtons);
         }
 
         function initializeObserver() {
@@ -182,16 +189,16 @@
             observerInstance = null;
           }
 
-          const floButton = document.querySelector(floButtonSelector);
+          const floButtons = document.querySelectorAll(floButtonSelector);
           const addButton = document.querySelector(addButtonSelector);
 
-          if (!floButton || !addButton) {
+          if (!floButtons.length || !addButton) {
             return;
           }
 
-          toggleFloButton(addButton, floButton);
+          toggleFloButton(addButton, floButtons);
 
-          observerInstance = new MutationObserver(() => toggleFloButton(addButton, floButton));
+          observerInstance = new MutationObserver(() => toggleFloButton(addButton, floButtons));
           observerInstance.observe(addButton, { attributes: true, attributeFilter: ['disabled'] });
 
           if (!variantListenerAttached) {
