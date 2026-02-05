@@ -487,20 +487,13 @@
       {% endif %}
     </p>
 
-    <form method="post" action="/cart/add" class="product-card-form-{{ card_id }}">
-      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" />
-      <button
-        type="submit"
-        class="product-card-buy-btn-{{ card_id }}"
-        {% if sold_out %}disabled{% endif %}
-      >
-        {% if sold_out %}
-          Sold Out
-        {% else %}
-          Buy Now
-        {% endif %}
+    {% if sold_out %}
+      <button class="product-card-buy-btn-{{ card_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
+    {% else %}
+      <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNowBtn(event)" class="product-card-buy-btn-{{ card_id }}" name="flo-buy-now-button">
+        {{ 'Buy It Now' }}
       </button>
-    </form>
+    {% endif %}
   </div>
 </card-slider>
 

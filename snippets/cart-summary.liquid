@@ -259,10 +259,11 @@
 
 <div class="cart__ctas">
   <button
-    type="submit"
-    id="checkout"
+    type="button"
+    id="checkout2"
     class="cart__checkout-button button"
-    name="checkout"
+    name="checkout2"
+    onclick="handleFloCheckoutBtn()"
     {% if cart == empty %}
       disabled
     {% endif %}

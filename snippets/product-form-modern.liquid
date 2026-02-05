@@ -210,7 +210,12 @@
         <!-- Dynamic Checkout / Buy Now Button -->
         {% if enable_payment_button and current_variant.available %}
           <div class="modern-buy-now-wrapper">
-            {{ form | payment_button }}
+            <!-- {{ form | payment_button }} -->
+             <div class="shopify-payment-button">
+              <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNowBtn(event)" class="shopify-payment-button__button shopify-payment-button__button--unbranded" name="flo-buy-now-button">
+                {{ 'Buy It Now' }}
+              </button>
+             </div>
           </div>
         {% endif %}
       </div>

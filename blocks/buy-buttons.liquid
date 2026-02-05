@@ -229,6 +229,12 @@
             can_add_to_cart: can_add_to_cart,
             form_obj: form
           %}
+          
+          <div class="shopify-payment-button">
+            <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNowBtn(event)" class="shopify-payment-button__button shopify-payment-button__button--unbranded" name="flo-buy-now-button" style="display: none;">
+              {{ 'Buy It Now' }}
+            </button>
+          </div>
         </div>
       {%- endform -%}
     </product-form-component>
