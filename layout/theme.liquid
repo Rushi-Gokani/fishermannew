@@ -46,24 +46,44 @@
             }
         }
 
-        function handleFloBuyNow(variantId, specificQty) {
-            // Resolve quantity: Use specificQty if provided, otherwise try to find an input, else default to 1
+        function handleFloBuyNow(variantId, specificQty, btnElement) {
+            // Resolve variantId: Use provided, or find input[name="id"] in closest form/container
+            let finalVariantId = variantId;
+            if (!finalVariantId && btnElement) {
+                const form = btnElement.closest('form') || btnElement.closest('product-form') || document;
+                const idInput = form.querySelector('input[name="id"]');
+                if (idInput) finalVariantId = idInput.value;
+            }
+
+            // Resolve quantity: Use specificQty, or find input[name="quantity"]
             let quantity = specificQty;
             if (!quantity) {
-                const qtyInput = document.querySelector('input[name="quantity"]');
+                // If btnElement provided, try to find quantity input nearby first
+                let qtyInput;
+                if(btnElement) {
+                     const form = btnElement.closest('form') || btnElement.closest('product-form');
+                     if(form) qtyInput = form.querySelector('input[name="quantity"]');
+                }
+                if(!qtyInput) qtyInput = document.querySelector('input[name="quantity"]');
+                
                 quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+            }
+            
+            if(!finalVariantId) {
+                console.error("Shopflo: Could not resolve variant ID");
+                return;
             }
 
             if (window.shopflo && window.shopflo.checkout) {
                 window.shopflo.checkout([{
-                    variant_id: variantId,
+                    variant_id: parseInt(finalVariantId),
                     quantity: quantity
                 }]);
             } else {
                  // Fallback: Add to cart and go to checkout
                  const formData = {
                     'items': [{
-                        'id': variantId,
+                        'id': parseInt(finalVariantId),
                         'quantity': quantity
                     }]
                  };
