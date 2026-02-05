@@ -863,29 +863,25 @@
             "review_text": "Very good action and very sharp and strong hook….. high hook up ratio…",
             "reviewer_name": "Dr. Bhaikon Singh",
             "reviewer_avatar": "shopify://shop_images/Murrvy_Flutter_Metal_Jig_Slow_Sinking_20_Gm_-_Pink_Silver.png",
-            "product_image": "shopify://shop_images/Murrvy_Flutter_Metal_Jig_Slow_Sinking_20_Gm-Blue_Pink.png",
-            "product_title": "Freeze Dried Strawberry Mix",
-            "product_link": ""
+            "product": "abu-garcia-silver-max-baitcasting-reel-left-handed-smax3-l"
           }
         },
         "testimonial_E7JTU4": {
           "type": "testimonial",
           "settings": {
             "rating": 5,
-            "review_text": "The best healthy snacks I've found. Perfect for work and travel. Highly recommend the mango variety!",
-            "reviewer_name": "Michael Chen",
-            "product_title": "Tropical Fruit Assortment",
-            "product_link": ""
+            "review_text": "I am very much happy with u product..I need a stylo 150 niddlefish.would u able to supply it. Please arrangeit for me",
+            "reviewer_name": "Peeyus pradhan",
+            "product": "benthic-fish-bone-series-plop-plop-fly-jointed-hard-lure-topwater-lures-floating-9-5-cm-17-gm"
           }
         },
         "testimonial_qxmr6J": {
           "type": "testimonial",
           "settings": {
-            "rating": 4,
-            "review_text": "Great taste and excellent packaging. The fruits stay fresh for a long time. Will buy again!",
-            "reviewer_name": "Priya Patel",
-            "product_title": "Mixed Berry Crunch",
-            "product_link": ""
+            "rating": 5,
+            "review_text": "Excellent hook\nFor assist hook making",
+            "reviewer_name": "Jithesh P",
+            "product": "albatros-plastic-floats-with-fish-line-and-hooks-3-pcs-per-pack"
           }
         },
         "testimonial_ybQpfA": {
@@ -894,8 +890,7 @@
             "rating": 5,
             "review_text": "Love these snacks! No added sugar, just pure fruit taste. The apple crisps are my favorite.",
             "reviewer_name": "Emma Wilson",
-            "product_title": "Apple Cinnamon Crisps",
-            "product_link": ""
+            "product": ""
           }
         }
       },
