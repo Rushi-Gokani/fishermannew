@@ -6,7 +6,8 @@
 class ModernProductPage {
   constructor(section) {
     this.section = section;
-    this.container = section.querySelector('.modern-product-section');
+    this.section = section;
+    this.container = section; // The section element IS the container
     this.productJSON = JSON.parse(section.querySelector('[data-product-json]').textContent);
 
     this.initGallery();

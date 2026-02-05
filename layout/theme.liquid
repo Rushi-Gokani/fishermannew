@@ -122,23 +122,9 @@
                 }]);
             } else {
                  console.warn("Shopflo: Integration not ready, using fallback");
-                 // Fallback: Add to cart and go to checkout
-                 const formData = {
-                    'items': [{
-                        'id': parseInt(finalVariantId),
-                        'quantity': quantity
-                    }]
-                 };
-                 fetch(window.Shopify.routes.root + 'cart/add.js', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(formData)
-                 }).then(() => {
-                     window.location.href = '/checkout';
-                 }).catch(e => {
-                     console.error("Shopflo Fallback Error:", e);
-                     alert("Could not proceed to checkout.");
-                 });
+                 // Fallback: Use Cart Permalink (Standard Shopify feature)
+                 // This is more robust than AJAX on localhost/proxies
+                 window.location.href = '/cart/' + finalVariantId + ':' + quantity;
             }
         }
     </script>
