@@ -34,7 +34,7 @@
   }
 
   #testimonials-product-slider-{{ section.id }} .tps-title {
-  
+    font-size: 32px;
     color: rgb(var(--color-foreground));
     margin: 0;
     letter-spacing: -0.02em;
@@ -159,33 +159,7 @@
     margin: 0;
   }
 
-  #testimonials-product-slider-{{ section.id }} .tps-reviewer-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    
-    overflow: hidden;
-    background: rgba(var(--color-foreground), 0.05);
-    flex-shrink: 0;
-  }
 
-  #testimonials-product-slider-{{ section.id }} .tps-reviewer-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  #testimonials-product-slider-{{ section.id }} .tps-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(var(--color-foreground), 0.08);
-    color: rgba(var(--color-foreground), 0.5);
-    font-size: 18px;
-    font-weight: 600;
-  }
 
   /* Right side - Product */
   #testimonials-product-slider-{{ section.id }} .tps-card-product {
@@ -275,10 +249,7 @@
       height: 60px;
     }
 
-    #testimonials-product-slider-{{ section.id }} .tps-reviewer-avatar {
-      width: 40px;
-      height: 40px;
-    }
+
   }
 
   /* Mobile - 1 card */
@@ -402,19 +373,7 @@
                     <p class="tps-reviewer-name">{{ block.settings.reviewer_name }}</p>
                   {% endif %}
 
-                  <div class="tps-reviewer-avatar">
-                    {% if block.settings.reviewer_avatar != blank %}
-                      {{
-                        block.settings.reviewer_avatar
-                        | image_url: width: 100
-                        | image_tag: loading: 'lazy', alt: block.settings.reviewer_name
-                      }}
-                    {% else %}
-                      <div class="tps-avatar-placeholder">
-                        {{ block.settings.reviewer_name | slice: 0 | upcase | default: '?' }}
-                      </div>
-                    {% endif %}
-                  </div>
+
                 </div>
               </div>
 
