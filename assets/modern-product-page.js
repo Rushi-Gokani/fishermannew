@@ -370,12 +370,18 @@ class ModernProductPage {
         const value = swatch.dataset.optionValue;
 
         // Check if this option is available in any variant
+        // Check if this option is available in any variant
         const isAvailable = this.productJSON.variants.some(v => {
-          return v.available &&
-            v.options[index] === value &&
-            (index === 0 || v.options[0] === (index > 0 ? variant.option1 : value)) &&
-            (index === 1 || v.options[1] === (index > 1 ? variant.option2 : value)) &&
-            (index === 2 || v.options[2] === value);
+          if (!v.available) return false;
+          
+          // Check match for all options
+          // If verifying current row (index), match 'value'.
+          // Else match current variant's selection.
+          if (v.options[0] !== (index === 0 ? value : variant.options[0])) return false;
+          if (v.options.length > 1 && v.options[1] !== (index === 1 ? value : variant.options[1])) return false;
+          if (v.options.length > 2 && v.options[2] !== (index === 2 ? value : variant.options[2])) return false;
+          
+          return true;
         });
 
         swatch.classList.toggle('is-disabled', !isAvailable);

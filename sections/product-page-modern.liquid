@@ -382,41 +382,7 @@
             <input type="hidden" name="id" value="{{ current_variant.id }}" form="{{ product_form_id }}">
 
           {%- when 'quantity_selector' -%}
-            <div class="modern-quantity-selector" data-quantity-selector {{ block.shopify_attributes }}>
-              <button
-                type="button"
-                class="modern-quantity-btn"
-                data-quantity-minus
-                aria-label="Decrease quantity"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-              </button>
-
-              <input
-                type="number"
-                name="quantity"
-                id="Quantity-{{ section.id }}"
-                class="modern-quantity-input"
-                value="1"
-                min="1"
-                data-quantity-input
-                form="{{ product_form_id }}"
-              >
-
-              <button
-                type="button"
-                class="modern-quantity-btn"
-                data-quantity-plus
-                aria-label="Increase quantity"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19"/>
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-              </button>
-            </div>
+            <!-- Quantity selector logic moved to buy_buttons block -->
 
           {%- when 'buy_buttons' -%}
             <div {{ block.shopify_attributes }}>
@@ -424,13 +390,24 @@
                 {% form 'product', product, id: product_form_id, class: 'modern-product-form__form', data-product-form: '' %}
                   
                   <div class="modern-product-actions">
-                    <div class="modern-buttons-row">
+                    <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px;">
+                      <!-- Inline Quantity Selector -->
+                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; height: auto;">
+                        <button type="button" class="modern-quantity-btn" data-quantity-minus aria-label="Decrease quantity">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <input type="number" name="quantity" id="Quantity-{{ section.id }}" class="modern-quantity-input" value="1" min="1" data-quantity-input form="{{ product_form_id }}">
+                        <button type="button" class="modern-quantity-btn" data-quantity-plus aria-label="Increase quantity">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                      </div>
+
                       <!-- Add to Cart Button -->
                       <button
                         type="submit"
                         name="add"
                         class="modern-add-to-cart modern-btn-primary"
-                        style="background: #40C4FF; color: #fff; border: none;"
+                        style="background: #40C4FF; color: #fff; border: none; flex: 1; margin: 0;"
                         {% if current_variant.available == false %}disabled{% endif %}
                         data-add-to-cart
                       >
@@ -449,13 +426,6 @@
                         </span>
                         <span class="modern-add-to-cart__error" style="display: none;"></span>
                       </button>
-
-                      <!-- Dynamic Checkout -->
-                      <div class="modern-buy-now-wrapper">
-                        <button type="button" id="flo-buy-now-button" onclick="handleFloBuyNow(null, null, this)" class="modern-add-to-cart modern-btn-primary" style="background: white; color: #40C4FF; border: 2px solid #40C4FF;" name="flo-buy-now-button">
-                          {{ 'Buy Now' }}
-                        </button>
-                      </div>
                     </div>
                   </div>
 
