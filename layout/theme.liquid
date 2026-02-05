@@ -114,17 +114,53 @@
                 return;
             }
 
+            // UI Feedback: Change button text if possible
+            let originalText = "";
+            if(btnElement) {
+                originalText = btnElement.innerText || btnElement.textContent;
+                btnElement.innerText = "Processing...";
+                btnElement.disabled = true;
+            }
+
+            function attemptCheckout() {
+                if (window.shopflo && window.shopflo.checkout) {
+                    console.log("Shopflo: Invoking checkout");
+                    window.shopflo.checkout([{
+                        variant_id: parseInt(finalVariantId),
+                        quantity: quantity
+                    }]);
+                    // Reset button after short delay (or navigation will happen)
+                    if(btnElement) {
+                        setTimeout(() => {
+                            btnElement.innerText = originalText;
+                            btnElement.disabled = false;
+                        }, 2000);
+                    }
+                } else {
+                     console.warn("Shopflo: Integration not ready, using fallback");
+                     window.location.href = '/cart/' + finalVariantId + ':' + quantity;
+                }
+            }
+
+            // If Shopflo is ready, go immediately
             if (window.shopflo && window.shopflo.checkout) {
-                console.log("Shopflo: Invoking checkout");
-                window.shopflo.checkout([{
-                    variant_id: parseInt(finalVariantId),
-                    quantity: quantity
-                }]);
+                attemptCheckout();
             } else {
-                 console.warn("Shopflo: Integration not ready, using fallback");
-                 // Fallback: Use Cart Permalink (Standard Shopify feature)
-                 // This is more robust than AJAX on localhost/proxies
-                 window.location.href = '/cart/' + finalVariantId + ':' + quantity;
+                console.log("Shopflo: Script not ready, polling...");
+                let attempts = 0;
+                const maxAttempts = 15; // 3 seconds total (15 * 200ms)
+                
+                const pollInterval = setInterval(() => {
+                    attempts++;
+                    if (window.shopflo && window.shopflo.checkout) {
+                        clearInterval(pollInterval);
+                        attemptCheckout();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(pollInterval);
+                        console.warn("Shopflo: Polling timed out.");
+                        attemptCheckout(); // Trigger fallback
+                    }
+                }, 200);
             }
         }
     </script>
