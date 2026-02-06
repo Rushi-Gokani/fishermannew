@@ -396,6 +396,8 @@
             <div {{ block.shopify_attributes }}>
               <product-form class="modern-product-form" data-section-id="{{ section.id }}">
                 {% form 'product', product, id: product_form_id, class: 'modern-product-form__form', data-product-form: '' %}
+                  <!-- Hidden input to direct to checkout for pre-orders -->
+                  <input type="hidden" name="return_to" value="/checkout" {% unless is_pre_order %}disabled{% endunless %} class="pre-order-redirect-input">
                   
                   <div class="modern-product-actions">
                     <!-- Pre-Order Header (Moved above buttons for better layout) -->
@@ -841,6 +843,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update add to cart button
     // Update add to cart button
     const addBtn = container.querySelector('[data-add-to-cart]');
+    const redirectInput = container.querySelector('.pre-order-redirect-input');
+    
     if (addBtn) {
       const btnText = addBtn.querySelector('.modern-add-to-cart__default');
       
@@ -885,9 +889,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (isPreOrder && variant.available) {
           if (preOrderHeader) preOrderHeader.style.display = 'block';
           if (preOrderDetails) preOrderDetails.style.display = 'block';
+          
+          // Enable direct checkout redirect
+          if (redirectInput) redirectInput.disabled = false;
       } else {
           if (preOrderHeader) preOrderHeader.style.display = 'none';
           if (preOrderDetails) preOrderDetails.style.display = 'none';
+          
+          // Disable direct checkout redirect
+          if (redirectInput) redirectInput.disabled = true;
       }
     }
     
