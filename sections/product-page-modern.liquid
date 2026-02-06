@@ -387,7 +387,9 @@
           {%- when 'buy_buttons' -%}
             
             {% assign is_pre_order = false %}
-            {% if product.template_suffix == 'pre-order' %}
+            {% if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity > 0 %}
+              {% assign is_pre_order = false %}
+            {% elsif product.template_suffix == 'pre-order' %}
               {% assign is_pre_order = true %}
             {% elsif current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' %}
               {% assign is_pre_order = true %}
@@ -678,6 +680,22 @@ document.addEventListener('DOMContentLoaded', function() {
   const container = document.querySelector('.modern-product-section');
   if (!container) return;
   
+  // ========== PRE-ORDER DIRECT CHECKOUT ==========
+  // Listen during capture phase to intercept before AJAX cart handlers
+  const productForm = container.querySelector('form[action*="/cart/add"]');
+  if (productForm) {
+    productForm.addEventListener('submit', function(e) {
+      const redirectInput = productForm.querySelector('.pre-order-redirect-input');
+      // If input exists and is active (not disabled), this is a pre-order
+      if (redirectInput && !redirectInput.disabled) {
+        // Stop other listeners (like theme's AJAX cart)
+        e.stopImmediatePropagation(); 
+        // We DO NOT call preventDefault(), letting the form submit natively
+        // Native submission + return_to=/checkout input = Direct Checkout
+      }
+    }, true); // true = Capture Phase
+  }
+  
   const slides = container.querySelectorAll('.modern-gallery__slide');
   const thumbnails = container.querySelectorAll('.modern-gallery__thumbnail');
   const prevBtn = container.querySelector('.modern-gallery__nav--prev');
@@ -857,7 +875,9 @@ document.addEventListener('DOMContentLoaded', function() {
           const variantId = variant.id.toString();
           const variantInventory = inventoryData.variants[variantId];
           
-          if (inventoryData.template === 'pre-order') {
+          if (variantInventory && variantInventory.management === 'shopify' && variantInventory.quantity > 0) {
+              isPreOrder = false; // Explicitly in stock, so normal Add to Cart
+          } else if (inventoryData.template === 'pre-order') {
              isPreOrder = true;
           } else if (variantInventory) {
               // Check if out of stock AND policy is continue
