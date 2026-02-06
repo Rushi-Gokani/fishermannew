@@ -15,9 +15,27 @@ class ModernProductPage {
     this.initVariants();
     this.initQuantity();
     this.initAddToCart();
+    this.initPreOrderRedirect(); // New Pre-Order Redirect Handler
     this.initPickupAvailability();
     this.initReadMore();
     this.initTableScroll();
+  }
+
+  // ========== Pre-Order Direct Checkout ==========
+  initPreOrderRedirect() {
+    const productForm = this.container.querySelector('form[action*="/cart/add"]');
+    if (productForm) {
+      productForm.addEventListener('submit', function(e) {
+        const redirectInput = productForm.querySelector('.pre-order-redirect-input');
+        // If input exists and is active (not disabled), this is a pre-order
+        if (redirectInput && !redirectInput.disabled) {
+          // Stop other listeners (like theme's AJAX cart)
+          e.stopImmediatePropagation(); 
+          // We DO NOT call preventDefault(), letting the form submit natively
+          // Native submission + return_to=/checkout input = Direct Checkout
+        }
+      }, true); // true = Capture Phase
+    }
   }
 
   // ========== Gallery ==========
@@ -330,16 +348,63 @@ class ModernProductPage {
     }
 
 
-    // Update add to cart button
+    // ========== PRE-ORDER LOGIC & UI UPDATE ==========
     const addToCart = this.container.querySelector('[data-add-to-cart]');
+    const redirectInput = this.container.querySelector('.pre-order-redirect-input');
+    const preOrderHeader = this.container.querySelector('.pre-order-header');
+    const preOrderDetails = this.container.querySelector('.pre-order-details');
+
     if (addToCart) {
-      const defaultText = addToCart.querySelector('.modern-add-to-cart__default');
-      if (defaultText) {
-        defaultText.textContent = variant.available
-          ? window.theme?.strings?.addToCart || 'Add to cart'
-          : window.theme?.strings?.soldOut || 'Sold out';
+      const btnText = addToCart.querySelector('.modern-add-to-cart__default');
+      let isPreOrder = false;
+      
+      // Check inventory JSON for pre-order logic
+      const inventoryDataScript = this.container.querySelector('[data-inventory-json]');
+      if (inventoryDataScript) {
+        try {
+          const inventoryData = JSON.parse(inventoryDataScript.textContent);
+          // Use String conversion to ensure ID matching works
+          const variantId = variant.id.toString();
+          const variantInventory = inventoryData.variants[variantId];
+          
+          if (variantInventory && variantInventory.management === 'shopify' && variantInventory.quantity > 0) {
+              isPreOrder = false; // Explicitly in stock, so normal Add to Cart
+          } else if (inventoryData.template === 'pre-order') {
+             isPreOrder = true;
+          } else if (variantInventory) {
+              // Check if out of stock AND policy is continue
+              if (variantInventory.quantity <= 0 && variantInventory.policy === 'continue') {
+                  isPreOrder = true;
+              }
+          }
+        } catch(e) { console.error('Error parsing inventory JSON', e); }
+      }
+
+      // Update Button Text & Color
+      if (btnText) {
+        if (!variant.available) {
+           btnText.textContent = window.theme?.strings?.soldOut || 'Sold out';
+           addToCart.style.background = '#40C4FF'; // Reset color
+        } else if (isPreOrder) {
+           btnText.textContent = 'Pre-Order';
+           addToCart.style.background = '#D32F2F'; // Red for pre-order
+        } else {
+           btnText.textContent = window.theme?.strings?.addToCart || 'Add to cart';
+           addToCart.style.background = '#40C4FF'; // Default blue
+        }
       }
       addToCart.disabled = !variant.available;
+      
+      // Update Pre-Order Extras visibility & Redirect Input
+      if (isPreOrder && variant.available) {
+          if (preOrderHeader) preOrderHeader.style.display = 'block';
+          if (preOrderDetails) preOrderDetails.style.display = 'block';
+          if (redirectInput) redirectInput.disabled = false; // Enable redirect
+      } else {
+          if (preOrderHeader) preOrderHeader.style.display = 'none';
+          if (preOrderDetails) preOrderDetails.style.display = 'none';
+          if (redirectInput) redirectInput.disabled = true; // Disable redirect
+      }
     }
 
     // Don't update URL to prevent page redirect
