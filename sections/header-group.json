@@ -22,6 +22,7 @@
         },
         "announcement_PrkxPm": {
           "type": "announcement",
+          "disabled": true,
           "settings": {
             "text": "<p><br/>Do not make payments to unknown callers or QR codes claiming your payment was canceled or not received. Always confirm with us via our official WhatsApp about such calls</p>"
           }
