@@ -128,7 +128,7 @@
 
   .top-bar__text {
     width: 100%;
-    padding: 0 20px;
+    
     box-sizing: border-box;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -137,8 +137,8 @@
   .top-bar__text p {
     margin: 0;
     text-align: center;
-    line-height:0;
-       font-size: 13px;
+    line-height: 0;
+    font-size: 13px;
   }
 
   .top-bar__arrow {
@@ -160,8 +160,27 @@
   }
 
   @media screen and (max-width: 749px) {
+    .top-bar {
+      padding: 12px 0;
+      min-height: 45px;
+    }
+
     .top-bar__container {
       padding: 0 10px;
+      gap: 10px;
+    }
+
+    .top-bar__slider {
+      min-height: 50px;
+    }
+
+    .top-bar__arrow {
+      flex-shrink: 0;
+      padding: 5px 8px;
+    }
+
+     .top-bar__text p {
+      line-height: 1.4;
     }
   }
 {% endstyle %}

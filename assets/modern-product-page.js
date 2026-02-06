@@ -15,28 +15,11 @@ class ModernProductPage {
     this.initVariants();
     this.initQuantity();
     this.initAddToCart();
-    this.initPreOrderRedirect(); // New Pre-Order Redirect Handler
     this.initPickupAvailability();
     this.initReadMore();
     this.initTableScroll();
   }
 
-  // ========== Pre-Order Direct Checkout ==========
-  initPreOrderRedirect() {
-    const productForm = this.container.querySelector('form[action*="/cart/add"]');
-    if (productForm) {
-      productForm.addEventListener('submit', function(e) {
-        const redirectInput = productForm.querySelector('.pre-order-redirect-input');
-        // If input exists and is active (not disabled), this is a pre-order
-        if (redirectInput && !redirectInput.disabled) {
-          // Stop other listeners (like theme's AJAX cart)
-          e.stopImmediatePropagation(); 
-          // We DO NOT call preventDefault(), letting the form submit natively
-          // Native submission + return_to=/checkout input = Direct Checkout
-        }
-      }, true); // true = Capture Phase
-    }
-  }
 
   // ========== Gallery ==========
   initGallery() {
@@ -240,7 +223,7 @@ class ModernProductPage {
         const input = swatch.previousElementSibling;
         if (input && input.type === 'radio' && !input.disabled) {
           input.checked = true;
-          
+
           // Update visual states for all swatches in this option group
           const optionWrapper = swatch.closest('.modern-variant-options');
           if (optionWrapper) {
@@ -251,7 +234,7 @@ class ModernProductPage {
               }
             });
           }
-          
+
           this.handleVariantChange();
         }
       });
@@ -306,17 +289,17 @@ class ModernProductPage {
       if (comparePrice === null || comparePrice === undefined || comparePrice === 0 || comparePrice === '') {
         comparePrice = this.productJSON.compare_at_price || 0;
       }
-      
+
       const hasDiscount = comparePrice > 0 && comparePrice > variant.price;
       const discountPercent = hasDiscount ? Math.round((comparePrice - variant.price) / comparePrice * 100) : 0;
-      
-      console.log('External JS - Price update:', { 
-        price: variant.price, 
+
+      console.log('External JS - Price update:', {
+        price: variant.price,
         variant_compare: variant.compare_at_price,
         product_compare: this.productJSON.compare_at_price,
-        using_compare: comparePrice, 
-        hasDiscount, 
-        discountPercent 
+        using_compare: comparePrice,
+        hasDiscount,
+        discountPercent
       });
 
       if (priceEl) {
@@ -348,63 +331,16 @@ class ModernProductPage {
     }
 
 
-    // ========== PRE-ORDER LOGIC & UI UPDATE ==========
+    // Update Add to Cart button state
     const addToCart = this.container.querySelector('[data-add-to-cart]');
-    const redirectInput = this.container.querySelector('.pre-order-redirect-input');
-    const preOrderHeader = this.container.querySelector('.pre-order-header');
-    const preOrderDetails = this.container.querySelector('.pre-order-details');
-
     if (addToCart) {
       const btnText = addToCart.querySelector('.modern-add-to-cart__default');
-      let isPreOrder = false;
-      
-      // Check inventory JSON for pre-order logic
-      const inventoryDataScript = this.container.querySelector('[data-inventory-json]');
-      if (inventoryDataScript) {
-        try {
-          const inventoryData = JSON.parse(inventoryDataScript.textContent);
-          // Use String conversion to ensure ID matching works
-          const variantId = variant.id.toString();
-          const variantInventory = inventoryData.variants[variantId];
-          
-          if (variantInventory && variantInventory.management === 'shopify' && variantInventory.quantity > 0) {
-              isPreOrder = false; // Explicitly in stock, so normal Add to Cart
-          } else if (inventoryData.template === 'pre-order') {
-             isPreOrder = true;
-          } else if (variantInventory) {
-              // Check if out of stock AND policy is continue
-              if (variantInventory.quantity <= 0 && variantInventory.policy === 'continue') {
-                  isPreOrder = true;
-              }
-          }
-        } catch(e) { console.error('Error parsing inventory JSON', e); }
-      }
-
-      // Update Button Text & Color
       if (btnText) {
-        if (!variant.available) {
-           btnText.textContent = window.theme?.strings?.soldOut || 'Sold out';
-           addToCart.style.background = '#40C4FF'; // Reset color
-        } else if (isPreOrder) {
-           btnText.textContent = 'Pre-Order';
-           addToCart.style.background = '#D32F2F'; // Red for pre-order
-        } else {
-           btnText.textContent = window.theme?.strings?.addToCart || 'Add to cart';
-           addToCart.style.background = '#40C4FF'; // Default blue
-        }
+        btnText.textContent = variant.available
+          ? (window.theme?.strings?.addToCart || 'Add to cart')
+          : (window.theme?.strings?.soldOut || 'Sold out');
       }
       addToCart.disabled = !variant.available;
-      
-      // Update Pre-Order Extras visibility & Redirect Input
-      if (isPreOrder && variant.available) {
-          if (preOrderHeader) preOrderHeader.style.display = 'block';
-          if (preOrderDetails) preOrderDetails.style.display = 'block';
-          if (redirectInput) redirectInput.disabled = false; // Enable redirect
-      } else {
-          if (preOrderHeader) preOrderHeader.style.display = 'none';
-          if (preOrderDetails) preOrderDetails.style.display = 'none';
-          if (redirectInput) redirectInput.disabled = true; // Disable redirect
-      }
     }
 
     // Don't update URL to prevent page redirect
@@ -438,14 +374,14 @@ class ModernProductPage {
         // Check if this option is available in any variant
         const isAvailable = this.productJSON.variants.some(v => {
           if (!v.available) return false;
-          
+
           // Check match for all options
           // If verifying current row (index), match 'value'.
           // Else match current variant's selection.
           if (v.options[0] !== (index === 0 ? value : variant.options[0])) return false;
           if (v.options.length > 1 && v.options[1] !== (index === 1 ? value : variant.options[1])) return false;
           if (v.options.length > 2 && v.options[2] !== (index === 2 ? value : variant.options[2])) return false;
-          
+
           return true;
         });
 
@@ -606,10 +542,10 @@ class ModernProductPage {
       if (!table.parentElement.classList.contains('modern-table-scroll')) {
         const wrapper = document.createElement('div');
         wrapper.className = 'modern-table-wrapper';
-        
+
         const scrollContainer = document.createElement('div');
         scrollContainer.className = 'modern-table-scroll';
-        
+
         table.parentNode.insertBefore(wrapper, table);
         scrollContainer.appendChild(table);
         wrapper.appendChild(scrollContainer);
@@ -619,7 +555,7 @@ class ModernProductPage {
           if (scrollContainer.scrollWidth > scrollContainer.clientWidth) {
             const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
             const remaining = maxScroll - scrollContainer.scrollLeft;
-            
+
             if (remaining > 5) {
               wrapper.classList.add('can-scroll-right');
             } else {
@@ -632,7 +568,7 @@ class ModernProductPage {
 
         scrollContainer.addEventListener('scroll', checkScroll);
         window.addEventListener('resize', checkScroll);
-        
+
         // Initial check
         setTimeout(checkScroll, 100);
       }

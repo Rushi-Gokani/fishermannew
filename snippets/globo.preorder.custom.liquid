@@ -1,0 +1,229 @@
+<script>
+/**
+ * Globo Pre-order Custom Configuration
+ * Customized for product-page-modern.liquid template
+ */
+const preorderCustom = {
+    render: function(){
+        this.initSelectors();
+        this.handleEvents();
+    },
+    initSelectors: function(){
+        window.GloboPreorderParams = window.GloboPreorderParams || {};
+        window.GloboPreorderParams.selectors = window.GloboPreorderParams.selectors || {};
+        
+        // Position hooks for pre-order/BIS form injection
+        window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis, .modern-product-actions';
+        
+        // Variant activators - elements that trigger variant changes
+        if(window.GloboPreorderParams.selectors.productVariantActivator) {
+            window.GloboPreorderParams.selectors.productVariantActivator += ", .modern-variant-swatch, .modern-variant-options input[type='radio'], input[name^='option']";
+        } else {
+            window.GloboPreorderParams.selectors.productVariantActivator = ".modern-variant-swatch, .modern-variant-options input[type='radio'], input[name^='option'], .product-form__single-selector";
+        }
+        
+        // Product form selectors - multiple patterns to ensure detection
+        window.GloboPreorderParams.selectors.productForm = "form.product-form, form[data-product-form], .modern-product-form__form";
+        
+        // Add to cart button selectors - must match your button
+        window.GloboPreorderParams.selectors.productAddToCartBtn = window.GloboPreorderParams.selectors.productAddToCartBtn || [];
+        if(Array.isArray(window.GloboPreorderParams.selectors.productAddToCartBtn)) {
+            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('[data-action="add-to-cart"]')) {
+                window.GloboPreorderParams.selectors.productAddToCartBtn.push('[data-action="add-to-cart"]');
+            }
+            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('.product-form__add-button')) {
+                window.GloboPreorderParams.selectors.productAddToCartBtn.push('.product-form__add-button');
+            }
+            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('.modern-add-to-cart')) {
+                window.GloboPreorderParams.selectors.productAddToCartBtn.push('.modern-add-to-cart');
+            }
+        }
+        
+        // Payment container
+        window.GloboPreorderParams.selectors.productPaymentContainer = ".product-form__payment-container, .modern-atc-wrapper";
+        
+        // Quantity selector
+        window.GloboPreorderParams.selectors.productQuantitySelector = ".quantity-selector__value, .modern-quantity-input, input[name='quantity']";
+        
+        // Collection/Quick view selectors
+        window.GloboPreorderParams.selectors.collectionProductForms = ".product-item form, .product-card form";
+        window.GloboPreorderParams.selectors.quickViewActivator = ".quick-add-btn, .product-item__action-button";
+        window.GloboPreorderParams.selectors.quickViewProductForm = ".modal[aria-hidden=false] form, .quick-add-modal form";
+        
+        // Collection filter selectors
+        if(window.GloboPreorderParams.selectors.collectionFilterSelector) {
+            window.GloboPreorderParams.selectors.collectionFilterSelector += ", .collection__filter-checkbox label, .pagination__nav-item";
+        }
+        
+        window.GloboPreorderParams.selectors.collectionAddToCartBtn = ".product-item__action-button, .quick-add-btn";
+        
+        console.log('[Globo Custom] Selectors initialized:', window.GloboPreorderParams.selectors);
+    },
+    handleEvents: function(){
+        const app = this;
+
+        // Handle variant changes
+        document.addEventListener('globo.preorder.variant.changed', () => {
+            app.appSetInterval(() => {
+                let gSingleProductForm = document.querySelector('form.singleProductPreOrderForm');
+                if(gSingleProductForm && window?.GloboPreorderParams?.page == 'product'){
+                    if(window?.Globo?.Preorder) {
+                        window.Globo.Preorder.renderProductForm && 
+                            window.Globo.Preorder.renderProductForm(window.GloboPreorderParams.product);
+                    }
+                }
+            }, 600, 2);
+        });
+      
+        // Handle Back in Stock button showing
+        document.addEventListener('globo.preorder.show.bis', function (e) {
+            const {form, type} = e.detail;
+            if(type === '#Globo-Back-In-Stock'){
+                // Hide the regular add to cart button when BIS is shown
+                const addToCartBtn = form.querySelector ? form.querySelector('[data-add-to-cart]') : form.find('[data-add-to-cart]');
+                if(addToCartBtn) addToCartBtn.style.display = 'none';
+            }
+        });
+
+        // Handle Add to Cart button showing (revert from pre-order state)
+        document.addEventListener('globo.preorder.show.addtocart', function (e) {
+            const {form, type} = e.detail;
+            const addToCartBtn = form.querySelector ? form.querySelector('[data-add-to-cart]') : form.find('[data-add-to-cart]');
+            if(addToCartBtn) addToCartBtn.style.display = '';
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            app.handleVariantChange();
+            window?.Globo?.Preorder && window.Globo.Preorder.initPreorder();
+        });
+
+        // Re-initialize on scroll for lazy-loaded content
+        window.onscroll = app.debounce(() => {
+            if(window?.GloboPreorderParams?.page == 'index' || window?.GloboPreorderParams?.page == 'collection'){
+                window?.Globo?.Preorder && window.Globo.Preorder.initPreorder();
+            }
+        }, 1500);
+    },
+    handleVariantChange: function(){
+        const app = this;
+        
+        // Listen to your modern theme's variant change events
+        const variantSelectors = document.querySelectorAll('.modern-variant-swatch, .modern-variant-options input[type="radio"], input[name^="option"]');
+        
+        if(variantSelectors.length){
+            variantSelectors.forEach(selector => {
+                ['click', 'change'].forEach(action => {
+                    selector.addEventListener(action, () => {
+                        app.appSetInterval(() => {
+                            if(window?.Globo?.Preorder){
+                                window.Globo.Preorder.initPreorder();
+                            }
+                        }, 600, 2);
+                    });
+                });
+            });
+        }
+    },
+    appSetInterval: function(callback, interval, times) {
+        callback();
+        var count = 0;
+        var intervalId = window.setInterval(function() {
+            callback();
+            if(++count === times) window.clearInterval(intervalId);
+        }, interval);
+    },
+    debounce: function(func, timeout = 300){
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+};
+
+// Initialize when DOM is ready
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => preorderCustom.render());
+} else {
+    preorderCustom.render();
+}
+</script>
+
+<style>
+/* Globo Pre-order Custom Styles */
+.gPreorderHidden {
+    display: none !important;
+}
+
+/* Pre-order button styling */
+.gPreorderBtn {
+    background: #D32F2F !important;
+    color: white !important;
+}
+
+/* Back in Stock button styling */
+.gBackInStockBtn {
+    animation: gpo-glowing 1000ms infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.gBackInStockBtn svg {
+    animation: gpo-shaking 0.5s infinite;
+}
+
+@keyframes gpo-glowing {   
+    0% { background-color: #000000; box-shadow: 0 0 5px #000000; }   
+    50% { background-color: #1f2427; box-shadow: 0 0 20px #1f2427; }   
+    100% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; } 
+}
+
+@keyframes gpo-shaking {   
+    0% { transform: rotate(0deg); }   
+    25% { transform: rotate(5deg); }   
+    50% { transform: rotate(0deg); }   
+    75% { transform: rotate(-5deg); }   
+    100% { transform: rotate(0deg); } 
+}
+
+/* Sold out state */
+.gSoldout {
+    background: #FFFFFF !important;
+    color: #606060 !important;
+    border: 1px solid #3A3A3A !important;
+    opacity: .7 !important;
+    pointer-events: none !important;
+}
+
+/* Pre-order form adjustments for modern product page */
+.modern-product-form .gPreorderPartialPaymentWrapper {
+    margin-top: 15px;
+}
+
+.modern-product-form .gPreorderPartialPaymentChoices {
+    padding-left: 0 !important;
+    list-style: none;
+}
+
+.modern-product-form .gPreorderPartialPaymentChoices li {
+    margin-bottom: 8px;
+}
+
+#Globo-Back-In-Stock {
+    margin: 10px 0 !important;
+    padding: 5px !important;
+}
+
+/* Hide add to cart when BIS is showing */
+.gBisShowing [data-add-to-cart],
+.gBisShowing .modern-add-to-cart {
+    display: none !important;
+}
+
+.gPositionBis:empty {
+    display: none !important;
+}
+</style>
