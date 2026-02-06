@@ -464,6 +464,7 @@ class ModernProductPage {
 
         // Publish event
         // this.publishCartEvent();
+        handleFloCartBtn();
 
         setTimeout(() => {
           if (defaultText) defaultText.style.display = '';
