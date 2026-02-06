@@ -14,26 +14,35 @@
     "top_bar_section": {
       "type": "top-bar",
       "blocks": {
+        "announcement_YjapkF": {
+          "type": "announcement",
+          "settings": {
+            "text": "<p><br/>FREE FMH Gear Merch On Orders Above ₹10,000<br/><br/></p>"
+          }
+        },
         "announcement_PrkxPm": {
           "type": "announcement",
           "settings": {
-            "text": "<p>Free shipping on orders over €554</p>"
+            "text": "<p><br/>Do not make payments to unknown callers or QR codes claiming your payment was canceled or not received. Always confirm with us via our official WhatsApp about such calls</p>"
           }
         },
         "announcement_PRpUyJ": {
           "type": "announcement",
           "settings": {
-            "text": "<p>Free shipping on orders over €50</p>"
+            "text": "<p><br/>FREE Gift on Orders Above ₹7500</p>"
           }
         }
       },
       "block_order": [
+        "announcement_YjapkF",
         "announcement_PrkxPm",
         "announcement_PRpUyJ"
       ],
       "settings": {
         "background_color": "#ffffff",
-        "text_color": "#000000"
+        "text_color": "#000000",
+        "autoplay_speed": 5,
+        "enable_autoplay": true
       }
     },
     "custom_header_WQdpTn": {
