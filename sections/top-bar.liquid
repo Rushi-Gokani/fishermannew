@@ -56,7 +56,7 @@
 {% endschema %}
 
 <div class="top-bar" style="background-color: {{ section.settings.background_color }}; color: {{ section.settings.text_color }};">
-  <div class="page-width top-bar__container">
+  <div class="top-bar__container">
     <button class="top-bar__arrow top-bar__arrow--prev" aria-label="Previous announcement">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"></polyline>
@@ -83,7 +83,7 @@
 
 {% style %}
   .top-bar {
-    padding: 10px 0;
+    padding: 8px 0;
     font-size: 13px;
     position: relative;
   }
@@ -93,53 +93,52 @@
     align-items: center;
     justify-content: center;
     gap: 20px;
-    max-width: 600px; /* Limit width to keep arrows close */
-    margin: 0 auto;
+    width: 100%;
+    padding: 0 20px; /* Add horizontal padding since page-width is removed */
+    margin: 0; /* Remove auto margins */
     position: relative;
   }
 
   .top-bar__slider {
     flex: 1;
     position: relative;
-    height: 20px; /* Adjust based on font size/line height */
     overflow: hidden;
+    min-height: 18px;
     display: flex;
     align-items: center;
-    justify-content: center;
   }
 
   .top-bar__slide {
     position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
     transition: opacity 0.5s ease;
+    pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
   }
 
   .top-bar__slide.active {
     opacity: 1;
     pointer-events: auto;
-    position: relative; /* Make relative so it takes up space if needed, though absolute is better for cross-fading */
-  }
-  
-  /* Fix for absolute positioning height issue: ensure at least one slide takes space or set fixed height */
-  .top-bar__slide {
-    position: absolute; 
-    /* Resetting to absolute for crossfade effect */
-  }
-  .top-bar__slide.active {
     z-index: 1;
+  }
+
+  .top-bar__text {
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   .top-bar__text p {
     margin: 0;
     text-align: center;
+    line-height:0;
+       font-size: 13px;
   }
 
   .top-bar__arrow {
