@@ -385,35 +385,53 @@
             <!-- Quantity selector logic moved to buy_buttons block -->
 
           {%- when 'buy_buttons' -%}
+            
+            {% assign is_pre_order = false %}
+            {% if product.template_suffix == 'pre-order' %}
+              {% assign is_pre_order = true %}
+            {% elsif current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' %}
+              {% assign is_pre_order = true %}
+            {% endif %}
+
             <div {{ block.shopify_attributes }}>
               <product-form class="modern-product-form" data-section-id="{{ section.id }}">
                 {% form 'product', product, id: product_form_id, class: 'modern-product-form__form', data-product-form: '' %}
                   
                   <div class="modern-product-actions">
+                    <!-- Pre-Order Header (Moved above buttons for better layout) -->
+                    <p class="pre-order-header" style="color: #e53935; margin-bottom: 8px; font-weight: bold; {% unless is_pre_order %}display: none;{% endunless %}">Place your Pre-Order Bookings</p>
+
                     <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px;">
                       <!-- Inline Quantity Selector -->
-                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; height: auto;">
-                        <button type="button" class="modern-quantity-btn" data-quantity-minus aria-label="Decrease quantity">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; align-items: center; justify-content: space-between; height: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; min-width: 120px; padding: 0 5px;">
+                        <button type="button" class="modern-quantity-btn" data-quantity-minus aria-label="Decrease quantity" style="border: none; background: transparent; padding: 10px; cursor: pointer;">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
-                        <input type="number" name="quantity" id="Quantity-{{ section.id }}" class="modern-quantity-input" value="1" min="1" data-quantity-input form="{{ product_form_id }}">
-                        <button type="button" class="modern-quantity-btn" data-quantity-plus aria-label="Increase quantity">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <input type="number" name="quantity" id="Quantity-{{ section.id }}" class="modern-quantity-input" value="1" min="1" data-quantity-input form="{{ product_form_id }}" style="border: none; text-align: center; width: 40px; -moz-appearance: textfield; font-weight: 500;">
+                        <button type="button" class="modern-quantity-btn" data-quantity-plus aria-label="Increase quantity" style="border: none; background: transparent; padding: 10px; cursor: pointer;">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
                       </div>
 
-                      <!-- Add to Cart Button -->
-                      <button
-                        type="submit"
-                        name="add"
-                        class="modern-add-to-cart modern-btn-primary"
-                        style="background: #40C4FF; color: #fff; border: none; flex: 1; margin: 0;"
-                        {% if current_variant.available == false %}disabled{% endif %}
-                        data-add-to-cart
-                      >
+                      <!-- Add to Cart Button Container -->
+                      <div class="modern-atc-wrapper" style="flex: 1; display: flex; flex-direction: column;">
+                          <button
+                            type="submit"
+                            name="add"
+                            class="modern-add-to-cart modern-btn-primary"
+                            style="background: {% if is_pre_order %}#D32F2F{% else %}#40C4FF{% endif %}; color: #fff; border: none; width: 100%; margin: 0; height: 100%; min-height: 48px;"
+                            {% if current_variant.available == false %}disabled{% endif %}
+                            data-add-to-cart
+                          >
                         <span class="modern-add-to-cart__default">
                           {% if current_variant.available %}
-                            Add to Cart
+                            {% if product.template_suffix == 'pre-order' %}
+                              Pre-Order
+                            {% elsif current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue' %}
+                              Pre-Order
+                            {% else %}
+                              Add to Cart
+                            {% endif %}
                           {% else %}
                             Sold Out
                           {% endif %}
@@ -427,7 +445,22 @@
                         <span class="modern-add-to-cart__error" style="display: none;"></span>
                       </button>
                     </div>
+                    </div>
                   </div>
+
+                  <!-- Pre-Order Details Code -->
+                  <div class="pre-order-details" style="{% unless is_pre_order %}display: none;{% endunless %} margin-top: 15px;">
+                      
+                      <a href="/pages/pre-order-terms" class="pre-order-learn-more" target="_blank" style="background: #ff9800; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: pointer; margin-bottom: 15px; text-decoration: none; width: fit-content;">
+                        LEARN MORE 
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      </a>
+                      
+                      <div class="pre-order-disclaimer" style="background: #f5f5f5; padding: 15px; border-radius: 4px; font-size: 0.9em; color: #666; line-height: 1.5;">
+                        Once you pre-order, within 2 working days, we will inform you when the product will be available. If you do not wish to wait, we will issue you a refund of the prepaid amount
+                      </div>
+                  </div>
+                  <!-- End Pre-Order Details Code -->
 
                   <!-- Pickup Availability -->
                   {%- assign pick_up_availabilities = current_variant.store_availabilities | where: 'pick_up_enabled', true -%}
@@ -616,6 +649,21 @@
   {{ product | json }}
 </script>
 
+<script type="application/json" data-inventory-json>
+  {
+    "template": "{{ template.suffix }}",
+    "variants": {
+      {% for variant in product.variants %}
+        "{{ variant.id }}": {
+          "quantity": {{ variant.inventory_quantity | default: 0 }},
+          "policy": "{{ variant.inventory_policy }}",
+          "management": "{{ variant.inventory_management }}"
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    }
+  }
+</script>
+
 <!-- Modern Product Page JavaScript -->
 <script src="{{ 'modern-product-page.js' | asset_url }}" defer></script>
 
@@ -791,11 +839,56 @@ document.addEventListener('DOMContentLoaded', function() {
     if (variantInput) variantInput.value = variant.id;
     
     // Update add to cart button
+    // Update add to cart button
     const addBtn = container.querySelector('[data-add-to-cart]');
     if (addBtn) {
       const btnText = addBtn.querySelector('.modern-add-to-cart__default');
-      if (btnText) btnText.textContent = variant.available ? 'Add to Cart' : 'Sold Out';
+      
+      let isPreOrder = false;
+      const inventoryDataScript = container.querySelector('[data-inventory-json]');
+      if (inventoryDataScript) {
+        try {
+          const inventoryData = JSON.parse(inventoryDataScript.textContent);
+          // Use String conversion to ensure ID matching works
+          const variantId = variant.id.toString();
+          const variantInventory = inventoryData.variants[variantId];
+          
+          if (inventoryData.template === 'pre-order') {
+             isPreOrder = true;
+          } else if (variantInventory) {
+              // Check if out of stock AND policy is continue
+              if (variantInventory.quantity <= 0 && variantInventory.policy === 'continue') {
+                  isPreOrder = true;
+              }
+          }
+        } catch(e) { console.error('Error parsing inventory JSON', e); }
+      }
+
+      if (btnText) {
+        if (!variant.available) {
+           btnText.textContent = 'Sold Out';
+           addBtn.style.background = '#40C4FF'; // Reset to default available color or sold out color if needed
+        } else if (isPreOrder) {
+           btnText.textContent = 'Pre-Order';
+           addBtn.style.background = '#D32F2F'; // Red for pre-order
+        } else {
+           btnText.textContent = 'Add to Cart';
+           addBtn.style.background = '#40C4FF'; // Default blue
+        }
+      } 
       addBtn.disabled = !variant.available;
+      
+      // Update Pre-Order Extras visibility
+      const preOrderHeader = container.querySelector('.pre-order-header');
+      const preOrderDetails = container.querySelector('.pre-order-details');
+      
+      if (isPreOrder && variant.available) {
+          if (preOrderHeader) preOrderHeader.style.display = 'block';
+          if (preOrderDetails) preOrderDetails.style.display = 'block';
+      } else {
+          if (preOrderHeader) preOrderHeader.style.display = 'none';
+          if (preOrderDetails) preOrderDetails.style.display = 'none';
+      }
     }
     
     // Switch to variant image
