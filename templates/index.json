@@ -274,6 +274,7 @@
       "block_order": [
         "text_VF8aVM"
       ],
+      "disabled": true,
       "name": "t:names.marquee_section",
       "settings": {
         "movement_direction": "normal",
