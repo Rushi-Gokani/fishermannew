@@ -129,13 +129,6 @@
         "show_quick_buy": true
       }
     },
-    "recently-viewed-products": {
-      "type": "recently-viewed-products",
-      "settings": {
-        "title": "Recently viewed",
-        "show_quick_buy": true
-      }
-    },
     "1736772001dcb3274b": {
       "type": "apps",
       "disabled": true,
@@ -148,7 +141,6 @@
     "main",
     "1672316970ed042a63",
     "product-recommendations",
-    "recently-viewed-products",
     "1736772001dcb3274b"
   ]
 }
