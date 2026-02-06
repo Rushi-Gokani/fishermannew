@@ -1,0 +1,154 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "product_meta": {
+          "type": "product_meta",
+          "settings": {
+            "show_vendor": true,
+            "show_sku": false,
+            "show_reviews_badge": false,
+            "show_share_buttons": true
+          }
+        },
+        "variant_selector": {
+          "type": "variant_selector",
+          "settings": {
+            "selector_mode": "block",
+            "color_mode": "swatch",
+            "variant_image_options": "Colour,Lure Colour,Line Colour,Color,Line Color",
+            "show_quantity_selector": true,
+            "show_taxes_included": true,
+            "show_inventory_quantity": false,
+            "low_inventory_threshold": 3,
+            "progress_bar_max_value": 50
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_payment_button": false,
+            "show_gift_card_recipient": true
+          }
+        },
+        "dealeasy_vd_cards_dpccyz": {
+          "type": "shopify://apps/dealeasy/blocks/vd-cards/e47a8634-0496-480d-9e46-6f7fafd34b30",
+          "settings": {
+            "lb-product-handle": "",
+            "lb-product-id": ""
+          }
+        },
+        "10e1fb7f-6d8c-465e-b164-ec413513b918": {
+          "type": "shopify://apps/razorpay-trusted-business/blocks/rtb-widget/a54835d4-011c-47fe-94db-3731e39152d6",
+          "settings": {}
+        },
+        "7179e802-42a0-4e95-90e3-62ef8300a574": {
+          "type": "shopify://apps/razorpay-affordability-widget/blocks/affordability-block/5bf9b115-5933-4c1b-ade0-ef564b250852",
+          "settings": {}
+        },
+        "judge_me_reviews_review_snippet_widget_hnjNhc": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_snippet_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        },
+        "bc6deeb6-59a8-4307-98c1-1759dc3c7375": {
+          "type": "shopify://apps/selleasy/blocks/lb-upsell-addon-block/790c1a03-a71f-4bc1-9869-00dad526d3c2",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+            "display_mode": "view_more"
+          }
+        },
+        "978106f2-021a-4a5d-a7b9-03fb4924af69": {
+          "type": "trust",
+          "settings": {
+            "trust_title": "Payment & Security",
+            "show_payment_icons": true,
+            "custom_security_badge_width": 200
+          }
+        }
+      },
+      "block_order": [
+        "product_meta",
+        "variant_selector",
+        "buy_buttons",
+        "dealeasy_vd_cards_dpccyz",
+        "10e1fb7f-6d8c-465e-b164-ec413513b918",
+        "7179e802-42a0-4e95-90e3-62ef8300a574",
+        "judge_me_reviews_review_snippet_widget_hnjNhc",
+        "bc6deeb6-59a8-4307-98c1-1759dc3c7375",
+        "description",
+        "978106f2-021a-4a5d-a7b9-03fb4924af69"
+      ],
+      "custom_css": [
+        "@media screen and (max-width: 680px) {.product-gallery__thumbnail-list {display: none; }}"
+      ],
+      "settings": {
+        "image_size": "small",
+        "enable_video_looping": false,
+        "enable_image_zoom": true,
+        "zoom_effect": "outside",
+        "carousel_effect": "fade"
+      }
+    },
+    "1672316970ed042a63": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_review_widget_AWRkTT": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "sample_data",
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget",
+            "max_width": 1200
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_AWRkTT"
+      ],
+      "settings": {
+        "include_margins": true
+      }
+    },
+    "product-recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "show_quick_buy": true
+      }
+    },
+    "recently-viewed-products": {
+      "type": "recently-viewed-products",
+      "settings": {
+        "title": "Recently viewed",
+        "show_quick_buy": true
+      }
+    },
+    "1736772001dcb3274b": {
+      "type": "apps",
+      "disabled": true,
+      "settings": {
+        "include_margins": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "1672316970ed042a63",
+    "product-recommendations",
+    "recently-viewed-products",
+    "1736772001dcb3274b"
+  ]
+}
