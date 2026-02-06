@@ -463,8 +463,8 @@ class ModernProductPage {
         if (addedText) addedText.style.display = 'flex';
 
         // Publish event
-        // this.publishCartEvent();
-        handleFloCartBtn();
+        this.publishCartEvent();
+        // handleFloCartBtn();
 
         setTimeout(() => {
           if (defaultText) defaultText.style.display = '';
