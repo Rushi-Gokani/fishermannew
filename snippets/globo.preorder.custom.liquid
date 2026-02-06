@@ -151,24 +151,59 @@ if(document.readyState === 'loading') {
 </script>
 
 <style>
-/* Globo Pre-order Custom Styles */
+/* ========================================
+   Globo Pre-order Custom Styles
+   For Modern Product Page Integration
+   ======================================== */
+
 .gPreorderHidden {
     display: none !important;
 }
 
-/* Pre-order button styling */
-.gPreorderBtn {
+/* ========== Pre-order Button ========== */
+/* Style the Globo pre-order button to match theme */
+.gPreorderBtn,
+.modern-product-form .gPreorderBtn,
+.product-form .gPreorderBtn,
+form.product-form button.gPreorderBtn {
     background: #D32F2F !important;
     color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.3s ease !important;
 }
 
-/* Back in Stock button styling */
-.gBackInStockBtn {
-    animation: gpo-glowing 1000ms infinite;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.gPreorderBtn:hover {
+    background: #B71C1C !important;
+}
+
+/* ========== Back in Stock Button ========== */
+.gBackInStockBtn,
+#Globo-Back-In-Stock .gBackInStockBtn {
+    animation: gpo-glowing 1500ms infinite;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: 0.5rem;
+    background: #40C4FF !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    min-height: 48px !important;
 }
 
 .gBackInStockBtn svg {
@@ -176,8 +211,8 @@ if(document.readyState === 'loading') {
 }
 
 @keyframes gpo-glowing {   
-    0% { background-color: #000000; box-shadow: 0 0 5px #000000; }   
-    50% { background-color: #1f2427; box-shadow: 0 0 20px #1f2427; }   
+    0% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; }   
+    50% { background-color: #0288D1; box-shadow: 0 0 15px #0288D1; }   
     100% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; } 
 }
 
@@ -189,41 +224,123 @@ if(document.readyState === 'loading') {
     100% { transform: rotate(0deg); } 
 }
 
-/* Sold out state */
+/* ========== Sold out state ========== */
 .gSoldout {
-    background: #FFFFFF !important;
-    color: #606060 !important;
-    border: 1px solid #3A3A3A !important;
-    opacity: .7 !important;
+    background: #f5f5f5 !important;
+    color: #999 !important;
+    border: 1px solid #ddd !important;
+    opacity: .8 !important;
     pointer-events: none !important;
+    cursor: not-allowed !important;
 }
 
-/* Pre-order form adjustments for modern product page */
-.modern-product-form .gPreorderPartialPaymentWrapper {
+/* ========== Layout & Container Fixes ========== */
+/* Ensure Globo elements don't break the layout */
+.modern-product-actions .gPositionBis {
+    width: 100%;
     margin-top: 15px;
 }
 
-.modern-product-form .gPreorderPartialPaymentChoices {
+.modern-product-form .gPreorderWrapper,
+.product-form .gPreorderWrapper {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Partial Payment Choices */
+.modern-product-form .gPreorderPartialPaymentWrapper,
+.product-form .gPreorderPartialPaymentWrapper {
+    margin-top: 15px;
+    padding: 10px 0;
+}
+
+.modern-product-form .gPreorderPartialPaymentChoices,
+.product-form .gPreorderPartialPaymentChoices {
     padding-left: 0 !important;
-    list-style: none;
+    list-style: none !important;
+    margin: 0 !important;
 }
 
-.modern-product-form .gPreorderPartialPaymentChoices li {
+.modern-product-form .gPreorderPartialPaymentChoices li,
+.product-form .gPreorderPartialPaymentChoices li {
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
+/* Price display */
+.gPreorderPrice {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 10px 0;
+}
+
+/* ========== Back in Stock Form ========== */
 #Globo-Back-In-Stock {
-    margin: 10px 0 !important;
-    padding: 5px !important;
+    margin: 15px 0 !important;
+    padding: 0 !important;
+    width: 100%;
 }
 
-/* Hide add to cart when BIS is showing */
+#Globo-Back-In-Stock form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#Globo-Back-In-Stock input[type="email"],
+#Globo-Back-In-Stock input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* ========== Hide/Show Behavior ========== */
+/* Hide add to cart when pre-order or BIS is active */
 .gBisShowing [data-add-to-cart],
-.gBisShowing .modern-add-to-cart {
+.gBisShowing .modern-add-to-cart,
+.gBisShowing .modern-buttons-row {
     display: none !important;
 }
 
+.gPreorderShowing .modern-add-to-cart,
+.gPreorderShowing [data-add-to-cart] {
+    display: none !important;
+}
+
+/* Hide empty position hook */
 .gPositionBis:empty {
     display: none !important;
+}
+
+/* ========== Message Styling ========== */
+.gPreorderMessage,
+.gPreorderDeliveryDate {
+    font-size: 14px;
+    color: #666;
+    margin: 8px 0;
+}
+
+.gPreorderDeliveryDate {
+    color: #D32F2F;
+    font-weight: 500;
+}
+
+/* ========== Mobile Responsive ========== */
+@media (max-width: 749px) {
+    .gPreorderBtn,
+    .gBackInStockBtn {
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+        min-height: 44px !important;
+    }
+    
+    .modern-product-actions .gPositionBis {
+        margin-top: 10px;
+    }
 }
 </style>
