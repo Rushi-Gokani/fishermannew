@@ -350,7 +350,7 @@
 
                           <label
                             for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                            class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled modern-variant-swatch--sold-out{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                            class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled{% if use_image_swatch and option_swatch_img %} modern-variant-swatch--sold-out{% endif %}{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
                             data-variant-swatch
                             data-option-value="{{ value | escape }}"
                             {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
@@ -375,7 +375,7 @@
                             {%- if has_variant_sale and option_disabled == false -%}
                               <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
                             {%- endif -%}
-                            {% if option_disabled %}
+                            {% if option_disabled and use_image_swatch and option_swatch_img %}
                               <span class="modern-variant-sold-out-cross" aria-hidden="true"></span>
                             {% endif %}
                           </label>

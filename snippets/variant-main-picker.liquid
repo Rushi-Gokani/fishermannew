@@ -115,6 +115,11 @@
                       if featured_media == blank and product_option_value.product_url
                         assign featured_media = product_option_value.variant.product.featured_media
                       endif
+
+                      assign show_sold_out_cross = false
+                      if featured_media or product_option_value.swatch.image
+                        assign show_sold_out_cross = true
+                      endif
                     %}
 
                     {% render 'swatch',
@@ -122,9 +127,9 @@
                       variant_image: featured_media,
                       mode: 'unscaled'
                     %}
-                    {% unless product_option_value.available %}
+                    {% if show_sold_out_cross and product_option_value.available == false %}
                       <span class="variant-option__sold-out-cross" aria-hidden="true"></span>
-                    {% endunless %}
+                    {% endif %}
                   {% else %}
                     {% if product_option_value.available == true %}
                       <span
