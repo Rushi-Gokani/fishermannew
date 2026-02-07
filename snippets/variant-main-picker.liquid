@@ -67,71 +67,88 @@
                 <span class="variant-option__swatch-value">{{ product_option.selected_value }}</span>
               {%- endif %}
             </legend>
+            {%- comment -%}
+              Sort variants: buffer markup for available and sold-out values, then output in-stock first.
+              This avoids relying on filters that drop object properties in some storefront contexts.
+            {%- endcomment -%}
+            {%- assign available_value_markup = '' -%}
+            {%- assign sold_out_value_markup = '' -%}
             {%- for product_option_value in product_option.values -%}
               {% if product_option_value.size > longest_value and option_id_attribute %}
                 {% assign longest_value = product_option_value.size %}
               {% endif %}
-              <label
-                class="variant-option__button-label{% if variant_style == 'swatch' %} variant-option__button-label--has-swatch{% endif %}"
-              >
-                <input
-                  type="radio"
-                  name="{{ product_option.name | escape }}-{{ block.id }}-{{ product_resource.id }}"
-                  value="{{ product_option_value | escape }}"
-                  aria-label="{{ product_option_value.name }}"
-                  {% if product_option_value.available == false %}
-                    aria-disabled="true"
-                  {% endif %}
-                  data-previous-checked="false"
-                  data-fieldset-index="{{ fieldset_index }}"
-                  data-input-index="{{ forloop.index0 }}"
-                  data-input-id="{{ product_option.position }}-{{ forloop.index0 }}"
-                  data-option-value-id="{{ product_option_value.id }}"
-                  data-option-available="{{ product_option_value.available }}"
-                  data-connected-product-url="{{ product_option_value.product_url }}"
-                  {% if product_option_value.variant.id %}
-                    data-variant-id="{{ product_option_value.variant.id }}"
-                  {% endif %}
-                  {% if product_option_value.selected %}
-                    data-current-checked="true"
-                    checked
-                  {% else %}
-                    data-current-checked="false"
-                  {% endif %}
+              {%- capture variant_option_label -%}
+                <label
+                  class="variant-option__button-label{% if variant_style == 'swatch' %} variant-option__button-label--has-swatch{% endif %}"
                 >
-                {% if variant_style == 'swatch' %}
-                  {% liquid
-                    assign featured_media = product_option_value.variant.featured_media
-
-                    # If the variant has no featured media, and we have a combined listing product, then fall back to
-                    # using the featured media of the child product that is linked to this option value.
-                    if featured_media == blank and product_option_value.product_url
-                      assign featured_media = product_option_value.variant.product.featured_media
-                    endif
-                  %}
-
-                  {% render 'swatch',
-                    swatch: product_option_value.swatch,
-                    variant_image: featured_media,
-                    mode: 'unscaled'
-                  %}
-                {% else %}
-                  {% if product_option_value.available == true %}
-                    <span
-                      class="variant-option__button-label__pill"
-                      data-key="variant-option-pill"
-                    ></span>
-                  {% endif %}
-                  <span
-                    class="variant-option__button-label__text"
-                    data-key="variant-option-text"
+                  <input
+                    type="radio"
+                    name="{{ product_option.name | escape }}-{{ block.id }}-{{ product_resource.id }}"
+                    value="{{ product_option_value | escape }}"
+                    aria-label="{{ product_option_value.name }}"
+                    {% if product_option_value.available == false %}
+                      aria-disabled="true"
+                    {% endif %}
+                    data-previous-checked="false"
+                    data-fieldset-index="{{ fieldset_index }}"
+                    data-input-index="{{ forloop.index0 }}"
+                    data-input-id="{{ product_option.position }}-{{ forloop.index0 }}"
+                    data-option-value-id="{{ product_option_value.id }}"
+                    data-option-available="{{ product_option_value.available }}"
+                    data-connected-product-url="{{ product_option_value.product_url }}"
+                    {% if product_option_value.variant.id %}
+                      data-variant-id="{{ product_option_value.variant.id }}"
+                    {% endif %}
+                    {% if product_option_value.selected %}
+                      data-current-checked="true"
+                      checked
+                    {% else %}
+                      data-current-checked="false"
+                    {% endif %}
                   >
-                    {{- product_option_value | escape -}}
-                  </span>
-                {% endif %}
-                {% render 'strikethrough-variant', product_option: product_option_value %}
-              </label>
+                  {% if variant_style == 'swatch' %}
+                    {% liquid
+                      assign featured_media = product_option_value.variant.featured_media
+
+                      # If the variant has no featured media, and we have a combined listing product, then fall back to
+                      # using the featured media of the child product that is linked to this option value.
+                      if featured_media == blank and product_option_value.product_url
+                        assign featured_media = product_option_value.variant.product.featured_media
+                      endif
+                    %}
+
+                    {% render 'swatch',
+                      swatch: product_option_value.swatch,
+                      variant_image: featured_media,
+                      mode: 'unscaled'
+                    %}
+                    {% unless product_option_value.available %}
+                      <span class="variant-option__sold-out-cross" aria-hidden="true"></span>
+                    {% endunless %}
+                  {% else %}
+                    {% if product_option_value.available == true %}
+                      <span
+                        class="variant-option__button-label__pill"
+                        data-key="variant-option-pill"
+                      ></span>
+                    {% endif %}
+                    <span
+                      class="variant-option__button-label__text"
+                      data-key="variant-option-text"
+                    >
+                      {{- product_option_value | escape -}}
+                    </span>
+                  {% endif %}
+                  {% render 'strikethrough-variant', product_option: product_option_value %}
+                </label>
+              {%- endcapture -%}
+              {% if product_option_value.available %}
+                {% assign available_value_markup = available_value_markup | append: variant_option_label %}
+              {% else %}
+                {% assign sold_out_value_markup = sold_out_value_markup | append: variant_option_label %}
+              {% endif %}
             {%- endfor -%}
+            {{ available_value_markup }}{{ sold_out_value_markup }}
             {% if option_id_attribute %}
               {% style %}
                 [data-option-id="{{ fieldset_id }}"] {
@@ -170,24 +187,38 @@
                 name="options[{{ product_option.name | escape }}]"
                 class="variant-option__select"
               >
+                {%- comment -%}
+                  Sort dropdown options by buffering available first, then the sold-out ones, so the select shows
+                  purchasable variants ahead of unavailable ones.
+                {%- endcomment -%}
+                {%- assign available_option_markup = '' -%}
+                {%- assign sold_out_option_markup = '' -%}
                 {%- for product_option_value in product_option.values -%}
-                  <option
-                    value="{{ product_option_value | escape }}"
-                    data-input-id="{{ product_option.position }}-{{ forloop.index0 }}"
-                    data-option-value-id="{{ product_option_value.id }}"
-                    data-variant-id="{{ product_option_value.variant.id }}"
-                    data-connected-product-url="{{ product_option_value.product_url }}"
-                    {% if product_option_value.selected %}
-                      selected="selected"
-                    {% endif %}
-                  >
-                    {% if product_option_value.available == false %}
-                      {{ product_option_value | escape }} - {{ 'content.unavailable' | t }}
-                    {% else %}
-                      {{ product_option_value | escape }}
-                    {% endif %}
-                  </option>
+                  {%- capture variant_dropdown_option -%}
+                    <option
+                      value="{{ product_option_value | escape }}"
+                      data-input-id="{{ product_option.position }}-{{ forloop.index0 }}"
+                      data-option-value-id="{{ product_option_value.id }}"
+                      data-variant-id="{{ product_option_value.variant.id }}"
+                      data-connected-product-url="{{ product_option_value.product_url }}"
+                      {% if product_option_value.selected %}
+                        selected="selected"
+                      {% endif %}
+                    >
+                      {% if product_option_value.available == false %}
+                        {{ product_option_value | escape }} - {{ 'content.unavailable' | t }}
+                      {% else %}
+                        {{ product_option_value | escape }}
+                      {% endif %}
+                    </option>
+                  {%- endcapture -%}
+                  {% if product_option_value.available %}
+                    {% assign available_option_markup = available_option_markup | append: variant_dropdown_option %}
+                  {% else %}
+                    {% assign sold_out_option_markup = sold_out_option_markup | append: variant_dropdown_option %}
+                  {% endif %}
                 {%- endfor -%}
+                {{ available_option_markup }}{{ sold_out_option_markup }}
               </select>
               <svg
                 aria-hidden="true"
@@ -548,6 +579,47 @@
 
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-offset);
+  }
+
+  .variant-option__button-label--has-swatch.variant-option__button-label--sold-out {
+    background-color: #fff;
+  }
+
+  .variant-option__button-label--has-swatch.variant-option__button-label--sold-out .swatch img,
+  .variant-option__button-label--has-swatch.variant-option__button-label--sold-out .swatch {
+    opacity: 0.4;
+    filter: grayscale(1);
+  }
+
+  .variant-option__sold-out-cross {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  .variant-option__sold-out-cross::before,
+  .variant-option__sold-out-cross::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 65%;
+    height: 2px;
+    background: rgb(0 0 0 / 0.65);
+    transform-origin: center;
+  }
+
+  .variant-option__sold-out-cross::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .variant-option__sold-out-cross::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  .variant-option__button-label--has-swatch.variant-option__button-label--sold-out .variant-option__strikethrough {
+    display: none;
   }
 
   /* This triggers iOS < 16.4. The outline bug is not recognized as a lack of @supports */

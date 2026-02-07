@@ -290,6 +290,8 @@
                     </legend>
 
                     <div class="modern-variant-options" data-option-index="{{ forloop.index0 }}">
+                      {%- assign available_option_markup = '' -%}
+                      {%- assign sold_out_option_markup = '' -%}
                       {%- for value in option.values -%}
                         {%- liquid
                           assign option_disabled = true
@@ -332,48 +334,60 @@
                           endif
                         -%}
 
-                        <input
-                          type="radio"
-                          id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                          name="option{{ option.position }}"
-                          value="{{ value | escape }}"
-                          form="{{ product_form_id }}"
-                          {% if option.selected_value == value %}checked{% endif %}
-                          {% if option_disabled %}disabled{% endif %}
-                          class="modern-variant-input visually-hidden"
-                          data-variant-option
-                          {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
-                        >
+                        {%- capture variant_option_markup -%}
+                          <input
+                            type="radio"
+                            id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                            name="option{{ option.position }}"
+                            value="{{ value | escape }}"
+                            form="{{ product_form_id }}"
+                            {% if option.selected_value == value %}checked{% endif %}
+                            {% if option_disabled %}disabled{% endif %}
+                            class="modern-variant-input visually-hidden"
+                            data-variant-option
+                            {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
+                          >
 
-                        <label
-                          for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                          class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
-                          data-variant-swatch
-                          data-option-value="{{ value | escape }}"
-                          {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
-                          {% if variant_for_value %}data-variant-full-id="{{ variant_for_value.id }}"{% endif %}
-                          tabindex="0"
-                        >
-                          {%- if use_image_swatch and option_swatch_img -%}
-                            {{
-                              option_swatch_img
-                              | image_url: width: 100
-                              | image_tag:
-                                loading: 'lazy',
-                                class: 'modern-variant-swatch-img',
-                                alt: value,
-                                width: nil,
-                                height: nil
-                            }}
-                          {%- else -%}
-                            <span class="modern-variant-swatch-label">{{ value }}</span>
-                          {%- endif -%}
-                          
-                          {%- if has_variant_sale and option_disabled == false -%}
-                            <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
-                          {%- endif -%}
-                        </label>
+                          <label
+                            for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                            class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled modern-variant-swatch--sold-out{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                            data-variant-swatch
+                            data-option-value="{{ value | escape }}"
+                            {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-full-id="{{ variant_for_value.id }}"{% endif %}
+                            tabindex="0"
+                          >
+                            {%- if use_image_swatch and option_swatch_img -%}
+                              {{
+                                option_swatch_img
+                                | image_url: width: 100
+                                | image_tag:
+                                  loading: 'lazy',
+                                  class: 'modern-variant-swatch-img',
+                                  alt: value,
+                                  width: nil,
+                                  height: nil
+                              }}
+                            {%- else -%}
+                              <span class="modern-variant-swatch-label">{{ value }}</span>
+                            {%- endif -%}
+                            
+                            {%- if has_variant_sale and option_disabled == false -%}
+                              <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
+                            {%- endif -%}
+                            {% if option_disabled %}
+                              <span class="modern-variant-sold-out-cross" aria-hidden="true"></span>
+                            {% endif %}
+                          </label>
+                        {%- endcapture -%}
+
+                        {% if option_disabled %}
+                          {% assign sold_out_option_markup = sold_out_option_markup | append: variant_option_markup %}
+                        {% else %}
+                          {% assign available_option_markup = available_option_markup | append: variant_option_markup %}
+                        {% endif %}
                       {%- endfor -%}
+                      {{ available_option_markup }}{{ sold_out_option_markup }}
                     </div>
                   </fieldset>
                 {%- endfor -%}
@@ -1746,16 +1760,11 @@
   }
 
   .modern-variant-swatch--image.is-disabled::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 5px,
-      rgb(0 0 0 / 0.1) 5px,
-      rgb(0 0 0 / 0.1) 10px
-    );
+    display: none;
+  }
+
+  .modern-variant-swatch--image.modern-variant-swatch--sold-out {
+    background: #fff;
   }
 
   .modern-variant-swatch-img {
@@ -1803,6 +1812,38 @@
     opacity: 0.4;
     cursor: not-allowed;
     text-decoration: line-through;
+  }
+
+  .modern-variant-swatch--sold-out .modern-variant-swatch-img,
+  .modern-variant-swatch--sold-out .modern-variant-swatch-label {
+    opacity: 0.45;
+    filter: grayscale(1);
+  }
+
+  .modern-variant-sold-out-cross {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .modern-variant-sold-out-cross::before,
+  .modern-variant-sold-out-cross::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 65%;
+    height: 2px;
+    background: rgb(0 0 0 / 0.65);
+    transform-origin: center;
+  }
+
+  .modern-variant-sold-out-cross::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .modern-variant-sold-out-cross::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
 
   /* SALE badge on variant swatches */
