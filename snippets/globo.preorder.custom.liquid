@@ -264,7 +264,7 @@
    For Modern Product Page Integration
    ======================================== */
 
-/* Main Container */
+/* Main Container - RESET EVERYTHING */
 .gPositionBis,
 .modern-globo-preorder-container,
 .globo-preorder-bis-hook {
@@ -279,16 +279,30 @@
     position: relative !important;
     visibility: visible !important;
     opacity: 1 !important;
+    text-align: left !important;
+    line-height: normal !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
 }
 
-/* Ensure visibility when content exists */
-.gPositionBis:not(:empty),
-.modern-globo-preorder-container:not(:empty),
-.globo-preorder-bis-hook:not(:empty) {
-    display: block !important;
+/* Override any inline styles from Globo */
+.gPositionBis[style],
+.modern-globo-preorder-container[style],
+.globo-preorder-bis-hook[style],
+.gPositionBis *[style],
+.modern-globo-preorder-container *[style],
+.globo-preorder-bis-hook *[style] {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
 }
 
-/* Force all children to be block and visible */
+/* Force all direct children to behave */
 .gPositionBis > *,
 .modern-globo-preorder-container > *,
 .globo-preorder-bis-hook > * {
@@ -297,43 +311,78 @@
     max-width: 100% !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     padding: 0 !important;
     float: none !important;
+    clear: both !important;
+    text-align: left !important;
 }
 
-/* Pre-order Button */
+/* Override specific Globo elements */
+.gPositionBis .globo-preorder-app,
+.gPositionBis .gpo-form-wrapper,
+.gPositionBis .gPreorderWrapper,
+.gPositionBis #Globo-Preorder-Form,
+.gPositionBis #Globo-Back-In-Stock {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+}
+
+/* Pre-order Button - CLEAN STYLES */
 .gPreorderBtn,
 .modern-product-form .gPreorderBtn,
 .product-form .gPreorderBtn,
-form.product-form button.gPreorderBtn {
+form.product-form button.gPreorderBtn,
+.gPositionBis button,
+.gPositionBis .gPreorderBtn {
     background: #D32F2F !important;
     color: white !important;
     border: none !important;
     border-radius: 10px !important;
-    padding: 0 24px !important;
+    padding: 16px 24px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
     max-width: 100% !important;
     min-height: 52px !important;
+    height: auto !important;
     display: block !important;
-    line-height: 52px !important;
+    line-height: 1.4 !important;
     text-align: center !important;
     transition: all 0.2s ease !important;
-    box-shadow: 0 4px 12px rgb(211 47 47 / 0.3) !important;
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3) !important;
     float: none !important;
-    margin: 8px 0 0 0 !important;
+    margin: 0 !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 .gPreorderBtn:hover:not(:disabled) {
     background: #B71C1C !important;
     transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(211, 47, 47, 0.4) !important;
+}
+
+.gPreorderBtn:active:not(:disabled) {
+    transform: translateY(0) !important;
 }
 
 /* Back in Stock Button */
 .gBackInStockBtn,
-#Globo-Back-In-Stock .gBackInStockBtn {
+#Globo-Back-In-Stock .gBackInStockBtn,
+.gPositionBis .gBackInStockBtn {
     animation: gpo-glowing 1500ms infinite !important;
     display: block !important;
     text-align: center !important;
@@ -341,17 +390,26 @@ form.product-form button.gPreorderBtn {
     color: white !important;
     border: none !important;
     border-radius: 10px !important;
-    padding: 0 24px !important;
+    padding: 16px 24px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
     max-width: 100% !important;
     min-height: 52px !important;
-    line-height: 52px !important;
-    box-shadow: 0 4px 12px rgb(64 196 255 / 0.3) !important;
+    height: auto !important;
+    line-height: 1.4 !important;
+    box-shadow: 0 4px 12px rgba(64, 196, 255, 0.3) !important;
     float: none !important;
-    margin: 8px 0 0 0 !important;
+    margin: 0 !important;
+    position: relative !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.gBackInStockBtn svg {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin-right: 8px !important;
 }
 
 @keyframes gpo-glowing {
@@ -360,72 +418,192 @@ form.product-form button.gPreorderBtn {
     100% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; }
 }
 
-/* Form elements */
+/* Back in Stock Form */
 #Globo-Back-In-Stock,
-.globo-preorder-app,
-.gpo-form-wrapper,
-.gPreorderWrapper {
+.gPositionBis #Globo-Back-In-Stock {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    position: relative !important;
+}
+
+#Globo-Back-In-Stock form,
+.gPositionBis #Globo-Back-In-Stock form {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 #Globo-Back-In-Stock input[type="email"],
 #Globo-Back-In-Stock input[type="text"],
-.gPositionBis input {
+.gPositionBis input[type="email"],
+.gPositionBis input[type="text"] {
     width: 100% !important;
+    max-width: 100% !important;
     padding: 14px 16px !important;
     border: 1px solid #e0e0e0 !important;
     border-radius: 10px !important;
     font-size: 15px !important;
     box-sizing: border-box !important;
     display: block !important;
-    margin: 0 0 10px 0 !important;
+    margin: 0 0 12px 0 !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
-/* Partial payment wrapper */
-.gpo-partial-payment-wrapper,
-.globo-preorder-app .gpo-partial-payment-wrapper {
+/* Preorder wrapper/heading */
+.gpo-text-heading,
+.globo-preorder-app .gpo-heading,
+.gPreorderHeading,
+.gPositionBis .gpo-text-heading,
+.gPositionBis .gpo-heading {
+    display: block !important;
     width: 100% !important;
-    margin: 12px 0 0 0 !important;
-    padding: 14px 16px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #e53935 !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    line-height: 1.4 !important;
+}
+
+/* Price display */
+.gpo-price,
+.globo-preorder-app .gpo-price,
+.gPositionBis .gpo-price {
+    display: block !important;
+    width: 100% !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #101828 !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+}
+
+.gpo-price-label,
+.globo-preorder-app .gpo-price-label,
+.gPositionBis .gpo-price-label {
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    margin: 0 0 4px 0 !important;
+}
+
+/* Partial payment section */
+.gpo-partial-payment-wrapper,
+.globo-preorder-app .gpo-partial-payment-wrapper,
+.gPositionBis .gpo-partial-payment-wrapper {
+    width: 100% !important;
+    display: block !important;
+    margin: 16px 0 0 0 !important;
+    padding: 16px !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 10px !important;
     background: #f8fafc !important;
     box-sizing: border-box !important;
-    display: block !important;
 }
 
-.globo-preorder-app .gpo-partial-payment-choices {
+.gpo-partial-payment-choices,
+.globo-preorder-app .gpo-partial-payment-choices,
+.gPositionBis .gpo-partial-payment-choices {
     width: 100% !important;
+    display: block !important;
+    margin: 12px 0 0 0 !important;
     padding: 0 !important;
-    margin: 8px 0 0 0 !important;
     list-style: none !important;
-    display: block !important;
 }
 
-.globo-preorder-app .gpo-partial-payment-choices li {
+.gpo-partial-payment-choices li,
+.globo-preorder-app .gpo-partial-payment-choices li,
+.gPositionBis .gpo-partial-payment-choices li {
     width: 100% !important;
-    margin: 0 0 10px 0 !important;
-    padding: 12px 14px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    margin: 0 0 10px 0 !important;
+    padding: 12px 14px !important;
     border: 1px solid #dbe1ea !important;
     border-radius: 10px !important;
     background: #fff !important;
     box-sizing: border-box !important;
 }
 
+.gpo-partial-payment-choices li:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Payment label */
+.gpo-payment-label,
+.globo-preorder-app .gpo-payment-label,
+.gPositionBis .gpo-payment-label {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    display: block !important;
+}
+
+.gpo-payment-label span,
+.gpo-payment-label small,
+.gPositionBis .gpo-payment-label span,
+.gPositionBis .gpo-payment-label small {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    color: #64748b !important;
+}
+
+/* Radio inputs */
+.gpo-radio input[type="radio"],
+.gPositionBis .gpo-radio input[type="radio"],
+.globo-preorder-app .gpo-radio input[type="radio"] {
+    width: 18px !important;
+    height: 18px !important;
+    accent-color: #D32F2F !important;
+    margin: 0 !important;
+}
+
+/* Message text */
+.gpo-message,
+.globo-preorder-app .gpo-message,
+.gPreorderMessage,
+.gPositionBis .gpo-message {
+    display: block !important;
+    width: 100% !important;
+    font-size: 13px !important;
+    color: #64748b !important;
+    margin: 12px 0 0 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* Hide empty placeholder */
+.gPositionBis:empty {
+    display: none !important;
+}
+
+/* Reset all possible layout-breaking properties */
+.gPositionBis *[style*="float"],
+.gPositionBis *[style*="position: absolute"],
+.gPositionBis *[style*="position: fixed"] {
+    float: none !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+}
+
 /* Mobile */
 @media (max-width: 749px) {
     .gPreorderBtn,
     .gBackInStockBtn {
-        padding: 0 20px !important;
+        padding: 14px 20px !important;
         font-size: 15px !important;
         min-height: 50px !important;
-        line-height: 50px !important;
     }
 }
 </style>
