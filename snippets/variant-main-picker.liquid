@@ -37,6 +37,7 @@
         {%- liquid
           assign swatch_count = product_option.values | map: 'swatch' | compact | size
           assign variant_style = block_settings.variant_style
+          assign option_name_downcase = product_option.name | downcase
 
           if swatch_count > 0 and block_settings.show_swatches
             if block_settings.variant_style == 'dropdown'
@@ -117,8 +118,10 @@
                       endif
 
                       assign show_sold_out_cross = false
-                      if featured_media or product_option_value.swatch.image
-                        assign show_sold_out_cross = true
+                      if option_name_downcase contains 'color' or option_name_downcase contains 'colour'
+                        if featured_media or product_option_value.swatch.image
+                          assign show_sold_out_cross = true
+                        endif
                       endif
                     %}
 
