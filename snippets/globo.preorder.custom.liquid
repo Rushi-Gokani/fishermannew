@@ -160,35 +160,233 @@ if(document.readyState === 'loading') {
     display: none !important;
 }
 
+/* ========== Main Layout Fixes ========== */
+/* When preorder is active, hide the buttons row and show preorder in its place */
+.gPreorderShowing .modern-buttons-row {
+    display: none !important;
+}
+
+/* Hide quantity when preorder is showing - we'll show it inside preorder */
+.gPreorderShowing .modern-quantity-selector {
+    display: none !important;
+}
+
+/* ========== Layout & Container Fixes ========== */
+/* Ensure Globo elements don't break the layout */
+.modern-product-actions .gPositionBis {
+    width: 100%;
+    margin-top: 0;
+}
+
+/* Full width preorder container */
+.gPreorderWrapper,
+.gpo-form-wrapper,
+.modern-product-form .gPreorderWrapper,
+.product-form .gPreorderWrapper,
+#Globo-Preorder-Form {
+    width: 100% !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+/* ========== Pre-order Heading ========== */
+.gPreorderHeading,
+.gpo-text-heading,
+.globo-preorder-heading {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #e53935 !important;
+    margin: 0 0 8px 0 !important;
+    text-transform: none !important;
+    text-align: left !important;
+}
+
+/* ========== Pre-order Content Row ========== */
+/* Main row containing quantity + price/payment */
+.gPreorderContentRow,
+.gpo-price-row,
+.globo-preorder-content-row {
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+}
+
+/* Quantity selector inside preorder */
+.gPreorderQuantity,
+.globo-preorder-quantity {
+    flex-shrink: 0 !important;
+    width: 120px !important;
+    min-width: 120px !important;
+}
+
+.gPreorderQuantity input,
+.globo-preorder-quantity input {
+    width: 100% !important;
+    text-align: center !important;
+    height: 48px !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 10px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Price and payment container */
+.gPreorderPriceSection,
+.globo-preorder-price-section {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+}
+
+/* Price label */
+.gPreorderPriceLabel,
+.gpo-price-label,
+.globo-preorder-price-label {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    margin: 0 !important;
+}
+
+/* Price amount */
+.gPreorderPrice,
+.gpo-price,
+.globo-preorder-price {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #101828 !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+.gPreorderPrice small,
+.gPreorderPrice span,
+.gpo-price small,
+.gpo-price span {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #475467 !important;
+}
+
+/* ========== Partial Payment Section ========== */
+.modern-product-form .gPreorderPartialPaymentWrapper,
+.product-form .gPreorderPartialPaymentWrapper,
+.gpo-partial-payment-wrapper,
+.globo-preorder-partial-wrapper {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 14px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    background: #f8fafc !important;
+}
+
+.modern-product-form .gPreorderPartialPaymentChoices,
+.product-form .gPreorderPartialPaymentChoices,
+.gpo-partial-payment-choices,
+.globo-preorder-payment-choices {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.modern-product-form .gPreorderPartialPaymentChoices li,
+.product-form .gPreorderPartialPaymentChoices li,
+.gpo-payment-option,
+.globo-preorder-payment-option {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    border: 1px solid #dbe1ea !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    cursor: pointer !important;
+}
+
+.gPreorderPartialPaymentLabel,
+.gpo-payment-label,
+.globo-preorder-payment-label {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    text-align: left !important;
+}
+
+.gPreorderPartialPaymentLabel span,
+.gPreorderPartialPaymentLabel small,
+.gpo-payment-label span,
+.gpo-payment-label small {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    color: #64748b !important;
+}
+
+.gPreorderPartialPaymentInput,
+.gpo-radio input[type='radio'],
+.globo-preorder-radio input[type='radio'] {
+    flex-shrink: 0 !important;
+    accent-color: #D32F2F !important;
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer !important;
+}
+
 /* ========== Pre-order Button ========== */
-/* Style the Globo pre-order button to match theme */
 .gPreorderBtn,
 .modern-product-form .gPreorderBtn,
 .product-form .gPreorderBtn,
-form.product-form button.gPreorderBtn {
+form.product-form button.gPreorderBtn,
+.globo-preorder-btn {
     background: #D32F2F !important;
     color: white !important;
     border: none !important;
-    border-radius: 4px !important;
-    padding: 12px 24px !important;
+    border-radius: 10px !important;
+    padding: 0 24px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
-    min-height: 48px !important;
+    min-height: 52px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: background 0.3s ease !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 12px rgb(211 47 47 / 0.3) !important;
 }
 
-.gPreorderBtn:hover {
+.gPreorderBtn:hover:not(:disabled),
+.modern-product-form .gPreorderBtn:hover:not(:disabled),
+.product-form .gPreorderBtn:hover:not(:disabled) {
     background: #B71C1C !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgb(211 47 47 / 0.4) !important;
 }
 
 /* ========== Back in Stock Button ========== */
 .gBackInStockBtn,
-#Globo-Back-In-Stock .gBackInStockBtn {
+#Globo-Back-In-Stock .gBackInStockBtn,
+.globo-backinstock-btn {
     animation: gpo-glowing 1500ms infinite;
     display: flex !important;
     align-items: center !important;
@@ -197,31 +395,32 @@ form.product-form button.gPreorderBtn {
     background: #40C4FF !important;
     color: white !important;
     border: none !important;
-    border-radius: 4px !important;
-    padding: 12px 24px !important;
+    border-radius: 10px !important;
+    padding: 0 24px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
-    min-height: 48px !important;
+    min-height: 52px !important;
+    box-shadow: 0 4px 12px rgb(64 196 255 / 0.3) !important;
 }
 
 .gBackInStockBtn svg {
     animation: gpo-shaking 0.5s infinite;
 }
 
-@keyframes gpo-glowing {   
-    0% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; }   
-    50% { background-color: #0288D1; box-shadow: 0 0 15px #0288D1; }   
-    100% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; } 
+@keyframes gpo-glowing {
+    0% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; }
+    50% { background-color: #0288D1; box-shadow: 0 0 15px #0288D1; }
+    100% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; }
 }
 
-@keyframes gpo-shaking {   
-    0% { transform: rotate(0deg); }   
-    25% { transform: rotate(5deg); }   
-    50% { transform: rotate(0deg); }   
-    75% { transform: rotate(-5deg); }   
-    100% { transform: rotate(0deg); } 
+@keyframes gpo-shaking {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
 }
 
 /* ========== Sold out state ========== */
@@ -234,158 +433,32 @@ form.product-form button.gPreorderBtn {
     cursor: not-allowed !important;
 }
 
-/* ========== Layout & Container Fixes ========== */
-/* Ensure Globo elements don't break the layout */
-.modern-product-actions .gPositionBis {
-    width: 100%;
-    margin-top: 15px;
-}
-
-.modern-product-form .gPreorderWrapper,
-.product-form .gPreorderWrapper {
-    width: 100%;
-    margin-top: 10px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 18px 20px;
-    box-shadow: 0 12px 35px rgb(15 23 42 / 6%);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.gPreorderHeading,
-.gpo-text-heading {
-    font-size: 18px;
-    font-weight: 600;
-    color: #e53935;
-    margin: 0;
-    text-transform: none;
-}
-
-.gPreorderMeta,
-.gPreorderDetailsRow {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.gPreorderLabel,
-.gPreorderPriceLabel {
-    font-size: 15px;
-    font-weight: 600;
-    color: #0f172a;
-    margin: 0;
-    white-space: nowrap;
-}
-
-/* Price display */
-.gPreorderPrice {
-    font-size: 24px;
-    font-weight: 700;
-    color: #101828;
-    margin: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
-.gPreorderPrice small,
-.gPreorderPrice span {
-    font-size: 14px;
-    font-weight: 500;
-    color: #475467;
-}
-
-.modern-product-form .gPreorderPartialPaymentWrapper,
-.product-form .gPreorderPartialPaymentWrapper {
-    margin-top: 10px;
-    padding: 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #f8fafc;
-}
-
-.modern-product-form .gPreorderPartialPaymentChoices,
-.product-form .gPreorderPartialPaymentChoices {
-    padding-left: 0 !important;
-    list-style: none !important;
-    margin: 0 !important;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.modern-product-form .gPreorderPartialPaymentChoices li,
-.product-form .gPreorderPartialPaymentChoices li {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 16px;
-    border: 1px solid #dbe1ea;
-    border-radius: 12px;
-    background: #fff;
-}
-
-.gPreorderPartialPaymentLabel {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.gPreorderPartialPaymentLabel span,
-.gPreorderPartialPaymentLabel small {
-    font-size: 13px;
-    font-weight: 500;
-    color: #475467;
-}
-
-.gPreorderPartialPaymentInput,
-.gpo-radio input[type='radio'] {
-    accent-color: #3b82f6;
-    width: 18px;
-    height: 18px;
-}
-
 /* ========== Back in Stock Form ========== */
 #Globo-Back-In-Stock {
-    margin: 15px 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
-    width: 100%;
+    width: 100% !important;
 }
 
 #Globo-Back-In-Stock form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
 }
 
 #Globo-Back-In-Stock input[type="email"],
 #Globo-Back-In-Stock input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    font-size: 14px;
+    width: 100% !important;
+    padding: 14px 16px !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
 }
 
 /* ========== Hide/Show Behavior ========== */
 /* Hide add to cart when pre-order or BIS is active */
 .gBisShowing [data-add-to-cart],
-.gBisShowing .modern-add-to-cart,
-.gBisShowing .modern-buttons-row {
-    display: none !important;
-}
-
-.gPreorderShowing .modern-add-to-cart,
-.gPreorderShowing [data-add-to-cart] {
+.gBisShowing .modern-add-to-cart {
     display: none !important;
 }
 
@@ -396,28 +469,45 @@ form.product-form button.gPreorderBtn {
 
 /* ========== Message Styling ========== */
 .gPreorderMessage,
-.gPreorderDeliveryDate {
-    font-size: 14px;
-    color: #666;
-    margin: 8px 0;
+.gPreorderDeliveryDate,
+.gpo-delivery-date,
+.globo-preorder-message {
+    font-size: 13px !important;
+    color: #64748b !important;
+    margin: 4px 0 0 0 !important;
+    line-height: 1.5 !important;
 }
 
-.gPreorderDeliveryDate {
-    color: #D32F2F;
-    font-weight: 500;
+.gPreorderDeliveryDate,
+.gpo-delivery-date {
+    color: #D32F2F !important;
+    font-weight: 500 !important;
+}
+
+/* ========== Hide Learn More Link if exists ========== */
+.gpo-learn-more,
+.globo-preorder-learn-more {
+    display: none !important;
 }
 
 /* ========== Mobile Responsive ========== */
 @media (max-width: 749px) {
     .gPreorderBtn,
     .gBackInStockBtn {
-        padding: 10px 16px !important;
-        font-size: 14px !important;
-        min-height: 44px !important;
+        padding: 0 20px !important;
+        font-size: 15px !important;
+        min-height: 50px !important;
     }
-    
-    .modern-product-actions .gPositionBis {
-        margin-top: 10px;
+
+    .gPreorderContentRow,
+    .gpo-price-row {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .gPreorderQuantity,
+    .globo-preorder-quantity {
+        width: 100% !important;
     }
 }
 </style>
