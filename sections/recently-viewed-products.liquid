@@ -29,7 +29,7 @@
 
               {%- for product in search.results -%}
                 {%- if product.id == id -%}
-                  {%- render 'card-product', card_product: product, section_id: section.id, media_aspect_ratio: 'adapt', show_add_to_cart: section.settings.show_quick_buy -%}
+                  {%- render 'product-card-item', product: product, section_id: section.id -%}
                   {%- break -%}
                 {%- endif -%}
               {%- endfor -%}
