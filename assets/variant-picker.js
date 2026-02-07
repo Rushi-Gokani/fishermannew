@@ -87,6 +87,9 @@ export default class VariantPicker extends Component {
 
     this.fetchUpdatedSection(this.buildRequestUrl(selectedOption), morphElementSelector);
 
+    // Notify Globo Pre-order app so it can re-render preorder buttons for the new variant
+    document.dispatchEvent(new CustomEvent('globo.preorder.variant.changed'));
+
     const url = new URL(window.location.href);
 
     const variantId = selectedOption.dataset.variantId || null;
