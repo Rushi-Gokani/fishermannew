@@ -254,12 +254,21 @@
       "type": "apps",
       "disabled": true,
       "settings": {}
+    },
+    "recently_viewed_products_wR6gCq": {
+      "type": "recently-viewed-products",
+      "name": "Recently viewed products",
+      "settings": {
+        "title": "Recently viewed",
+        "show_quick_buy": false
+      }
     }
   },
   "order": [
     "product_page_modern_no_thumb",
     "1672316970ed042a63",
     "product-recommendations",
-    "1736772001dcb3274b"
+    "1736772001dcb3274b",
+    "recently_viewed_products_wR6gCq"
   ]
 }
