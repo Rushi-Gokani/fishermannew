@@ -401,11 +401,11 @@
           {%- when 'buy_buttons' -%}
             <div {{ block.shopify_attributes }}>
               <product-form class="modern-product-form" data-section-id="{{ section.id }}">
-                {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '' %}
+                {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '', data-product-id: product.id %}
 
                   <div class="modern-product-actions-wrapper">
                     <!-- Globo Pre-order Hook - color swatch bundle -->
-                    <div class="globo_color_swatch_bundle_quantity_break" style="display: none;"></div>
+                    <div class="globo_color_swatch_bundle_quantity_break" data-globo-preorder-break style="display: none;"></div>
 
                     <!-- Quantity and Add to Cart Row -->
                     <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px; width: 100%;">
@@ -430,6 +430,7 @@
                             {% if current_variant.available == false %}disabled{% endif %}
                             data-add-to-cart
                             data-action="add-to-cart"
+                            data-variant-id="{{ current_variant.id }}"
                           >
                         <span class="modern-add-to-cart__default">
                           {% if current_variant.available %}
@@ -449,8 +450,11 @@
                     </div>
                     </div>
 
-                    <!-- Globo Pre-order / Back-in-Stock Position Hook -->
-                    <div class="gPositionBis modern-globo-preorder-container" style="width: 100%; margin-top: 12px;"></div>
+                    <!-- Globo Pre-order / Back-in-Stock Position Hook - Outside buttons wrapper -->
+                    <div class="gPositionBis modern-globo-preorder-container" data-globo-preorder-container style="width: 100%; margin-top: 12px; clear: both;"></div>
+
+                    <!-- Additional Globo hook inside payment container -->
+                    <div class="globo-preorder-bis-hook" style="width: 100%; margin-top: 12px;"></div>
                   </div>
 
                   <!-- Pickup Availability -->
