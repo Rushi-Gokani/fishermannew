@@ -387,7 +387,7 @@
           {%- when 'buy_buttons' -%}
             <div {{ block.shopify_attributes }}>
               <product-form class="modern-product-form" data-section-id="{{ section.id }}">
-                {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form', data-product-form: '' %}
+                {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '' %}
                   
                   <div class="modern-product-actions">
                     <!-- Globo Pre-order Hook -->
