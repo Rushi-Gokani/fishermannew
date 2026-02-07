@@ -12,8 +12,8 @@ const preorderCustom = {
         window.GloboPreorderParams = window.GloboPreorderParams || {};
         window.GloboPreorderParams.selectors = window.GloboPreorderParams.selectors || {};
         
-        // Position hooks for pre-order/BIS form injection (keep preorder widget below the native buttons)
-        window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis';
+        // Position hooks for pre-order/BIS form injection (primary placeholder + fallback on buttons row)
+        window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis, .modern-product-actions';
         
         // Variant activators - elements that trigger variant changes
         if(window.GloboPreorderParams.selectors.productVariantActivator) {
