@@ -301,29 +301,57 @@
 
             if (window.Globo && window.Globo.Preorder) {
                 console.log('[Globo Custom] Force refreshing preorder');
+                console.log('[Globo Custom] Globo.Preorder methods:', Object.keys(window.Globo.Preorder));
 
                 try {
-                    // Method 1: initPreorder
-                    if (typeof window.Globo.Preorder.initPreorder === 'function') {
-                        window.Globo.Preorder.initPreorder();
-                    }
-
-                    // Method 2: renderProductForm with product data
-                    if (window.GloboPreorderParams?.product && typeof window.Globo.Preorder.renderProductForm === 'function') {
-                        window.Globo.Preorder.renderProductForm(window.GloboPreorderParams.product);
-                    }
-
-                    // Method 3: Try calling renderProductByForm
+                    // Get the form and current variant
                     const form = document.querySelector('.singleProductPreOrderForm, .modern-product-form__form');
                     const gPos = document.querySelector('.gPositionBis');
 
-                    if (form && gPos && typeof window.Globo.Preorder.renderProductByForm === 'function') {
-                        window.Globo.Preorder.renderProductByForm(form);
-                    }
+                    // Find current variant ID
+                    const variantInput = document.querySelector('input[name="id"]');
+                    const currentVariantId = variantInput ? variantInput.value : null;
 
-                    // Method 4: Direct DOM trigger - dispatch custom event
+                    console.log('[Globo Custom] Form:', !!form, 'gPositionBis:', !!gPos, 'variantId:', currentVariantId);
+
+                    // Try every possible method
+                    const methods = [
+                        'initPreorder',
+                        'renderProductForm',
+                        'renderProductByForm',
+                        'render',
+                        'renderPreorder',
+                        'init',
+                        'load'
+                    ];
+
+                    methods.forEach(methodName => {
+                        if (typeof window.Globo.Preorder[methodName] === 'function') {
+                            console.log('[Globo Custom] Calling Globo.Preorder.' + methodName + '()');
+
+                            try {
+                                if (methodName === 'renderProductForm' && window.GloboPreorderParams?.product) {
+                                    window.Globo.Preorder[methodName](window.GloboPreorderParams.product);
+                                } else if (methodName === 'renderProductByForm' && form) {
+                                    window.Globo.Preorder[methodName](form);
+                                } else {
+                                    window.Globo.Preorder[methodName]();
+                                }
+                            } catch (e) {
+                                console.warn('[Globo Custom] Error calling ' + methodName + ':', e.message);
+                            }
+                        }
+                    });
+
+                    // Direct DOM manipulation - try to find and render preorder button manually
+                    app.manualPreorderInject();
+
+                    // Dispatch custom events
                     const variantChangedEvent = new CustomEvent('globo.preorder.variant.changed', {
-                        detail: { product: window.GloboPreorderParams?.product }
+                        detail: {
+                            product: window.GloboPreorderParams?.product,
+                            variantId: currentVariantId
+                        }
                     });
                     document.dispatchEvent(variantChangedEvent);
 
@@ -335,6 +363,61 @@
             } else {
                 console.warn('[Globo Custom] Globo.Preorder not available for refresh');
             }
+        },
+
+        manualPreorderInject: function() {
+            const app = this;
+
+            console.log('[Globo Custom] Attempting manual preorder injection...');
+
+            if (!window.GloboPreorderParams?.product) {
+                console.log('[Globo Custom] No product data available');
+                return;
+            }
+
+            const product = window.GloboPreorderParams.product;
+            const gPos = document.querySelector('.gPositionBis');
+
+            if (!gPos) {
+                console.log('[Globo Custom] gPositionBis container not found');
+                return;
+            }
+
+            // Find current variant
+            const variantInput = document.querySelector('input[name="id"]');
+            const currentVariantId = parseInt(variantInput ? variantInput.value : null);
+            const currentVariant = product.variants?.find(v => v.id === currentVariantId);
+
+            console.log('[Globo Custom] Current variant:', currentVariant?.id, currentVariant?.title, 'available:', currentVariant?.available);
+
+            // Check if Globo has settings for this product
+            if (window.Globo && window.Globo.Preorder) {
+                console.log('[Globo Custom] Globo.Preorder object keys:', Object.keys(window.Globo.Preorder));
+
+                // Try to get product settings from Globo
+                if (window.Globo.Preorder.getSettings) {
+                    const settings = window.Globo.Preorder.getSettings();
+                    console.log('[Globo Custom] Globo settings:', settings);
+                }
+
+                // Check for pre-order enabled products
+                if (window.Globo.settings) {
+                    console.log('[Globo Custom] Globo.settings:', window.Globo.settings);
+                }
+
+                // Check API for preorder data
+                if (window.Globo.Preorder.api) {
+                    console.log('[Globo Custom] Globo.Preorder.api available');
+                }
+            }
+
+            // Check if current variant requires preorder
+            const addToCartBtn = document.querySelector('[data-add-to-cart], .modern-add-to-cart');
+            console.log('[Globo Custom] Add to cart button:', {
+                exists: !!addToCartBtn,
+                disabled: addToCartBtn?.disabled,
+                text: addToCartBtn?.textContent?.trim()
+            });
         },
 
         debugPreorderState: function() {
@@ -424,8 +507,48 @@ window.addEventListener('load', function() {
                 }, 300);
             });
         });
+
+        // DIAGNOSTIC: Check if product is configured in Globo
+        setTimeout(function() {
+            if (window.Globo && window.Globo.Preorder) {
+                console.log('[Globo Custom DIAGNOSTIC] Checking Globo configuration...');
+
+                // Log all available properties
+                console.log('[Globo Custom DIAGNOSTIC] window.Globo keys:', Object.keys(window.Globo));
+                console.log('[Globo Custom DIAGNOSTIC] window.Globo.Preorder keys:', Object.keys(window.Globo.Preorder));
+
+                // Check for common data storage locations
+                const possibleDataLocations = [
+                    'window.Globo.Preorder.settings',
+                    'window.Globo.Preorder.data',
+                    'window.Globo.Preorder.products',
+                    'window.Globo.settings',
+                    'window.Globo.data',
+                    'window.globoPreorderData',
+                    'window.GloboPreorderData'
+                ];
+
+                possibleDataLocations.forEach(loc => {
+                    const parts = loc.split('.');
+                    let data = window;
+                    let exists = true;
+                    for (let part of parts) {
+                        if (data && data[part]) {
+                            data = data[part];
+                        } else {
+                            exists = false;
+                            break;
+                        }
+                    }
+                    if (exists) {
+                        console.log('[Globo Custom DIAGNOSTIC] ' + loc + ' exists:', data);
+                    }
+                });
+            }
+        }, 2000);
     }, 1000);
 });
+
 
 </script>
 
