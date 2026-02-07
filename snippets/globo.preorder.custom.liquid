@@ -263,11 +263,36 @@ setTimeout(observeProductForm, 1000);
    For Modern Product Page Integration
    ======================================== */
 
+/* ========== Main Container ========== */
+.modern-globo-preorder-container,
+.gPositionBis {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 12px !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    clear: both !important;
+    overflow: hidden !important;
+}
+
+/* Force all Globo elements to be contained */
+.modern-globo-preorder-container *,
+.gPositionBis * {
+    box-sizing: border-box !important;
+}
+
+.modern-globo-preorder-container > div,
+.gPositionBis > div {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
 /* ========== Pre-order Button ========== */
 .gPreorderBtn,
 .modern-product-form .gPreorderBtn,
 .product-form .gPreorderBtn,
-form.product-form button.gPreorderBtn {
+form.product-form button.gPreorderBtn,
+.modern-globo-preorder-container .gPreorderBtn {
     background: #D32F2F !important;
     color: white !important;
     border: none !important;
@@ -277,12 +302,15 @@ form.product-form button.gPreorderBtn {
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-height: 52px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     transition: all 0.2s ease !important;
     box-shadow: 0 4px 12px rgb(211 47 47 / 0.3) !important;
+    float: none !important;
+    position: static !important;
 }
 
 .gPreorderBtn:hover:not(:disabled) {
@@ -293,7 +321,8 @@ form.product-form button.gPreorderBtn {
 
 /* ========== Back in Stock Button ========== */
 .gBackInStockBtn,
-#Globo-Back-In-Stock .gBackInStockBtn {
+#Globo-Back-In-Stock .gBackInStockBtn,
+.modern-globo-preorder-container .gBackInStockBtn {
     animation: gpo-glowing 1500ms infinite;
     display: flex !important;
     align-items: center !important;
@@ -308,8 +337,11 @@ form.product-form button.gPreorderBtn {
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-height: 52px !important;
     box-shadow: 0 4px 12px rgb(64 196 255 / 0.3) !important;
+    float: none !important;
+    position: static !important;
 }
 
 .gBackInStockBtn svg {
@@ -331,9 +363,23 @@ form.product-form button.gPreorderBtn {
 }
 
 /* ========== Layout & Container Fixes ========== */
-.modern-product-actions .gPositionBis {
-    width: 100%;
-    margin-top: 12px;
+.gPositionBis {
+    width: 100% !important;
+    margin-top: 12px !important;
+    display: block !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure all Globo injected elements are properly contained */
+.gPositionBis > *,
+.gPositionBis > div > *,
+.gPositionBis form,
+.gPositionBis .globo-preorder-app,
+.gPositionBis .gpo-form-wrapper,
+.gPositionBis .gPreorderWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Preorder wrapper - full width */
@@ -343,7 +389,19 @@ form.product-form button.gPreorderBtn {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
+    display: block !important;
+}
+
+/* Fix any floating or positioning issues */
+.globo-preorder-app,
+#Globo-Back-In-Stock,
+#Globo-Preorder-Form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
 }
 
 /* Preorder heading */
@@ -498,5 +556,108 @@ form.product-form button.gPreorderBtn {
         font-size: 15px !important;
         min-height: 50px !important;
     }
+}
+
+/* ========== Additional Layout Fixes for Globo Elements ========== */
+
+/* Reset any problematic inline styles from Globo app */
+.gPositionBis [style],
+.modern-globo-preorder-container [style] {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure proper display for all form elements */
+.gPositionBis button,
+.gPositionBis input,
+.gPositionBis select,
+.gPositionBis textarea,
+.gPositionBis label,
+.gPositionBis span,
+.gPositionBis p,
+.gPositionBis div {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Fix any absolute positioned elements */
+.globo-preorder-app [style*="position: absolute"],
+.gPositionBis [style*="position: absolute"] {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+}
+
+/* Fix any fixed positioned elements */
+.globo-preorder-app [style*="position: fixed"],
+.gPositionBis [style*="position: fixed"] {
+    position: relative !important;
+}
+
+/* Ensure text doesn't overflow */
+.gPositionBis,
+.gPositionBis * {
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+}
+
+/* Fix flex layouts - ensure they behave like blocks */
+.gPositionBis .globo-preorder-app,
+.gPositionBis .gpo-form-wrapper,
+.gPositionBis .gPreorderWrapper {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Fix any inline-block issues */
+.gPositionBis .gpo-price-row,
+.gPositionBis .gpo-partial-payment-wrapper,
+.gPositionBis .gpo-payment-label,
+.gPositionBis .gpo-price {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Ensure buttons are properly sized */
+.gPositionBis .gPreorderBtn,
+.gPositionBis button[type="submit"],
+.gPositionBis .gBackInStockBtn {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    clear: both !important;
+}
+
+/* Fix input fields */
+.gPositionBis input[type="email"],
+.gPositionBis input[type="text"],
+.gPositionBis input[type="number"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Hide any unwanted elements that might cause layout issues */
+.gPositionBis .globo-hidden,
+.gPositionBis [style*="display: none"] {
+    display: none !important;
+}
+
+/* ========== Force Container Width ========== */
+.globo-preorder-app,
+#Globo-Back-In-Stock,
+#Globo-Preorder-Form,
+.gpo-form-wrapper,
+.gPreorderWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    overflow: hidden !important;
 }
 </style>

@@ -402,14 +402,15 @@
             <div {{ block.shopify_attributes }}>
               <product-form class="modern-product-form" data-section-id="{{ section.id }}">
                 {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '' %}
-                  
-                  <div class="modern-product-actions">
-                    <!-- Globo Pre-order Hook -->
-                    <div class="globo_color_swatch_bundle_quantity_break"></div>
-                    
-                    <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px;">
+
+                  <div class="modern-product-actions-wrapper">
+                    <!-- Globo Pre-order Hook - color swatch bundle -->
+                    <div class="globo_color_swatch_bundle_quantity_break" style="display: none;"></div>
+
+                    <!-- Quantity and Add to Cart Row -->
+                    <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px; width: 100%;">
                       <!-- Inline Quantity Selector -->
-                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; align-items: center; justify-content: space-between; height: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; min-width: 120px; padding: 0 5px;">
+                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; align-items: center; justify-content: space-between; height: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; min-width: 120px; padding: 0 5px; flex-shrink: 0;">
                         <button type="button" class="modern-quantity-btn" data-quantity-minus aria-label="Decrease quantity" style="border: none; background: transparent; padding: 10px; cursor: pointer;">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
@@ -447,9 +448,9 @@
                       </button>
                     </div>
                     </div>
-                    
+
                     <!-- Globo Pre-order / Back-in-Stock Position Hook -->
-                    <div class="gPositionBis"></div>
+                    <div class="gPositionBis modern-globo-preorder-container" style="width: 100%; margin-top: 12px;"></div>
                   </div>
 
                   <!-- Pickup Availability -->
@@ -1906,11 +1907,13 @@
   }
 
   /* Modern Product Actions */
-  .modern-product-actions {
+  .modern-product-actions,
+  .modern-product-actions-wrapper {
     display: flex;
     flex-direction: column;
     gap: 16px;
     margin-top: 8px;
+    width: 100%;
   }
 
   /* Buttons Row - 50/50 inline */
@@ -2111,7 +2114,8 @@
 
   /* Mobile Adjustments */
   @media screen and (max-width: 749px) {
-    .modern-product-actions {
+    .modern-product-actions,
+    .modern-product-actions-wrapper {
       gap: 12px;
     }
 
