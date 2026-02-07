@@ -655,7 +655,7 @@
       "name": "Recently viewed products",
       "settings": {
         "title": "Recently viewed",
-        "show_quick_buy": false
+        "show_quick_buy": true
       }
     }
   },
