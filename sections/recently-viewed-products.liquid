@@ -18,12 +18,33 @@
       </header>
     {%- endif -%}
 
-    <div class="recently-viewed-products-placeholder" aria-hidden="true">
-      <div class="recently-viewed-products-placeholder__media"></div>
-      <div class="recently-viewed-products-placeholder__media"></div>
-      <div class="recently-viewed-products-placeholder__media"></div>
-      <div class="recently-viewed-products-placeholder__media"></div>
-    </div>
+    {%- if request.page_type == 'search' and search.results_count > 0 -%}
+      <div class="scroller">
+        <div class="scroller__inner">
+          <div class="product-list product-list--vertical product-list--scrollable">
+            {%- assign parsed_terms = search.terms | split: ' OR ' -%}
+
+            {%- for parsed_term in parsed_terms -%}
+              {%- assign id = parsed_term | split: 'id:' | last | times: 1 -%}
+
+              {%- for product in search.results -%}
+                {%- if product.id == id -%}
+                  {%- render 'product-item', product: product, grid_classes: '1/4--lap 1/5--desk 1/6--wide', show_add_to_cart: section.settings.show_quick_buy -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- else -%}
+      <div class="recently-viewed-products-placeholder" aria-hidden="true">
+        <div class="recently-viewed-products-placeholder__media"></div>
+        <div class="recently-viewed-products-placeholder__media"></div>
+        <div class="recently-viewed-products-placeholder__media"></div>
+        <div class="recently-viewed-products-placeholder__media"></div>
+      </div>
+    {%- endif -%}
   </div>
 
   {%- comment -%}
