@@ -15,9 +15,11 @@
         initRetries: 0,
         maxRetries: 30,
         checkCount: 0,
+        productData: null,
 
         render: function() {
             console.log('[Globo Custom] Rendering...');
+            this.loadProductData();
             this.initSelectors();
             this.handleEvents();
             this.setupMutationObserver();
@@ -25,9 +27,40 @@
             this.initialized = true;
         },
 
+        loadProductData: function() {
+            const app = this;
+
+            // Try to find product data from multiple sources
+            const productJsonScripts = document.querySelectorAll('script[data-product-json], script[data-globo-preorder-product]');
+            console.log('[Globo Custom] Found', productJsonScripts.length, 'product JSON scripts');
+
+            for (let script of productJsonScripts) {
+                try {
+                    const data = JSON.parse(script.textContent);
+                    if (data && data.id) {
+                        app.productData = data;
+                        console.log('[Globo Custom] Product data loaded:', data.id, data.title);
+                        break;
+                    }
+                } catch (e) {
+                    console.warn('[Globo Custom] Error parsing product JSON:', e);
+                }
+            }
+
+            // Set GloboPreorderParams.product if we have data
+            if (app.productData) {
+                window.GloboPreorderParams = window.GloboPreorderParams || {};
+                window.GloboPreorderParams.product = app.productData;
+                console.log('[Globo Custom] Product data set to GloboPreorderParams');
+            }
+        },
+
         initSelectors: function() {
             window.GloboPreorderParams = window.GloboPreorderParams || {};
             window.GloboPreorderParams.selectors = window.GloboPreorderParams.selectors || {};
+
+            // Set page type
+            window.GloboPreorderParams.page = 'product';
 
             // Position hooks for pre-order/BIS form injection
             window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis, .modern-globo-preorder-container, .globo-preorder-bis-hook';
@@ -263,27 +296,36 @@
         forceRefreshPreorder: function() {
             const app = this;
 
+            // Reload product data to ensure it's current
+            app.loadProductData();
+
             if (window.Globo && window.Globo.Preorder) {
                 console.log('[Globo Custom] Force refreshing preorder');
 
                 try {
-                    // Try multiple methods
+                    // Method 1: initPreorder
                     if (typeof window.Globo.Preorder.initPreorder === 'function') {
                         window.Globo.Preorder.initPreorder();
                     }
 
+                    // Method 2: renderProductForm with product data
                     if (window.GloboPreorderParams?.product && typeof window.Globo.Preorder.renderProductForm === 'function') {
                         window.Globo.Preorder.renderProductForm(window.GloboPreorderParams.product);
                     }
 
-                    // Try calling render on the gPositionBis container directly
+                    // Method 3: Try calling renderProductByForm
+                    const form = document.querySelector('.singleProductPreOrderForm, .modern-product-form__form');
                     const gPos = document.querySelector('.gPositionBis');
-                    if (gPos && window.Globo.Preorder.renderProductByForm) {
-                        const form = document.querySelector('.singleProductPreOrderForm');
-                        if (form) {
-                            window.Globo.Preorder.renderProductByForm(form);
-                        }
+
+                    if (form && gPos && typeof window.Globo.Preorder.renderProductByForm === 'function') {
+                        window.Globo.Preorder.renderProductByForm(form);
                     }
+
+                    // Method 4: Direct DOM trigger - dispatch custom event
+                    const variantChangedEvent = new CustomEvent('globo.preorder.variant.changed', {
+                        detail: { product: window.GloboPreorderParams?.product }
+                    });
+                    document.dispatchEvent(variantChangedEvent);
 
                     app.debugPreorderState();
 
