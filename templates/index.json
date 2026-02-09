@@ -175,73 +175,6 @@
         "padding-block-end": 0
       }
     },
-    "176916958896007456": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_9e1de29_CQwaYU": {
-          "type": "ai_gen_block_9e1de29",
-          "settings": {
-            "heading": "Featured Brands",
-            "heading_size": 32,
-            "heading_color": "#000000",
-            "heading_spacing": 40,
-            "view_all_text": "View all",
-            "view_all_link": "shopify://pages/new-brands",
-            "view_all_color": "#000000",
-            "logo_height": 90,
-            "logo_max_width": 180,
-            "logo_spacing": 60,
-            "logo_filter": "none",
-            "scroll_speed": 30,
-            "pause_on_hover": true,
-            "padding_top": 60,
-            "padding_bottom": 60,
-            "background_color": "#ffffff",
-            "brand_collection_1": "abu-garcia",
-            "brand_collection_2": "allblue",
-            "brand_collection_3": "anglers",
-            "brand_collection_4": "atc",
-            "brand_collection_5": "bassday",
-            "brand_collection_6": "birage",
-            "brand_collection_7": "bkk",
-            "brand_collection_8": "evoke",
-            "brand_collection_9": "",
-            "brand_collection_10": ""
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_9e1de29_CQwaYU"
-      ],
-      "settings": {
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
-        "align_baseline": false,
-        "horizontal_alignment_flex_direction_column": "flex-start",
-        "vertical_alignment_flex_direction_column": "center",
-        "gap": 12,
-        "section_width": "page-width",
-        "section_height": "",
-        "section_height_custom": 50,
-        "color_scheme": "",
-        "background_media": "none",
-        "video_position": "cover",
-        "background_image_position": "cover",
-        "border": "none",
-        "border_width": 1,
-        "border_opacity": 100,
-        "border_radius": 0,
-        "toggle_overlay": false,
-        "overlay_color": "#00000026",
-        "overlay_style": "solid",
-        "gradient_direction": "to top",
-        "padding-block-start": 0,
-        "padding-block-end": 0
-      }
-    },
     "product_list_MLhqfc": {
       "type": "product-list",
       "blocks": {
@@ -425,10 +358,10 @@
       },
       "name": "t:names.products_grid",
       "settings": {
-        "collection": "fmh-gear-rapala-vmc-collection",
+        "collection": "winter-collection-sale",
         "layout_type": "grid",
         "carousel_on_mobile": false,
-        "max_products": 8,
+        "max_products": 4,
         "columns": 4,
         "mobile_columns": "2",
         "mobile_card_size": "60cqw",
@@ -1130,10 +1063,10 @@
       },
       "name": "t:names.products_grid",
       "settings": {
-        "collection": "fmh-gear-rapala-vmc-collection",
+        "collection": "winter-collection-sale",
         "layout_type": "grid",
         "carousel_on_mobile": false,
-        "max_products": 8,
+        "max_products": 4,
         "columns": 4,
         "mobile_columns": "2",
         "mobile_card_size": "60cqw",
@@ -1149,61 +1082,71 @@
         "padding-block-end": 48
       }
     },
-    "testimonials_product_slider_7YAxB9": {
-      "type": "testimonials_product_slider",
+    "176916958896007456": {
+      "type": "_blocks",
       "blocks": {
-        "testimonial_rXGqhX": {
-          "type": "testimonial",
+        "ai_gen_block_9e1de29_CQwaYU": {
+          "type": "ai_gen_block_9e1de29",
           "settings": {
-            "rating": 5,
-            "review_text": "Very good action and very sharp and strong hook….. high hook up ratio…",
-            "reviewer_name": "Dr. Bhaikon Singh",
-            "reviewer_avatar": "shopify://shop_images/Murrvy_Flutter_Metal_Jig_Slow_Sinking_20_Gm_-_Pink_Silver.png",
-            "product": "abu-garcia-silver-max-baitcasting-reel-left-handed-smax3-l"
-          }
-        },
-        "testimonial_E7JTU4": {
-          "type": "testimonial",
-          "settings": {
-            "rating": 5,
-            "review_text": "I am very much happy with u product..I need a stylo 150 niddlefish.would u able to supply it. Please arrangeit for me",
-            "reviewer_name": "Peeyus pradhan",
-            "product": "benthic-fish-bone-series-plop-plop-fly-jointed-hard-lure-topwater-lures-floating-9-5-cm-17-gm"
-          }
-        },
-        "testimonial_qxmr6J": {
-          "type": "testimonial",
-          "settings": {
-            "rating": 5,
-            "review_text": "Excellent hook\nFor assist hook making",
-            "reviewer_name": "Jithesh P",
-            "product": "albatros-plastic-floats-with-fish-line-and-hooks-3-pcs-per-pack"
-          }
-        },
-        "testimonial_ybQpfA": {
-          "type": "testimonial",
-          "settings": {
-            "rating": 5,
-            "review_text": "Good product\nThe leader is super soft and stretchy. Easy to tie knots even with thick diameter.",
-            "reviewer_name": "Fahad Siddique",
-            "product": "berkley-trilene-big-game-monofilament-leader-100mt-110yd-clear"
-          }
+            "heading": "Featured Brands",
+            "heading_size": 32,
+            "heading_color": "#000000",
+            "heading_spacing": 40,
+            "view_all_text": "View all",
+            "view_all_link": "shopify://pages/new-brands",
+            "view_all_color": "#000000",
+            "logo_height": 90,
+            "logo_max_width": 180,
+            "logo_spacing": 60,
+            "logo_filter": "none",
+            "scroll_speed": 30,
+            "pause_on_hover": true,
+            "padding_top": 60,
+            "padding_bottom": 60,
+            "background_color": "#ffffff",
+            "brand_collection_1": "abu-garcia",
+            "brand_collection_2": "allblue",
+            "brand_collection_3": "anglers",
+            "brand_collection_4": "atc",
+            "brand_collection_5": "bassday",
+            "brand_collection_6": "birage",
+            "brand_collection_7": "bkk",
+            "brand_collection_8": "evoke",
+            "brand_collection_9": "",
+            "brand_collection_10": ""
+          },
+          "blocks": {}
         }
       },
       "block_order": [
-        "testimonial_rXGqhX",
-        "testimonial_E7JTU4",
-        "testimonial_qxmr6J",
-        "testimonial_ybQpfA"
+        "ai_gen_block_9e1de29_CQwaYU"
       ],
-      "disabled": true,
-      "name": "Testimonials Slider",
       "settings": {
-        "heading": "What They Say",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
         "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
         "color_scheme": "",
-        "padding_top": 60,
-        "padding_bottom": 60
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 0
       }
     },
     "16768769444927e13a": {
@@ -2096,7 +2039,6 @@
   "order": [
     "17706277831c7b735f",
     "1769171605a59eb342",
-    "176916958896007456",
     "product_list_MLhqfc",
     "176916634157ac5daa",
     "marquee_QXzHMY",
@@ -2104,7 +2046,7 @@
     "reels_video_section_TBj3mU",
     "1769169291dfcb3d53",
     "product_list_jhzLxA",
-    "testimonials_product_slider_7YAxB9",
+    "176916958896007456",
     "16768769444927e13a",
     "featured_product_spotlight_fnfYLD",
     "featured_product_information_mF4Kez",
