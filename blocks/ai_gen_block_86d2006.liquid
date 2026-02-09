@@ -5,6 +5,7 @@
   - Mobile swipe with navigation arrows
 {% endcomment %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+{% assign collections_to_show = block.settings.collections_to_show | default: 6 | at_least: 1 | at_most: 6 %}
 
 {% style %}
   .trending-collections-{{ ai_gen_id }} {
@@ -285,7 +286,7 @@
       </button>
 
       <div class="trending-collections-grid-{{ ai_gen_id }}" id="scroll-container-{{ ai_gen_id }}">
-        {% for i in (1..6) %}
+        {% for i in (1..collections_to_show) %}
           {% liquid
             assign collection_key = 'collection_' | append: i
             assign image_key = 'custom_image_' | append: i
@@ -498,6 +499,17 @@
     {
       "type": "header",
       "content": "Collection items"
+    },
+    {
+      "type": "range",
+      "id": "collections_to_show",
+      "label": "Collections shown per row",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "unit": "col",
+      "default": 6,
+      "info": "Only the first N collection slots will render."
     },
     {
       "type": "range",
