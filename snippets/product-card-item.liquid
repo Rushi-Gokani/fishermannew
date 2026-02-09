@@ -122,9 +122,9 @@
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
         <input type="hidden" name="return_to" value="/checkout">
         {% if sold_out %}
-          <button class="product-card-buy-btn-{{ section_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
+          <button class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ section_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
         {% else %}
-            <button type="submit" class="product-card-buy-btn-{{ section_id }} button button--primary" onclick="event.stopPropagation();">
+            <button type="submit" class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ section_id }} button button--primary" onclick="event.stopPropagation();">
               {{ 'Buy It Now' }}
             </button>
         {% endif %}
