@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "product_page_modern_expert": {
@@ -21,14 +30,6 @@
         },
         "buy_buttons_expert": {
           "type": "buy_buttons",
-          "settings": {
-            "show_payment_button": false,
-            "show_gift_card_recipient": true
-          }
-        },
-        "globo_color_swatch_variant_image_product_swatches_detail_MTRJBj": {
-          "type": "shopify://apps/globo-color-swatch/blocks/product-swatches-detail/4394f710-096c-4021-bbde-8ebb26057c11",
-          "disabled": true,
           "settings": {}
         },
         "judge_me_reviews_review_widget_kgHXNL": {
@@ -50,7 +51,6 @@
         "price_expert",
         "variant_picker_expert",
         "buy_buttons_expert",
-        "globo_color_swatch_variant_image_product_swatches_detail_MTRJBj",
         "judge_me_reviews_review_widget_kgHXNL",
         "description_expert",
         "trust_badges_expert"
@@ -119,10 +119,7 @@
     },
     "product-recommendations": {
       "type": "product-recommendations",
-      "settings": {
-        "heading": "You may also like",
-        "show_quick_buy": false
-      }
+      "settings": {}
     },
     "recently-viewed-products": {
       "type": "recently-viewed-products",

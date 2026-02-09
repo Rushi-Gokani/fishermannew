@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "product_page_modern_hidden_hooks": {
@@ -21,11 +30,6 @@
         },
         "buy_buttons_hidden": {
           "type": "buy_buttons",
-          "settings": {}
-        },
-        "globo_color_swatch_hidden": {
-          "type": "shopify://apps/globo-color-swatch/blocks/product-swatches-detail/4394f710-096c-4021-bbde-8ebb26057c11",
-          "disabled": true,
           "settings": {}
         },
         "dealeasy_hidden": {
@@ -66,7 +70,6 @@
         "price_hidden",
         "variant_picker_hidden",
         "buy_buttons_hidden",
-        "globo_color_swatch_hidden",
         "dealeasy_hidden",
         "razorpay_trusted_hidden",
         "razorpay_affordability_hidden",
