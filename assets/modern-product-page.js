@@ -447,7 +447,7 @@ class ModernProductPage {
 
     // Show loading
     addToCartBtn.disabled = true;
-
+    
     try {
       const formData = new FormData(form);
       const response = await fetch(window.Shopify.routes.root + 'cart/add.js', {
