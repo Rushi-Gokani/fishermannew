@@ -181,6 +181,12 @@ class FacetInputsComponent extends Component {
     if (inputElement.checked) url.searchParams.delete(inputElement.name, inputElement.value);
 
     sectionRenderer.getSectionHTML(this.sectionId, true, url);
+
+    setTimeout(() => {
+      if(typeof Globo != 'undefined' && typeof Globo.Preorder != 'undefined'){
+        Globo.Preorder.initCollection();
+      }
+    }, 1000);
   }, 200);
 
   cancelPrefetchPage = () => this.prefetchPage.cancel();
