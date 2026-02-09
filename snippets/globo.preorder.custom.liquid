@@ -1,260 +1,261 @@
 <script>
 /**
  * Globo Pre-order Custom Configuration
- * Customized for product-page-modern.liquid template
+ * Fixed for consistent preorder button display
+ * Uses Promise-based waiting and proper event handling
  */
-const preorderCustom = {
-    initialized: false,
-    render: function(){
-        this.initSelectors();
-        this.handleEvents();
-        this.initialized = true;
-    },
-    initSelectors: function(){
+(function() {
+    'use strict';
+
+    // Global state
+    window.GloboPreorderCustomState = {
+        initialized: false,
+        globoReady: false,
+        productData: null,
+        retryCount: 0,
+        maxRetries: 50,
+        observers: []
+    };
+
+    // Wait for an element or condition with timeout
+    function waitForCondition(condition, timeout = 30000) {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+
+            function check() {
+                if (condition()) {
+                    resolve(true);
+                    return;
+                }
+
+                if (Date.now() - startTime > timeout) {
+                    reject(new Error('Timeout waiting for condition'));
+                    return;
+                }
+
+                requestAnimationFrame(check);
+            }
+
+            check();
+        });
+    }
+
+    // Load product data from available JSON scripts
+    function loadProductData() {
+        if (window.GloboPreorderCustomState.productData) {
+            return window.GloboPreorderCustomState.productData;
+        }
+
+        const scripts = document.querySelectorAll('script[data-product-json], script[data-globo-preorder-product]');
+        for (let script of scripts) {
+            try {
+                const data = JSON.parse(script.textContent);
+                if (data && data.id) {
+                    window.GloboPreorderCustomState.productData = data;
+                    window.GloboPreorderParams = window.GloboPreorderParams || {};
+                    window.GloboPreorderParams.product = data;
+                    window.GloboPreorderParams.page = 'product';
+                    console.log('[Globo] Product loaded:', data.id);
+                    return data;
+                }
+            } catch (e) {}
+        }
+        return null;
+    }
+
+    // Initialize selectors once
+    function initSelectors() {
         window.GloboPreorderParams = window.GloboPreorderParams || {};
         window.GloboPreorderParams.selectors = window.GloboPreorderParams.selectors || {};
+        window.GloboPreorderParams.page = 'product';
 
-        // Position hooks for pre-order/BIS form injection (primary placeholder + fallback on buttons row)
-        window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis, .modern-product-actions';
+        window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis, .modern-globo-preorder-container, .globo-preorder-bis-hook';
+        window.GloboPreorderParams.selectors.productForm = "form.product-form, form[data-product-form], .modern-product-form__form, .singleProductPreOrderForm, product-form form";
 
-        // Variant activators - elements that trigger variant changes
-        // Include variant-picker custom element
-        if(window.GloboPreorderParams.selectors.productVariantActivator) {
-            window.GloboPreorderParams.selectors.productVariantActivator += ", .modern-variant-swatch, .modern-variant-options input[type='radio'], input[name^='option'], variant-picker";
-        } else {
-            window.GloboPreorderParams.selectors.productVariantActivator = ".modern-variant-swatch, .modern-variant-options input[type='radio'], input[name^='option'], .product-form__single-selector, variant-picker";
+        const addToCartSelectors = ['[data-action="add-to-cart"]', '.product-form__add-button', '.modern-add-to-cart', '[name="add"]'];
+        if (!Array.isArray(window.GloboPreorderParams.selectors.productAddToCartBtn)) {
+            window.GloboPreorderParams.selectors.productAddToCartBtn = [];
         }
-
-        // Product form selectors - multiple patterns to ensure detection
-        window.GloboPreorderParams.selectors.productForm = "form.product-form, form[data-product-form], .modern-product-form__form, .singleProductPreOrderForm";
-
-        // Add to cart button selectors - must match your button
-        window.GloboPreorderParams.selectors.productAddToCartBtn = window.GloboPreorderParams.selectors.productAddToCartBtn || [];
-        if(Array.isArray(window.GloboPreorderParams.selectors.productAddToCartBtn)) {
-            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('[data-action="add-to-cart"]')) {
-                window.GloboPreorderParams.selectors.productAddToCartBtn.push('[data-action="add-to-cart"]');
+        addToCartSelectors.forEach(s => {
+            if (!window.GloboPreorderParams.selectors.productAddToCartBtn.includes(s)) {
+                window.GloboPreorderParams.selectors.productAddToCartBtn.push(s);
             }
-            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('.product-form__add-button')) {
-                window.GloboPreorderParams.selectors.productAddToCartBtn.push('.product-form__add-button');
-            }
-            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('.modern-add-to-cart')) {
-                window.GloboPreorderParams.selectors.productAddToCartBtn.push('.modern-add-to-cart');
-            }
-        }
+        });
 
-        // Payment container
         window.GloboPreorderParams.selectors.productPaymentContainer = ".product-form__payment-container, .modern-atc-wrapper";
-
-        // Quantity selector
         window.GloboPreorderParams.selectors.productQuantitySelector = ".quantity-selector__value, .modern-quantity-input, input[name='quantity']";
 
-        // Collection/Quick view selectors
-        window.GloboPreorderParams.selectors.collectionProductForms = ".product-item form, .product-card form";
-        window.GloboPreorderParams.selectors.quickViewActivator = ".quick-add-btn, .product-item__action-button";
-        window.GloboPreorderParams.selectors.quickViewProductForm = ".modal[aria-hidden=false] form, .quick-add-modal form";
+        console.log('[Globo] Selectors initialized');
+    }
 
-        // Collection filter selectors
-        if(window.GloboPreorderParams.selectors.collectionFilterSelector) {
-            window.GloboPreorderParams.selectors.collectionFilterSelector += ", .collection__filter-checkbox label, .pagination__nav-item";
+    // Main refresh function - tries all possible methods
+    function refreshPreorder(source = 'unknown') {
+        if (!window.Globo || !window.Globo.Preorder) {
+            console.log('[Globo] Not ready, skipping refresh from:', source);
+            return;
         }
 
-        window.GloboPreorderParams.selectors.collectionAddToCartBtn = ".product-item__action-button, .quick-add-btn";
+        console.log('[Globo] Refreshing from:', source);
 
-        console.log('[Globo Custom] Selectors initialized:', window.GloboPreorderParams.selectors);
-    },
-    handleEvents: function(){
-        const app = this;
+        // Load fresh product data
+        loadProductData();
 
-        // Handle variant changes - improved with more robust timing
-        document.addEventListener('globo.preorder.variant.changed', () => {
-            console.log('[Globo Custom] Variant changed event received');
-            app.appSetInterval(() => {
-                let gSingleProductForm = document.querySelector('form.singleProductPreOrderForm');
-                if(gSingleProductForm && window?.GloboPreorderParams?.page == 'product'){
-                    if(window?.Globo?.Preorder) {
-                        console.log('[Globo Custom] Re-rendering product form');
-                        window.Globo.Preorder.renderProductForm &&
-                            window.Globo.Preorder.renderProductForm(window.GloboPreorderParams.product);
+        // Try all available methods
+        const methods = Object.keys(window.Globo.Preorder).filter(k => typeof window.Globo.Preorder[k] === 'function');
+        console.log('[Globo] Available methods:', methods);
+
+        // Priority order of methods to try
+        const priorityMethods = ['initPreorder', 'render', 'renderProductForm', 'renderProductByForm', 'init', 'load'];
+
+        for (let method of priorityMethods) {
+            if (methods.includes(method)) {
+                try {
+                    console.log('[Globo] Calling:', method);
+
+                    if (method === 'renderProductForm' && window.GloboPreorderParams?.product) {
+                        window.Globo.Preorder[method](window.GloboPreorderParams.product);
+                    } else if (method === 'renderProductByForm') {
+                        const form = document.querySelector('.singleProductPreOrderForm, .modern-product-form__form');
+                        if (form) window.Globo.Preorder[method](form);
                     } else {
-                        console.warn('[Globo Custom] Globo.Preorder not available');
+                        window.Globo.Preorder[method]();
                     }
+                } catch (e) {
+                    console.warn('[Globo] Method', method, 'error:', e.message);
                 }
-            }, 600, 3);
-        });
-
-        // Handle Back in Stock button showing
-        document.addEventListener('globo.preorder.show.bis', function (e) {
-            const {form, type} = e.detail;
-            if(type === '#Globo-Back-In-Stock'){
-                // Hide the regular add to cart button when BIS is shown
-                const addToCartBtn = form.querySelector ? form.querySelector('[data-add-to-cart]') : form.find('[data-add-to-cart]');
-                if(addToCartBtn) addToCartBtn.style.display = 'none';
-            }
-        });
-
-        // Handle Add to Cart button showing (revert from pre-order state)
-        document.addEventListener('globo.preorder.show.addtocart', function (e) {
-            const {form, type} = e.detail;
-            const addToCartBtn = form.querySelector ? form.querySelector('[data-add-to-cart]') : form.find('[data-add-to-cart]');
-            if(addToCartBtn) addToCartBtn.style.display = '';
-        });
-
-        // Initialize on page load - with improved timing
-        function initPreorderApp() {
-            console.log('[Globo Custom] Initializing preorder app');
-            app.handleVariantChange();
-            if(window?.Globo?.Preorder) {
-                window.Globo.Preorder.initPreorder();
-                console.log('[Globo Custom] Globo.Preorder.initPreorder() called successfully');
-            } else {
-                console.warn('[Globo Custom] Globo.Preorder not available yet, will retry...');
-                // Retry after a delay
-                setTimeout(initPreorderApp, 1000);
             }
         }
 
-        // Start initialization on DOM ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initPreorderApp);
-        } else {
-            initPreorderApp();
-        }
+        // Trigger custom event
+        document.dispatchEvent(new CustomEvent('globo.preorder.variant.changed', {
+            detail: { product: window.GloboPreorderParams?.product }
+        }));
 
-        // Also try on window load as backup
-        window.addEventListener('load', () => {
-            console.log('[Globo Custom] Window loaded, initializing preorder');
-            initPreorderApp();
+        // Log state
+        const gPos = document.querySelector('.gPositionBis');
+        console.log('[Globo] State:', {
+            gPositionBis: !!gPos,
+            hasContent: gPos ? gPos.innerHTML.length > 0 : false,
+            content: gPos ? gPos.innerHTML.substring(0, 50) : 'N/A'
         });
+    }
 
-        // Re-initialize on scroll for lazy-loaded content
-        window.onscroll = app.debounce(() => {
-            if(window?.GloboPreorderParams?.page == 'index' || window?.GloboPreorderParams?.page == 'collection'){
-                window?.Globo?.Preorder && window.Globo.Preorder.initPreorder();
-            }
-        }, 1500);
-    },
-
-    // Use event delegation for variant changes to handle dynamically added elements
-    handleVariantChange: function(){
-        const app = this;
-
-        // Remove old listener if exists to avoid duplicates
-        if (app.variantChangeHandler) {
-            document.removeEventListener('change', app.variantChangeHandler);
-            document.removeEventListener('click', app.variantChangeHandler);
-        }
-
-        // Create a unified handler that uses event delegation
-        app.variantChangeHandler = function(e) {
+    // Set up variant change listeners
+    function setupVariantListeners() {
+        // Use event delegation with capture phase
+        document.addEventListener('change', function(e) {
             const target = e.target;
-
-            // Check if the clicked/changed element is a variant selector
-            const isVariantSelector = target.matches('.modern-variant-swatch, .modern-variant-options input[type="radio"], input[name^="option"]') ||
-                                     target.closest('.modern-variant-swatch') ||
-                                     target.closest('variant-picker');
-
-            if (isVariantSelector) {
-                console.log('[Globo Custom] Variant selector clicked/changed', target);
-                app.appSetInterval(() => {
-                    if(window?.Globo?.Preorder){
-                        console.log('[Globo Custom] Calling Globo.Preorder.initPreorder()');
-                        window.Globo.Preorder.initPreorder();
-                    } else {
-                        console.warn('[Globo Custom] Globo.Preorder not available');
-                    }
-                }, 400, 3);
+            if (target.matches('input[type="radio"], input[name^="option"], select[name="id"]') ||
+                target.closest('.modern-variant-swatch') ||
+                target.closest('variant-picker')) {
+                console.log('[Globo] Variant changed');
+                refreshPreorder('variant-change');
             }
-        };
+        }, true);
 
-        // Use event delegation on document to catch all events including dynamically added elements
-        document.addEventListener('change', app.variantChangeHandler);
-        document.addEventListener('click', app.variantChangeHandler);
-    },
-    appSetInterval: function(callback, interval, times) {
-        callback();
-        var count = 0;
-        var intervalId = window.setInterval(function() {
-            callback();
-            if(++count === times) window.clearInterval(intervalId);
-        }, interval);
-    },
-    debounce: function(func, timeout = 300){
-        let timer;
-        return (...args) => {
-            clearTimeout(timer);
-            timer = setTimeout(() => { func.apply(this, args); }, timeout);
-        };
+        document.addEventListener('click', function(e) {
+            const target = e.target;
+            if (target.matches('.modern-variant-swatch, .modern-variant-swatch *') ||
+                target.closest('.modern-variant-swatch')) {
+                console.log('[Globo] Variant clicked');
+                setTimeout(() => refreshPreorder('variant-click'), 100);
+            }
+        }, true);
     }
-};
 
-// Initialize when DOM is ready
-if(document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => preorderCustom.render());
-} else {
-    preorderCustom.render();
-}
-
-// Wait for Globo Preorder app to load and then re-initialize
-// This handles the case where the app script loads after this custom script
-function waitForGloboAndInit() {
-    if (window.Globo && window.Globo.Preorder && !preorderCustom.initialized) {
-        console.log('[Globo Custom] Globo.Preorder detected, initializing...');
-        preorderCustom.render();
-    } else if (window.Globo && window.Globo.Preorder && preorderCustom.initialized) {
-        // Already initialized, just call initPreorder
-        console.log('[Globo Custom] Globo.Preorder detected, calling initPreorder...');
-        window.Globo.Preorder.initPreorder();
-    }
-}
-
-// Poll for Globo to be available (in case it loads async)
-let globoCheckCount = 0;
-const globoCheckInterval = setInterval(() => {
-    globoCheckCount++;
-    if (window.Globo && window.Globo.Preorder) {
-        clearInterval(globoCheckInterval);
-        waitForGloboAndInit();
-        console.log('[Globo Custom] Globo.Preorder is now available');
-    } else if (globoCheckCount > 30) {
-        // Stop checking after 30 attempts (15 seconds)
-        clearInterval(globoCheckInterval);
-        console.warn('[Globo Custom] Globo.Preorder not detected after 15 seconds');
-    }
-}, 500);
-
-// Observe for DOM changes in the product form to re-attach variant listeners
-// This is needed because the variant picker uses morphdom which replaces elements
-const observeProductForm = () => {
-    const productForm = document.querySelector('.modern-product-form__form, .singleProductPreOrderForm');
-    if (productForm) {
+    // Set up mutation observer for DOM changes
+    function setupMutationObserver() {
         const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                    // Re-initialize Globo preorder when variant picker changes
-                    if (window.Globo && window.Globo.Preorder) {
-                        // Debounce to avoid excessive calls
-                        clearTimeout(preorderCustom.mutationTimer);
-                        preorderCustom.mutationTimer = setTimeout(() => {
-                            console.log('[Globo Custom] DOM changed, re-initializing preorder');
-                            window.Globo.Preorder.initPreorder();
-                        }, 300);
+            for (let mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    for (let node of mutation.addedNodes) {
+                        if (node.nodeType === 1 && (
+                            node.classList?.contains('gPositionBis') ||
+                            node.classList?.contains('modern-variant-swatch') ||
+                            node.querySelector?.('.gPositionBis') ||
+                            node.querySelector?.('.modern-variant-swatch')
+                        )) {
+                            refreshPreorder('dom-mutation');
+                            break;
+                        }
                     }
                 }
-            });
+            }
         });
 
-        // Start observing the product form
-        observer.observe(productForm, {
-            childList: true,
-            subtree: true,
-            characterData: true
-        });
-        console.log('[Globo Custom] MutationObserver attached to product form');
+        // Start observing when form exists
+        const startObserving = () => {
+            const form = document.querySelector('.modern-product-form__form, .singleProductPreOrderForm');
+            if (form) {
+                observer.observe(form, { childList: true, subtree: true });
+                console.log('[Globo] MutationObserver attached');
+            } else {
+                setTimeout(startObserving, 500);
+            }
+        };
+        startObserving();
     }
-};
 
-// Attach the observer after a short delay to ensure DOM is ready
-setTimeout(observeProductForm, 1000);
+    // Main initialization
+    async function init() {
+        console.log('[Globo] Starting initialization...');
+
+        // Initialize selectors immediately
+        initSelectors();
+        loadProductData();
+        setupVariantListeners();
+        setupMutationObserver();
+
+        // Wait for Globo to be ready
+        try {
+            await waitForCondition(() => window.Globo && window.Globo.Preorder, 15000);
+            console.log('[Globo] Globo.Preorder is ready!');
+
+            window.GloboPreorderCustomState.globoReady = true;
+
+            // Initial refresh
+            refreshPreorder('initial');
+
+            // Set up periodic checks (debounced)
+            let lastCheck = 0;
+            setInterval(() => {
+                const now = Date.now();
+                if (now - lastCheck > 3000) {
+                    lastCheck = now;
+                    const gPos = document.querySelector('.gPositionBis');
+                    if (gPos && gPos.innerHTML.length === 0) {
+                        console.log('[Globo] Periodic: gPositionBis empty, refreshing');
+                        refreshPreorder('periodic');
+                    }
+                }
+            }, 5000);
+
+        } catch (e) {
+            console.error('[Globo] Failed to initialize:', e.message);
+        }
+    }
+
+    // Start initialization
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // Also try on window load
+    window.addEventListener('load', () => {
+        setTimeout(() => refreshPreorder('window-load'), 500);
+        setTimeout(() => refreshPreorder('window-load-delayed'), 1500);
+    });
+
+    // Export helper
+    window.GloboPreorderCustom = {
+        refresh: refreshPreorder,
+        init: init
+    };
+
+    console.log('[Globo] Custom script loaded');
+})();
 </script>
 
 <style>
@@ -263,57 +264,152 @@ setTimeout(observeProductForm, 1000);
    For Modern Product Page Integration
    ======================================== */
 
-/* ========== Pre-order Button ========== */
+/* Main Container - RESET EVERYTHING */
+.gPositionBis,
+.modern-globo-preorder-container,
+.globo-preorder-bis-hook {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 12px 0 0 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    clear: both !important;
+    float: none !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    text-align: left !important;
+    line-height: normal !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+}
+
+/* Override any inline styles from Globo */
+.gPositionBis[style],
+.modern-globo-preorder-container[style],
+.globo-preorder-bis-hook[style],
+.gPositionBis *[style],
+.modern-globo-preorder-container *[style],
+.globo-preorder-bis-hook *[style] {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+}
+
+/* Force all direct children to behave */
+.gPositionBis > *,
+.modern-globo-preorder-container > *,
+.globo-preorder-bis-hook > * {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    clear: both !important;
+    text-align: left !important;
+}
+
+/* Override specific Globo elements */
+.gPositionBis .globo-preorder-app,
+.gPositionBis .gpo-form-wrapper,
+.gPositionBis .gPreorderWrapper,
+.gPositionBis #Globo-Preorder-Form,
+.gPositionBis #Globo-Back-In-Stock {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+}
+
+/* Pre-order Button - CLEAN STYLES */
 .gPreorderBtn,
 .modern-product-form .gPreorderBtn,
 .product-form .gPreorderBtn,
-form.product-form button.gPreorderBtn {
+form.product-form button.gPreorderBtn,
+.gPositionBis button,
+.gPositionBis .gPreorderBtn {
     background: #D32F2F !important;
     color: white !important;
     border: none !important;
     border-radius: 10px !important;
-    padding: 0 24px !important;
+    padding: 16px 24px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-height: 52px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    height: auto !important;
+    display: block !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
     transition: all 0.2s ease !important;
-    box-shadow: 0 4px 12px rgb(211 47 47 / 0.3) !important;
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3) !important;
+    float: none !important;
+    margin: 0 !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 .gPreorderBtn:hover:not(:disabled) {
     background: #B71C1C !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 16px rgb(211 47 47 / 0.4) !important;
+    box-shadow: 0 6px 16px rgba(211, 47, 47, 0.4) !important;
 }
 
-/* ========== Back in Stock Button ========== */
+.gPreorderBtn:active:not(:disabled) {
+    transform: translateY(0) !important;
+}
+
+/* Back in Stock Button */
 .gBackInStockBtn,
-#Globo-Back-In-Stock .gBackInStockBtn {
-    animation: gpo-glowing 1500ms infinite;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.5rem;
+#Globo-Back-In-Stock .gBackInStockBtn,
+.gPositionBis .gBackInStockBtn {
+    animation: gpo-glowing 1500ms infinite !important;
+    display: block !important;
+    text-align: center !important;
     background: #40C4FF !important;
     color: white !important;
     border: none !important;
     border-radius: 10px !important;
-    padding: 0 24px !important;
+    padding: 16px 24px !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-height: 52px !important;
-    box-shadow: 0 4px 12px rgb(64 196 255 / 0.3) !important;
+    height: auto !important;
+    line-height: 1.4 !important;
+    box-shadow: 0 4px 12px rgba(64, 196, 255, 0.3) !important;
+    float: none !important;
+    margin: 0 !important;
+    position: relative !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 .gBackInStockBtn svg {
-    animation: gpo-shaking 0.5s infinite;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin-right: 8px !important;
 }
 
 @keyframes gpo-glowing {
@@ -322,179 +418,190 @@ form.product-form button.gPreorderBtn {
     100% { background-color: #40C4FF; box-shadow: 0 0 5px #40C4FF; }
 }
 
-@keyframes gpo-shaking {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(5deg); }
-    50% { transform: rotate(0deg); }
-    75% { transform: rotate(-5deg); }
-    100% { transform: rotate(0deg); }
-}
-
-/* ========== Layout & Container Fixes ========== */
-.modern-product-actions .gPositionBis {
-    width: 100%;
-    margin-top: 12px;
-}
-
-/* Preorder wrapper - full width */
-.globo-preorder-app .gpo-form-wrapper,
-.gpo-form-wrapper,
-.gPreorderWrapper {
+/* Back in Stock Form */
+#Globo-Back-In-Stock,
+.gPositionBis #Globo-Back-In-Stock {
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 !important;
     box-sizing: border-box !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    position: relative !important;
 }
 
-/* Preorder heading */
+#Globo-Back-In-Stock form,
+.gPositionBis #Globo-Back-In-Stock form {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#Globo-Back-In-Stock input[type="email"],
+#Globo-Back-In-Stock input[type="text"],
+.gPositionBis input[type="email"],
+.gPositionBis input[type="text"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 14px 16px !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    margin: 0 0 12px 0 !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Preorder wrapper/heading */
 .gpo-text-heading,
 .globo-preorder-app .gpo-heading,
-.gPreorderHeading {
+.gPreorderHeading,
+.gPositionBis .gpo-text-heading,
+.gPositionBis .gpo-heading {
+    display: block !important;
+    width: 100% !important;
     font-size: 15px !important;
     font-weight: 600 !important;
     color: #e53935 !important;
     margin: 0 0 12px 0 !important;
+    padding: 0 !important;
     text-align: left !important;
+    line-height: 1.4 !important;
 }
 
-/* Price row - align with quantity */
-.globo-preorder-app .gpo-price-row,
-.gpo-price-row {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    width: 100% !important;
-}
-
-/* Price label */
-.gpo-price-label,
-.globo-preorder-app .gpo-price-label {
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    color: #64748b !important;
-    margin: 0 !important;
-}
-
-/* Price amount */
+/* Price display */
 .gpo-price,
-.globo-preorder-app .gpo-price {
+.globo-preorder-app .gpo-price,
+.gPositionBis .gpo-price {
+    display: block !important;
+    width: 100% !important;
     font-size: 24px !important;
     font-weight: 700 !important;
     color: #101828 !important;
-    margin: 0 !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
 }
 
-/* ========== Partial Payment Section ========== */
-.globo-preorder-app .gpo-partial-payment-wrapper,
+.gpo-price-label,
+.globo-preorder-app .gpo-price-label,
+.gPositionBis .gpo-price-label {
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    margin: 0 0 4px 0 !important;
+}
+
+/* Partial payment section */
 .gpo-partial-payment-wrapper,
-.modern-product-form .gPreorderPartialPaymentWrapper {
+.globo-preorder-app .gpo-partial-payment-wrapper,
+.gPositionBis .gpo-partial-payment-wrapper {
     width: 100% !important;
-    margin: 12px 0 0 0 !important;
-    padding: 14px 16px !important;
+    display: block !important;
+    margin: 16px 0 0 0 !important;
+    padding: 16px !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 10px !important;
     background: #f8fafc !important;
     box-sizing: border-box !important;
 }
 
-.globo-preorder-app .gpo-partial-payment-choices,
 .gpo-partial-payment-choices,
-.modern-product-form .gPreorderPartialPaymentChoices {
+.globo-preorder-app .gpo-partial-payment-choices,
+.gPositionBis .gpo-partial-payment-choices {
     width: 100% !important;
+    display: block !important;
+    margin: 12px 0 0 0 !important;
     padding: 0 !important;
-    margin: 8px 0 0 0 !important;
     list-style: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    box-sizing: border-box !important;
 }
 
-.globo-preorder-app .gpo-partial-payment-choices li,
 .gpo-partial-payment-choices li,
-.modern-product-form .gPreorderPartialPaymentChoices li {
+.globo-preorder-app .gpo-partial-payment-choices li,
+.gPositionBis .gpo-partial-payment-choices li {
     width: 100% !important;
-    margin: 0 !important;
-    padding: 12px 14px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 12px !important;
+    margin: 0 0 10px 0 !important;
+    padding: 12px 14px !important;
     border: 1px solid #dbe1ea !important;
     border-radius: 10px !important;
     background: #fff !important;
     box-sizing: border-box !important;
 }
 
+.gpo-partial-payment-choices li:last-child {
+    margin-bottom: 0 !important;
+}
+
 /* Payment label */
-.globo-preorder-app .gpo-payment-label,
 .gpo-payment-label,
-.gPreorderPartialPaymentLabel {
+.globo-preorder-app .gpo-payment-label,
+.gPositionBis .gpo-payment-label {
     font-size: 14px !important;
     font-weight: 600 !important;
     color: #111827 !important;
+    display: block !important;
 }
 
-.globo-preorder-app .gpo-payment-label span,
-.globo-preorder-app .gpo-payment-label small,
 .gpo-payment-label span,
-.gpo-payment-label small {
+.gpo-payment-label small,
+.gPositionBis .gpo-payment-label span,
+.gPositionBis .gpo-payment-label small {
     font-size: 12px !important;
     font-weight: 400 !important;
     color: #64748b !important;
 }
 
-/* Radio input */
-.globo-preorder-app .gpo-radio input[type='radio'],
-.gpo-radio input[type='radio'] {
-    accent-color: #D32F2F !important;
+/* Radio inputs */
+.gpo-radio input[type="radio"],
+.gPositionBis .gpo-radio input[type="radio"],
+.globo-preorder-app .gpo-radio input[type="radio"] {
     width: 18px !important;
     height: 18px !important;
+    accent-color: #D32F2F !important;
+    margin: 0 !important;
 }
 
-/* ========== Back in Stock Form ========== */
-#Globo-Back-In-Stock {
-    margin: 12px 0 0 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-}
-
-#Globo-Back-In-Stock form {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-}
-
-#Globo-Back-In-Stock input[type="email"],
-#Globo-Back-In-Stock input[type="text"] {
-    width: 100% !important;
-    padding: 14px 16px !important;
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 10px !important;
-    font-size: 15px !important;
-    box-sizing: border-box !important;
-}
-
-/* ========== Message Styling ========== */
-.globo-preorder-app .gpo-message,
+/* Message text */
 .gpo-message,
-.gPreorderMessage {
+.globo-preorder-app .gpo-message,
+.gPreorderMessage,
+.gPositionBis .gpo-message {
+    display: block !important;
+    width: 100% !important;
     font-size: 13px !important;
     color: #64748b !important;
-    margin: 8px 0 0 0 !important;
+    margin: 12px 0 0 0 !important;
     line-height: 1.5 !important;
 }
 
-/* ========== Hide empty elements ========== */
+/* Hide empty placeholder */
 .gPositionBis:empty {
     display: none !important;
 }
 
-/* ========== Mobile Responsive ========== */
+/* Reset all possible layout-breaking properties */
+.gPositionBis *[style*="float"],
+.gPositionBis *[style*="position: absolute"],
+.gPositionBis *[style*="position: fixed"] {
+    float: none !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+}
+
+/* Mobile */
 @media (max-width: 749px) {
     .gPreorderBtn,
     .gBackInStockBtn {
-        padding: 0 20px !important;
+        padding: 14px 20px !important;
         font-size: 15px !important;
         min-height: 50px !important;
     }

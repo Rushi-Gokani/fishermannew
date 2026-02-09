@@ -350,7 +350,7 @@
 
                           <label
                             for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                            class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled{% if use_image_swatch and option_swatch_img %} modern-variant-swatch--sold-out{% endif %}{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                            class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled modern-variant-swatch--sold-out{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
                             data-variant-swatch
                             data-option-value="{{ value | escape }}"
                             {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
@@ -375,7 +375,7 @@
                             {%- if has_variant_sale and option_disabled == false -%}
                               <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
                             {%- endif -%}
-                            {% if option_disabled and use_image_swatch and option_swatch_img %}
+                            {% if option_disabled %}
                               <span class="modern-variant-sold-out-cross" aria-hidden="true"></span>
                             {% endif %}
                           </label>
@@ -400,16 +400,22 @@
 
           {%- when 'buy_buttons' -%}
             <div {{ block.shopify_attributes }}>
-              <product-form class="modern-product-form" data-section-id="{{ section.id }}">
-                {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '' %}
-                  
-                  <div class="modern-product-actions">
-                    <!-- Globo Pre-order Hook -->
-                    <div class="globo_color_swatch_bundle_quantity_break"></div>
-                    
-                    <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px;">
+              <product-form class="modern-product-form" data-section-id="{{ section.id }}" data-product-id="{{ product.id }}">
+                {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '', data-product-id: product.id, data-product-variant-id: current_variant.id %}
+
+                  {%- comment -%} Globo Preorder Product Data - Must be inside form {%- endcomment -%}
+                  <script type="application/json" data-globo-preorder-product>
+                    {{ product | json }}
+                  </script>
+
+                  <div class="modern-product-actions-wrapper">
+                    <!-- Globo Pre-order Hook - color swatch bundle -->
+                    <div class="globo_color_swatch_bundle_quantity_break" data-globo-preorder-break style="display: none;"></div>
+
+                    <!-- Quantity and Add to Cart Row -->
+                    <div class="modern-buttons-row" style="display: flex; align-items: stretch; gap: 10px; width: 100%;">
                       <!-- Inline Quantity Selector -->
-                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; align-items: center; justify-content: space-between; height: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; min-width: 120px; padding: 0 5px;">
+                      <div class="modern-quantity-selector" data-quantity-selector style="margin-bottom: 0; display: inline-flex; align-items: center; justify-content: space-between; height: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; min-width: 120px; padding: 0 5px; flex-shrink: 0;">
                         <button type="button" class="modern-quantity-btn" data-quantity-minus aria-label="Decrease quantity" style="border: none; background: transparent; padding: 10px; cursor: pointer;">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
@@ -429,6 +435,9 @@
                             {% if current_variant.available == false %}disabled{% endif %}
                             data-add-to-cart
                             data-action="add-to-cart"
+                            data-product-id="{{ product.id }}"
+                            data-variant-id="{{ current_variant.id }}"
+                            data-product-available="{{ current_variant.available }}"
                           >
                         <span class="modern-add-to-cart__default">
                           {% if current_variant.available %}
@@ -447,9 +456,12 @@
                       </button>
                     </div>
                     </div>
-                    
-                    <!-- Globo Pre-order / Back-in-Stock Position Hook -->
-                    <div class="gPositionBis"></div>
+
+                    <!-- Globo Pre-order / Back-in-Stock Position Hook - Outside buttons wrapper -->
+                    <div class="gPositionBis modern-globo-preorder-container" data-globo-preorder-container data-product-id="{{ product.id }}" style="width: 100%; margin-top: 12px; clear: both;"></div>
+
+                    <!-- Additional Globo hook inside payment container -->
+                    <div class="globo-preorder-bis-hook" data-globo-bis-hook data-product-id="{{ product.id }}" style="width: 100%; margin-top: 12px;"></div>
                   </div>
 
                   <!-- Pickup Availability -->
@@ -1906,11 +1918,13 @@
   }
 
   /* Modern Product Actions */
-  .modern-product-actions {
+  .modern-product-actions,
+  .modern-product-actions-wrapper {
     display: flex;
     flex-direction: column;
     gap: 16px;
     margin-top: 8px;
+    width: 100%;
   }
 
   /* Buttons Row - 50/50 inline */
@@ -2111,7 +2125,8 @@
 
   /* Mobile Adjustments */
   @media screen and (max-width: 749px) {
-    .modern-product-actions {
+    .modern-product-actions,
+    .modern-product-actions-wrapper {
       gap: 12px;
     }
 
