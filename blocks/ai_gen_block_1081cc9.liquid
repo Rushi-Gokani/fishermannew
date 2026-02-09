@@ -47,6 +47,24 @@
     object-fit: contain;
   }
 
+  .ai-hero-slider__desktop-image-{{ ai_gen_id }} {
+    display: block;
+  }
+
+  .ai-hero-slider__mobile-image-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-hero-slider__desktop-image-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-hero-slider__mobile-image-{{ ai_gen_id }} {
+      display: block;
+    }
+  }
+
   .ai-hero-slider__placeholder-{{ ai_gen_id }} {
     width: 100%;
     min-height: 400px;
@@ -222,6 +240,11 @@
         {% if current_image != blank or forloop.first %}
           <div class="ai-hero-slider__slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
             <div class="ai-hero-slider__image-wrapper-{{ ai_gen_id }}">
+              {% liquid
+                assign mobile_image_key = 'mobile_image_' | append: i
+                assign current_mobile_image = block.settings[mobile_image_key]
+              %}
+
               {% if current_image %}
                 <img
                   src="{{ current_image | image_url: width: 2400 }}"
@@ -229,9 +252,20 @@
                   loading="lazy"
                   width="{{ current_image.width }}"
                   height="{{ current_image.height }}"
-                  class="ai-hero-slider__image-{{ ai_gen_id }}"
+                  class="ai-hero-slider__image-{{ ai_gen_id }} ai-hero-slider__desktop-image-{{ ai_gen_id }}"
                 >
-              {% else %}
+              {% endif %}
+
+              {% if current_mobile_image %}
+                <img
+                  src="{{ current_mobile_image | image_url: width: 1200 }}"
+                  alt="{{ current_mobile_image.alt | escape }}"
+                  loading="lazy"
+                  width="{{ current_mobile_image.width }}"
+                  height="{{ current_mobile_image.height }}"
+                  class="ai-hero-slider__image-{{ ai_gen_id }} ai-hero-slider__mobile-image-{{ ai_gen_id }}"
+                >
+              {% elsif current_image == blank %}
                 <div class="ai-hero-slider__placeholder-{{ ai_gen_id }}">
                   {{ 'hero-apparel-1' | placeholder_svg_tag }}
                   <div class="ai-hero-slider__empty-state-{{ ai_gen_id }}">
@@ -528,7 +562,12 @@
     {
       "type": "image_picker",
       "id": "image_1",
-      "label": "Image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image_1",
+      "label": "Mobile image"
     },
     {
       "type": "checkbox",
@@ -566,7 +605,12 @@
     {
       "type": "image_picker",
       "id": "image_2",
-      "label": "Image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image_2",
+      "label": "Mobile image"
     },
     {
       "type": "checkbox",
@@ -601,7 +645,12 @@
     {
       "type": "image_picker",
       "id": "image_3",
-      "label": "Image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image_3",
+      "label": "Mobile image"
     },
     {
       "type": "checkbox",
@@ -636,7 +685,12 @@
     {
       "type": "image_picker",
       "id": "image_4",
-      "label": "Image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image_4",
+      "label": "Mobile image"
     },
     {
       "type": "checkbox",
@@ -671,7 +725,12 @@
     {
       "type": "image_picker",
       "id": "image_5",
-      "label": "Image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image_5",
+      "label": "Mobile image"
     },
     {
       "type": "checkbox",
