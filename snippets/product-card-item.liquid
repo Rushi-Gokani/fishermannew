@@ -88,7 +88,7 @@
   </div>
 
   <!-- Bottom Section: Brand, Title, Price, Button -->
-  <div class="product-card-content-{{ section_id }} gPreorderCollectionForm">
+  <div class="product-card-content-{{ section_id }}">
     {% if product.vendor %}
       <p class="product-card-brand-{{ section_id }}">{{ product.vendor }}</p>
     {% endif %}
@@ -109,7 +109,7 @@
     {% if sold_out %}
       <button class="product-card-buy-btn-{{ section_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
     {% else %}
-      <form method="post" action="/cart/add" onsubmit="event.stopPropagation();" class="product-card-buy-form-{{ section_id }}" style="margin: 0;">
+      <form method="post" action="/cart/add" onsubmit="event.stopPropagation();" class="gPreorderCollectionForm product-card-buy-form-{{ section_id }}" style="margin: 0;">
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
         <input type="hidden" name="return_to" value="/checkout">
         <button type="submit" class="product-card-buy-btn-{{ section_id }} button button--primary" onclick="event.stopPropagation();">
