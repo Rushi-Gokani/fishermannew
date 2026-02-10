@@ -235,6 +235,15 @@
     flex-shrink: 0;
   }
 
+  .product-card-brand-link-{{ card_id }} {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .product-card-brand-link-{{ card_id }}:hover {
+    opacity: 0.85;
+  }
+
   .product-card-title-{{ card_id }} {
     font-size: 16px;
     font-weight: 700;
@@ -471,7 +480,12 @@
   <!-- Bottom Section: Brand, Title, Price, Button -->
   <div class="product-card-content-{{ card_id }}">
     {% if product.vendor %}
-      <p class="product-card-brand-{{ card_id }}">{{ product.vendor }}</p>
+      {%- assign vendor_handle = product.vendor | handleize -%}
+      <p class="product-card-brand-{{ card_id }}">
+        <a href="{{ routes.collections_url }}/{{ vendor_handle }}" class="product-card-brand-link-{{ card_id }}">
+          {{ product.vendor }}
+        </a>
+      </p>
     {% endif %}
 
     <h3 class="product-card-title-{{ card_id }}">

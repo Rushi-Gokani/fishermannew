@@ -3,8 +3,50 @@
   Renders a single product card matching the reference design
 {% endcomment %}
 
+{% style %}
+  .product-card-brand-{{ section_id }} {
+    font-size: 12px;
+    font-weight: 400;
+    color: #40c4ff;
+    margin: 0;
+  }
+
+  .product-card-brand-link-{{ section_id }} {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .product-card-brand-link-{{ section_id }}:hover {
+    opacity: 0.85;
+  }
+
+  .product-card-buy-btn-{{ section_id }} {
+    width: 100%;
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: auto;
+  }
+
+  .product-card-buy-btn-{{ section_id }}:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+
+  .product-card-buy-btn-{{ section_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+{% endstyle %}
+
 {%- liquid
-  assign show_badge = show_badge | default: false
+  assign incoming_show_badge = show_badge | default: false
   assign badge_text = badge_text | default: 'Best Seller'
 
   assign on_sale = false
@@ -16,14 +58,36 @@
   unless product.available
     assign sold_out = true
   endunless
+
+  assign has_best_seller_tag = false
+  if product.tags contains 'best-seller' or product.tags contains 'Best Seller'
+    assign has_best_seller_tag = true
+  endif
+
+  assign is_best_seller_collection = false
+  for collection in product.collections
+    if collection.title == 'Best Sellers'
+      assign is_best_seller_collection = true
+      break
+    endif
+  endfor
+
+  assign show_badge = incoming_show_badge
+  if show_badge == false
+    if has_best_seller_tag or is_best_seller_collection
+      assign show_badge = true
+    endif
+  endif
+
+  assign show_best_seller_overlay = false
+  if has_best_seller_tag or is_best_seller_collection
+    assign show_best_seller_overlay = true
+  endif
 -%}
 
 <div class="product-card-{{ section_id }}">
   <!-- Top Section: Badge and Heart -->
   <div class="product-card-top-{{ section_id }}">
-    {% if show_badge %}
-      <span class="product-card-badge-{{ section_id }}">{{ badge_text }}</span>
-    {% endif %}
     <button
       class="product-card-wishlist-{{ section_id }}"
       aria-label="Add to wishlist"
@@ -38,6 +102,12 @@
   <!-- Image Section -->
   <div class="product-card-image-wrapper-{{ section_id }}">
     <div class="product-card-slider-wrapper-{{ section_id }}">
+      {%- if show_best_seller_overlay -%}
+        <img src="https://cdn.shopify.com/s/files/1/0665/2887/0715/files/1722944964203-352234792-BADGES1.png?v=1722945193"
+             alt="Best Seller"
+             class="best-seller-badge-image"
+             style="position: absolute; top: 10px; left: 10px; z-index: 5; width: 70px; height: auto;">
+      {%- endif -%}
       <div class="product-card-slider-container-{{ section_id }}" id="slider-{{ section_id }}-{{ product.id }}">
         {% if product.images.size > 0 %}
           {% for image in product.images limit: 3 %}
@@ -90,7 +160,12 @@
   <!-- Bottom Section: Brand, Title, Price, Button -->
   <div class="product-card-content-{{ section_id }}">
     {% if product.vendor %}
-      <p class="product-card-brand-{{ section_id }}">{{ product.vendor }}</p>
+      {%- assign vendor_handle = product.vendor | handleize -%}
+      <p class="product-card-brand-{{ section_id }}">
+        <a href="{{ routes.collections_url }}/{{ vendor_handle }}" class="product-card-brand-link-{{ section_id }}">
+          {{ product.vendor }}
+        </a>
+      </p>
     {% endif %}
 
     <h3 class="product-card-title-{{ section_id }}">
@@ -122,11 +197,9 @@
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
         <input type="hidden" name="return_to" value="/checkout">
         {% if sold_out %}
-          <button class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ section_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
+          <button class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ section_id }}" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
         {% else %}
-            <button type="submit" class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ section_id }} button button--primary" onclick="event.stopPropagation();">
-              {{ 'Buy It Now' }}
-            </button>
+            <button type="submit" class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ section_id }}" onclick="event.stopPropagation();">{{ 'Buy It Now' }}</button>
         {% endif %}
       </form>
   </div>
