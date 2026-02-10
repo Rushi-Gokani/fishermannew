@@ -38,6 +38,7 @@
         },
         "razorpay_trusted_business_rtb_widget_nw1B9q": {
           "type": "shopify://apps/razorpay-trusted-business/blocks/rtb-widget/a54835d4-011c-47fe-94db-3731e39152d6",
+          "disabled": true,
           "settings": {}
         },
         "razorpay_affordability_widget_affordability_block_VgP2cD": {
