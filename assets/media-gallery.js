@@ -1,5 +1,7 @@
 import { Component } from '@theme/component';
 import { ThemeEvents, VariantUpdateEvent, ZoomMediaSelectedEvent } from '@theme/events';
+import Drift from '@theme/drift-zoom';
+import { isDesktopBreakpoint, mediaQueryLarge } from '@theme/utilities';
 
 /**
  * A custom element that renders a media gallery.
@@ -22,14 +24,25 @@ export class MediaGallery extends Component {
     this.refs.zoomDialogComponent?.addEventListener(ThemeEvents.zoomMediaSelected, this.#handleZoomMediaSelected, {
       signal,
     });
+
+    this.#setupDrift();
+    mediaQueryLarge.addEventListener('change', this.#handleBreakpointChange);
   }
 
   #controller = new AbortController();
+  /** @type {import('@theme/drift-zoom').default[]} */
+  #driftInstances = [];
+
+  #handleBreakpointChange = () => {
+    this.#setupDrift();
+  };
 
   disconnectedCallback() {
     super.disconnectedCallback();
 
     this.#controller.abort();
+    this.#teardownDrift();
+    mediaQueryLarge.removeEventListener('change', this.#handleBreakpointChange);
   }
 
   /**
@@ -56,6 +69,46 @@ export class MediaGallery extends Component {
     this.slideshow?.select(event.detail.index, undefined, { animate: false });
   };
 
+  #setupDrift() {
+    this.#teardownDrift();
+
+    if (!this.#shouldUseDrift()) return;
+
+    const images = this.#getZoomableImages();
+    if (!images.length) return;
+
+    const paneContainer = this.zoomWrapper;
+    if (!paneContainer) return;
+
+    const useInlinePane = window.innerWidth < 1024;
+    const inlineOffsetY = useInlinePane ? -85 : 0;
+
+    this.#driftInstances = images.map(
+      (image) =>
+        new Drift(image, {
+          containInline: true,
+          inlinePane: useInlinePane,
+          hoverBoundingBox: !useInlinePane,
+          handleTouch: false,
+          inlineOffsetY,
+          paneContainer,
+        })
+    );
+  }
+
+  #teardownDrift() {
+    this.#driftInstances.forEach((instance) => instance.destroy?.());
+    this.#driftInstances = [];
+  }
+
+  #shouldUseDrift() {
+    return this.zoomEnabled && isDesktopBreakpoint();
+  }
+
+  #getZoomableImages() {
+    return Array.from(this.querySelectorAll('.product-media__image[data-zoom]'));
+  }
+
   /**
    * Zooms the media gallery.
    *
@@ -76,6 +129,18 @@ export class MediaGallery extends Component {
 
   get presentation() {
     return this.dataset.presentation;
+  }
+
+  get zoomEnabled() {
+    return this.dataset.zoomEnabled === 'true';
+  }
+
+  get zoomWrapper() {
+    const selector = this.dataset.zoomWrapper;
+
+    if (!selector) return null;
+
+    return document.querySelector(selector);
   }
 }
 

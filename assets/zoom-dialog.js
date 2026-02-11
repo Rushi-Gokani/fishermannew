@@ -51,6 +51,7 @@ export class ZoomDialog extends Component {
 
     const open = () => {
       dialog.showModal();
+      document.body.classList.add('zoom-modal-open');
 
       for (const target of [targetThumbnail, targetImage]) {
         target?.scrollIntoView({ behavior: 'instant' });
@@ -169,6 +170,7 @@ export class ZoomDialog extends Component {
 
   closeDialog() {
     const { dialog } = this.refs;
+    document.body.classList.remove('zoom-modal-open');
     dialog.close();
     window.dispatchEvent(new DialogCloseEvent());
   }

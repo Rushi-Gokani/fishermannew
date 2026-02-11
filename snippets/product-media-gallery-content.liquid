@@ -16,12 +16,6 @@
     block_shopify_attributes: block.shopify_attributes,
   %}
 {% enddoc %}
-{%- if block_settings.zoom -%}
-  <script
-    src="{{ 'zoom-dialog.js' | asset_url }}"
-    type="module"
-  ></script>
-{%- endif -%}
 {%- liquid
   assign selected_product = closest.product
   assign selected_variant_media = selected_product.selected_or_first_available_variant.featured_media
@@ -116,7 +110,6 @@
   else
     assign sorted_media = selected_product.media
   endif
-  assign has_image_drop = sorted_media | has: 'media_type', 'image'
 
   # Determine if we're in single column mode (carousel or grid with one column)
   assign is_single_column = false
@@ -173,13 +166,6 @@
     endfor
   endif
 -%}
-{%- if has_image_drop -%}
-  <script
-    src="{{ 'drag-zoom-wrapper.js' | asset_url }}"
-    type="module"
-  ></script>
-{%- endif -%}
-
 {% style %}
   {% unless block_settings.aspect_ratio == 'adapt' %}
     .product-media-container {
@@ -213,8 +199,8 @@
     {% endif %}
 
     /* Constrain all deferred-media content to parent bounds when specific aspect ratio is set */
-    .product-media-container:not(.dialog-zoomed-gallery *) .product-media deferred-media,
-    .product-media-container:not(.dialog-zoomed-gallery *) .product-media product-model {
+    .product-media-container .product-media deferred-media,
+    .product-media-container .product-media product-model {
       width: 100%;
       height: 100%;
       top: 0;
@@ -222,22 +208,17 @@
     }
 
     /* Ensure video and iframe elements respect container aspect ratio */
-    .product-media-container:not(.dialog-zoomed-gallery *) .product-media deferred-media video,
-    .product-media-container:not(.dialog-zoomed-gallery *) .product-media deferred-media iframe {
+    .product-media-container .product-media deferred-media video,
+    .product-media-container .product-media deferred-media iframe {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
     /* 3D models need special handling since they don't support object-fit */
-    .product-media-container:not(.dialog-zoomed-gallery *) .product-media product-model model-viewer {
+    .product-media-container .product-media product-model model-viewer {
       width: 100%;
       height: 100%;
-    }
-
-    /* Clear gallery aspect ratio for zoom dialog - let media display at natural aspect ratios */
-    .dialog-zoomed-gallery .product-media {
-      --gallery-aspect-ratio: var(--ratio);
     }
   {% endunless %}
 
@@ -317,6 +298,8 @@
     "
     style="{% render 'spacing-style', settings: block_settings %} --thumbnail-width: {{ block_settings.thumbnail_width }}px; --media-radius: {{ block_settings.media_radius }}px;{% if block_settings.icons_style contains 'large' %} --slideshow-icon-padding: 0px;{% endif %}--image-gap: {{ block_settings.image_gap }}px;{% unless block_settings.aspect_ratio == 'adapt' %} --gallery-aspect-ratio: {{ block_settings.aspect_ratio }};{% endunless %}"
     data-presentation="{{ media_presentation }}"
+    data-zoom-enabled="{{ block_settings.zoom }}"
+    {% if block_settings.zoom %}data-zoom-wrapper="#product-zoom-{{ section.id }}"{% endif %}
     {{ block_shopify_attributes }}
   >
     {% capture slides %}
@@ -345,11 +328,7 @@
             --media-preview-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }};
           {% endcapture %}
         {% endif %}
-        {% if block_settings.zoom and media.media_type == 'model' %}
-          {%- capture attributes -%}"{% if settings.transition_to_main_product and forloop.first %} data-view-transition-type="product-image-transition"{% endif %}{% endcapture -%}
-        {% elsif block_settings.zoom %}
-          {%- capture attributes -%}on:click="#zoom-dialog-{{ block_id }}/open/{{ forloop.index0 }}"{% if settings.transition_to_main_product and forloop.first %} data-view-transition-type="product-image-transition"{% endif %}{% endcapture -%}
-        {% endif %}
+        {%- capture attributes -%}{% if settings.transition_to_main_product and forloop.first %} data-view-transition-type="product-image-transition"{% endif %}{% endcapture -%}
 
         {% render 'slideshow-slide',
           index: forloop.index0,
@@ -422,16 +401,6 @@
               data-view-transition-type="product-image-transition"
             {% endif %}
           >
-            {%- if block_settings.zoom and media.media_type == 'image' -%}
-              <button
-                type="button"
-                class="button button-unstyled product-media-container__zoom-button"
-                aria-label="{{ 'actions.zoom' | t }}"
-                on:click="/zoom/{{ forloop.index0 }}"
-              >
-                <span class="visually-hidden">{{ 'actions.open_image_in_full_screen' | t }}</span>
-              </button>
-            {%- endif -%}
             {%- liquid
               if needs_both_sizes and forloop.first
                 assign media_sizes = sizes_single
@@ -450,108 +419,6 @@
         {% endfor %}
       </ul>
     {% endif %}
-
-    {%- if block_settings.zoom -%}
-      <zoom-dialog
-        ref="zoomDialogComponent"
-        id="zoom-dialog-{{ block_id }}"
-      >
-        <dialog
-          ref="dialog"
-          on:keydown="/handleKeyDown"
-          scroll-lock
-        >
-          <button
-            type="button"
-            class="button button-unstyled close-button dialog-zoomed-gallery__close-button"
-            aria-label="{{ 'actions.close' | t }}"
-            on:click="/close"
-          >
-            <span class="visually-hidden">{{ 'actions.close' | t }}</span>
-            {{ 'icon-close.svg' | inline_asset_content }}
-          </button>
-          <div class="dialog-thumbnails-list-container">
-            <scroll-hint
-              class="dialog-thumbnails-list list-unstyled"
-              ref="thumbnails"
-            >
-              {% if sorted_media.size > 1 %}
-                {%- for media in sorted_media -%}
-                  {% liquid
-                    assign aspect_ratio = block_settings.aspect_ratio
-                    if block_settings.aspect_ratio == 'adapt'
-                      assign aspect_ratio = media.preview_image.aspect_ratio | default: 1.0
-                    endif
-                  %}
-                  <button
-                    type="button"
-                    class="button button-unstyled dialog-thumbnails-list__thumbnail"
-                    aria-label="{{ 'accessibility.scroll_to' | t: title: media.alt | default: media.media_type }}"
-                    on:click="/handleThumbnailClick/{{ forloop.index0 }}"
-                    on:pointerenter="/handleThumbnailPointerEnter/{{ forloop.index0 }}"
-                    style="--aspect-ratio: {{ aspect_ratio }}; --gallery-aspect-ratio: {{ aspect_ratio }};"
-                    {% if forloop.first %}
-                      aria-selected="true"
-                    {% endif %}
-                  >
-                    {% liquid
-                      assign focal_point_style = ''
-                      if media.presentation.focal_point != blank
-                        assign focal_point_style = 'object-position: ' | append: media.presentation.focal_point | append: ';'
-                      endif
-                    %}
-                    {{
-                      media.preview_image
-                      | image_url: width: 1024
-                      | image_tag:
-                        loading: 'lazy',
-                        sizes: 'auto, 110, (min-width: 750px) 160',
-                        widths: '240, 352, 832, 1200',
-                        alt: media.alt,
-                        style: focal_point_style
-                      | escape
-                    }}
-                  </button>
-                {%- endfor -%}
-              {% endif %}
-            </scroll-hint>
-          </div>
-          <ul
-            class="dialog-zoomed-gallery list-unstyled"
-          >
-            {%- for media in sorted_media -%}
-              <li
-                id="product-{{ media.id}}-{{ forloop.index }}"
-                class="{{ product_media_container_class | remove: 'media-fit-cover' }} product-media-container--{{ media.media_type }}{% if media.media_type == 'image' %} product-media-container--zoomable{% endif %}"
-                style="{% if block_settings.aspect_ratio == 'adapt' %} --media-preview-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }};{% endif %}"
-                ref="media[]"
-                {% if media.media_type == 'image' %}
-                  on:click="/close"
-                {% endif %}
-              >
-                {% if media.media_type == 'image' %}
-                  <drag-zoom-wrapper class="product-media__drag-zoom-wrapper">
-                    {%- render 'product-media',
-                      media: media,
-                      sizes: '100vw',
-                      loading: 'lazy',
-                      is_main_product_media: forloop.first
-                    -%}
-                  </drag-zoom-wrapper>
-                {% else %}
-                  {%- render 'product-media',
-                    media: media,
-                    sizes: '100vw',
-                    loading: 'lazy',
-                    is_main_product_media: forloop.first
-                  -%}
-                {% endif %}
-              </li>
-            {%- endfor -%}
-          </ul>
-        </dialog>
-      </zoom-dialog>
-    {%- endif -%}
 
     {%- if first_3d_model -%}
       <link
@@ -594,144 +461,3 @@
     {%- endif -%}
   </media-gallery>
 {% endif %}
-
-{% stylesheet %}
-  .dialog-zoomed-gallery {
-    cursor: zoom-out;
-  }
-
-  .dialog--preloading {
-    opacity: 0;
-  }
-
-  .product-media__drag-zoom-wrapper {
-    aspect-ratio: inherit;
-    min-height: inherit;
-    min-width: inherit;
-    display: inherit;
-    flex: inherit;
-  }
-
-  @media screen and (max-width: 749px) {
-    .dialog-zoomed-gallery {
-      /* Prevent scroll wheel or swipe scrolling */
-      overscroll-behavior: none;
-      scrollbar-width: none;
-      display: flex;
-      scroll-snap-type: x mandatory;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-      height: 100%;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-
-    .dialog-zoomed-gallery .product-media-container {
-      flex: 0 0 100%;
-      scroll-snap-align: start;
-      position: relative;
-    }
-
-    .dialog-zoomed-gallery .product-media-container--image .product-media {
-      aspect-ratio: auto;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    .dialog-zoomed-gallery .product-media-container--video,
-    .dialog-zoomed-gallery .product-media-container--external_video {
-      align-content: center;
-    }
-
-    .dialog-zoomed-gallery
-      :is(.product-media-container--video, .product-media-container--external_video, .product-media-container--model)
-      .product-media {
-      aspect-ratio: auto;
-      align-items: center;
-      height: 100%;
-
-      .product-media__image {
-        height: 100%;
-      }
-    }
-
-    .product-media__drag-zoom-wrapper {
-      display: flex;
-      aspect-ratio: auto;
-      height: 100%;
-      width: 100%;
-      overflow: scroll;
-      scrollbar-width: none;
-      justify-content: center;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-
-    .product-media__drag-zoom-wrapper .product-media__image {
-      --product-media-fit: contain;
-
-      object-fit: var(--product-media-fit);
-      overflow: hidden;
-      transform: scale(var(--drag-zoom-scale))
-        translate(var(--drag-zoom-translate-x, 0), var(--drag-zoom-translate-y, 0));
-    }
-
-    .media-gallery--hint {
-      --slideshow-gap: var(--gap-2xs);
-
-      :not(.dialog-zoomed-gallery) > .product-media-container:not(:only-child) {
-        width: 90%;
-
-        .product-media img {
-          object-fit: cover;
-        }
-      }
-    }
-  }
-
-  .dialog-zoomed-gallery__close-button {
-    color: #fff;
-    mix-blend-mode: difference;
-    z-index: var(--layer-raised);
-  }
-
-  .media-gallery__mobile-controls {
-    grid-area: auto;
-  }
-
-  /* Mobile thumbnails styling */
-  @media screen and (max-width: 749px) {
-    .media-gallery__mobile-controls[thumbnails] {
-      --thumbnail-width: 44px;
-    }
-
-    .media-gallery__mobile-controls[thumbnails] .slideshow-controls__thumbnail {
-      width: var(--thumbnail-width);
-      height: auto;
-    }
-  }
-
-  .dialog-zoomed-gallery .product-media-container--zoomable.product-media-container--image {
-    cursor: zoom-out;
-  }
-
-  .product-media-container--zoomable.product-media-container--image {
-    cursor: zoom-in;
-  }
-
-  .dialog-zoomed-gallery .product-media-container--video deferred-media,
-  .dialog-zoomed-gallery .product-media-container--external_video deferred-media {
-    height: auto;
-    aspect-ratio: var(--ratio);
-  }
-
-  .dialog-zoomed-gallery .product-media-container--model .product-media__image {
-    /* Make the height match the height of the model-viewer */
-    height: 100vh;
-  }
-{% endstylesheet %}

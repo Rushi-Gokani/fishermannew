@@ -3,15 +3,17 @@
  * Handles gallery, zoom, variants, quantity, and add to cart
  */
 
+import Drift from '@theme/drift-zoom';
+import { mediaQueryLarge, isDesktopBreakpoint } from '@theme/utilities';
+
 class ModernProductPage {
   constructor(section) {
-    this.section = section;
     this.section = section;
     this.container = section; // The section element IS the container
     this.productJSON = JSON.parse(section.querySelector('[data-product-json]').textContent);
 
     this.initGallery();
-    this.initZoom();
+    this.initDriftZoom();
     this.initVariants();
     this.initQuantity();
     this.initAddToCart();
@@ -70,12 +72,7 @@ class ModernProductPage {
     if (counter) counter.textContent = index + 1;
 
     // Update zoom image
-    const activeSlide = this.slides[index];
-    const hiddenImg = activeSlide?.querySelector('[data-media-src-hidden]');
-    const zoomImg = this.container.querySelector('[data-zoom-image]');
-    if (hiddenImg && zoomImg) {
-      zoomImg.src = hiddenImg.src;
-    }
+    this.#setupDrift();
   }
 
   previousSlide() {
@@ -147,61 +144,47 @@ class ModernProductPage {
     });
   }
 
-  // ========== Zoom Modal ==========
-  initZoom() {
-    this.zoomModal = this.container.querySelector('[data-zoom-modal]');
-    if (!this.zoomModal) return;
-
-    this.zoomBackdrop = this.zoomModal.querySelector('[data-close-zoom]');
-    this.zoomClose = this.zoomModal.querySelector('.modern-zoom-modal__close');
-    this.zoomPrev = this.zoomModal.querySelector('[data-zoom-prev]');
-    this.zoomNext = this.zoomModal.querySelector('[data-zoom-next]');
-    this.zoomImage = this.zoomModal.querySelector('[data-zoom-image]');
-
-    // Open zoom on image click
-    this.container.querySelectorAll('[data-can-zoom]').forEach(wrapper => {
-      wrapper.addEventListener('click', () => this.openZoom());
-    });
-
-    // Close handlers
-    this.zoomBackdrop.addEventListener('click', () => this.closeZoom());
-    this.zoomClose?.addEventListener('click', () => this.closeZoom());
-
-    // Navigation in zoom
-    this.zoomPrev?.addEventListener('click', () => {
-      this.previousSlide();
-      this.updateZoomImage();
-    });
-    this.zoomNext?.addEventListener('click', () => {
-      this.nextSlide();
-      this.updateZoomImage();
-    });
-
-    // Keyboard close
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.zoomModal.getAttribute('aria-hidden') === 'false') {
-        this.closeZoom();
-      }
-    });
+  // ========== Drift Hover Zoom ==========
+  initDriftZoom() {
+    this.driftInstances = [];
+    this.zoomWrapperSelector = this.container.querySelector('.modern-gallery__main')?.dataset.zoomWrapper;
+    mediaQueryLarge.addEventListener('change', () => this.#setupDrift());
+    this.#setupDrift();
   }
 
-  openZoom() {
-    this.updateZoomImage();
-    this.zoomModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+  #setupDrift() {
+    this.#destroyDrift();
+
+    const gallery = this.container.querySelector('.modern-gallery__main');
+    if (!gallery) return;
+    if (gallery.dataset.zoomEnabled !== 'true') return;
+    if (!isDesktopBreakpoint()) return;
+
+    const paneContainer = document.querySelector(this.zoomWrapperSelector || '');
+    if (!paneContainer) return;
+
+    const images = this.container.querySelectorAll('.modern-gallery__image[data-zoom]');
+    if (!images.length) return;
+
+    const useInlinePane = window.innerWidth < 1024;
+    const inlineOffsetY = useInlinePane ? -85 : 0;
+
+    this.driftInstances = Array.from(images).map(
+      (image) =>
+        new Drift(image, {
+          containInline: true,
+          inlinePane: useInlinePane,
+          hoverBoundingBox: !useInlinePane,
+          handleTouch: false,
+          inlineOffsetY,
+          paneContainer,
+        })
+    );
   }
 
-  closeZoom() {
-    this.zoomModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
-
-  updateZoomImage() {
-    const activeSlide = this.slides[this.currentIndex];
-    const hiddenImg = activeSlide?.querySelector('[data-media-src-hidden]');
-    if (hiddenImg && this.zoomImage) {
-      this.zoomImage.src = hiddenImg.src;
-    }
+  #destroyDrift() {
+    this.driftInstances?.forEach((instance) => instance.destroy?.());
+    this.driftInstances = [];
   }
 
   // ========== Variants ==========

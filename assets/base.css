@@ -1020,6 +1020,12 @@ body:has(.header[transparent]) #header-group > *:not(.header-section) {
   z-index: calc(var(--layer-sticky) - 1);
 }
 
+body.zoom-modal-open .shopify-section-group-header-group {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Featured collection block */
 .featured-collection-block {
   width: 100%;

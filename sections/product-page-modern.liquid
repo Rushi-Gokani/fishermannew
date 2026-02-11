@@ -22,7 +22,11 @@
     <!-- Media Gallery -->
     <div class="modern-product-section__gallery">
       <!-- Main Image Display -->
-      <div class="modern-gallery__main">
+      <div
+        class="modern-gallery__main"
+        data-zoom-enabled="{{ section.settings.enable_zoom }}"
+        data-zoom-wrapper="#modern-product-zoom-{{ section.id }}"
+      >
         <div class="modern-gallery__viewport">
           {% if product.media.size > 0 %}
             {% for media in product.media %}
@@ -35,7 +39,8 @@
                   {% when 'image' %}
                     {%- liquid
                       assign image_src = media | image_url: width: 1200
-                      assign image_high_res = media | image_url: width: 2000
+                      assign image_high_res = media | image_url: width: 3840
+                      assign max_width = media.preview_image.width | default: 0
                     -%}
                     <div class="modern-gallery__image-wrapper" data-can-zoom>
                       {{
@@ -45,15 +50,10 @@
                           class: 'modern-gallery__image',
                           width: nil,
                           height: nil,
-                          alt: media.alt
+                          alt: media.alt,
+                          data-zoom: image_high_res,
+                          data-zoom-width: max_width
                       }}
-                      <img
-                        src="{{ image_high_res }}"
-                        alt="{{ media.alt }}"
-                        class="hidden"
-                        data-media-src-hidden
-                        loading="lazy"
-                      >
                     </div>
 
                   {% when 'external_video' %}
@@ -135,10 +135,15 @@
               <path d="M21 21l-4.35-4.35"/>
               <path d="M11 8v6M8 11h6"/>
             </svg>
-            <span>Click to zoom</span>
+            <span>Hover to zoom</span>
           </div>
         {% endif %}
       </div>
+      <div
+        id="modern-product-zoom-{{ section.id }}"
+        class="product__zoom-wrapper"
+        aria-hidden="true"
+      ></div>
 
       <!-- Thumbnails -->
       {% if product.media.size > 1 %}
@@ -597,92 +602,53 @@
     </div>
   </div>
 
-  <!-- Zoom Modal -->
-  {% if section.settings.enable_zoom %}
-    <div class="modern-zoom-modal" data-zoom-modal aria-hidden="true">
-      <div class="modern-zoom-modal__backdrop" data-close-zoom></div>
-      <button
-        type="button"
-        class="modern-zoom-modal__close"
-        data-close-zoom
-        aria-label="Close"
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <div class="modern-zoom-modal__content">
-        <button
-          type="button"
-          class="modern-zoom-modal__nav modern-zoom-modal__nav--prev"
-          data-zoom-prev
-        >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-        <img src="" alt="" class="modern-zoom-modal__image" data-zoom-image>
-        <button
-          type="button"
-          class="modern-zoom-modal__nav modern-zoom-modal__nav--next"
-          data-zoom-next
-        >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-  {% endif %}
-</div>
-
-<!-- Quantity & Variant Logic Injected Here -->
-
-<!-- 3D Model Script -->
-{% if first_3d_model %}
-  <script type="application/json" id="ProductJSON-{{ product.id }}">
-    {{ product | json }}
-  </script>
-{% endif %}
-
-<!-- Product JSON for Modern Product Page JS -->
-<script type="application/json" data-product-json>
-  {
-    "id": {{ product.id }},
-    "compare_at_price": {{ product.compare_at_price | json }},
-    "variants": [
-      {% for variant in product.variants %}
-        {
-          "id": {{ variant.id }},
-          "options": {{ variant.options | json }},
-          "price": {{ variant.price }},
-          "compare_at_price": {{ variant.compare_at_price | json }},
-          "available": {{ variant.available }},
-          "featured_media": {% if variant.featured_media %}{ "id": {{ variant.featured_media.id }} }{% else %}null{% endif %}
-        }{% unless forloop.last %},{% endunless %}
-      {% endfor %}
-    ]
-  }
-</script>
-
-<script type="application/json" data-inventory-json>
-  {
-    "template": "{{ template.suffix }}",
-    "variants": {
-      {% for variant in product.variants %}
-        "{{ variant.id }}": {
-          "quantity": {{ variant.inventory_quantity | default: 0 }},
-          "policy": "{{ variant.inventory_policy }}",
-          "management": "{{ variant.inventory_management }}"
-        }{% unless forloop.last %},{% endunless %}
-      {% endfor %}
+  <!-- Product JSON for Modern Product Page JS -->
+  <script type="application/json" data-product-json>
+    {
+      "id": {{ product.id }},
+      "compare_at_price": {{ product.compare_at_price | json }},
+      "variants": [
+        {% for variant in product.variants %}
+          {
+            "id": {{ variant.id }},
+            "options": {{ variant.options | json }},
+            "price": {{ variant.price }},
+            "compare_at_price": {{ variant.compare_at_price | json }},
+            "available": {{ variant.available }},
+            "featured_media": {% if variant.featured_media %}{ "id": {{ variant.featured_media.id }} }{% else %}null{% endif %}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
     }
-  }
-</script>
+  </script>
+
+  <!-- 3D Model Script -->
+  {% if first_3d_model %}
+    <script type="application/json" id="ProductJSON-{{ product.id }}">
+      {{ product | json }}
+    </script>
+  {% endif %}
+
+  <script type="application/json" data-inventory-json>
+    {
+      "template": "{{ template.suffix }}",
+      "variants": {
+        {% for variant in product.variants %}
+          "{{ variant.id }}": {
+            "quantity": {{ variant.inventory_quantity | default: 0 }},
+            "policy": "{{ variant.inventory_policy }}",
+            "management": "{{ variant.inventory_management }}"
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      }
+    }
+  </script>
 
 <!-- Modern Product Page JavaScript -->
-<script src="{{ 'modern-product-page.js' | asset_url }}" defer></script>
+<script
+  type="module"
+  src="{{ 'modern-product-page.js' | asset_url }}"
+></script>
 
 <!-- Fallback Inline Script for Full Functionality -->
 

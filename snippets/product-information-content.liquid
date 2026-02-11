@@ -97,6 +97,11 @@
         data-testid="product-information-media"
       >
         {{ media_gallery }}
+        <div
+          id="product-zoom-{{ section_id }}"
+          class="product__zoom-wrapper"
+          aria-hidden="true"
+        ></div>
       </div>
     {% endcapture %}
 
