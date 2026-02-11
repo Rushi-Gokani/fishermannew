@@ -20,6 +20,7 @@ class ModernProductPage {
     this.initPickupAvailability();
     this.initReadMore();
     this.initTableScroll();
+    this.initThumbnailNav();
   }
 
 
@@ -70,6 +71,9 @@ class ModernProductPage {
     // Update counter
     const counter = this.container.querySelector('[data-current-index]');
     if (counter) counter.textContent = index + 1;
+
+    // Scroll thumbnail into view
+    this.scrollThumbnailIntoView(index);
 
     // Update zoom image
     this.#setupDrift();
@@ -144,6 +148,57 @@ class ModernProductPage {
     });
   }
 
+  // ========== Thumbnail Navigation ==========
+  initThumbnailNav() {
+    this.thumbScroller = this.container.querySelector('[data-thumbnails-scroller]');
+    this.thumbPrevBtn = this.container.querySelector('[data-thumbnails-nav="prev"]');
+    this.thumbNextBtn = this.container.querySelector('[data-thumbnails-nav="next"]');
+
+    if (!this.thumbScroller) return;
+
+    this.thumbPrevBtn?.addEventListener('click', () => {
+      this.thumbScroller.scrollBy({ left: -200, behavior: 'smooth' });
+    });
+
+    this.thumbNextBtn?.addEventListener('click', () => {
+      this.thumbScroller.scrollBy({ left: 200, behavior: 'smooth' });
+    });
+
+    // Update button states on scroll
+    this.thumbScroller.addEventListener('scroll', () => this.updateThumbnailNavButtons());
+    window.addEventListener('resize', () => this.updateThumbnailNavButtons());
+    this.updateThumbnailNavButtons();
+  }
+
+  updateThumbnailNavButtons() {
+    if (!this.thumbScroller || !this.thumbPrevBtn || !this.thumbNextBtn) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = this.thumbScroller;
+    this.thumbPrevBtn.disabled = scrollLeft <= 2;
+    this.thumbNextBtn.disabled = scrollLeft + clientWidth >= scrollWidth - 2;
+
+    // Hide arrows if not scrollable
+    const isScrollable = scrollWidth > clientWidth + 2;
+    this.thumbPrevBtn.style.display = isScrollable ? '' : 'none';
+    this.thumbNextBtn.style.display = isScrollable ? '' : 'none';
+  }
+
+  scrollThumbnailIntoView(index) {
+    const thumb = this.thumbnails[index];
+    if (!thumb || !this.thumbScroller) return;
+
+    const scrollerRect = this.thumbScroller.getBoundingClientRect();
+    const thumbRect = thumb.getBoundingClientRect();
+
+    if (thumbRect.left < scrollerRect.left || thumbRect.right > scrollerRect.right) {
+      thumb.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
+    }
+  }
+
   // ========== Drift Hover Zoom ==========
   initDriftZoom() {
     this.driftInstances = [];
@@ -204,7 +259,7 @@ class ModernProductPage {
         e.preventDefault();
         // Input is the previous sibling of the label/swatch
         const input = swatch.previousElementSibling;
-        if (input && input.type === 'radio' && !input.disabled) {
+        if (input && input.type === 'radio') {
           input.checked = true;
 
           // Update visual states for all swatches in this option group
@@ -276,15 +331,6 @@ class ModernProductPage {
       const hasDiscount = comparePrice > 0 && comparePrice > variant.price;
       const discountPercent = hasDiscount ? Math.round((comparePrice - variant.price) / comparePrice * 100) : 0;
 
-      console.log('External JS - Price update:', {
-        price: variant.price,
-        variant_compare: variant.compare_at_price,
-        product_compare: this.productJSON.compare_at_price,
-        using_compare: comparePrice,
-        hasDiscount,
-        discountPercent
-      });
-
       if (priceEl) {
         priceEl.textContent = this.formatMoney(variant.price);
         priceEl.classList.toggle('modern-product__price--sale', hasDiscount);
@@ -324,14 +370,35 @@ class ModernProductPage {
           : (window.theme?.strings?.soldOut || 'Sold out');
       }
       addToCart.disabled = !variant.available;
+
+      // Update data attributes for Globo
+      addToCart.setAttribute('data-variant-id', variant.id);
+      addToCart.setAttribute('data-product-available', variant.available);
     }
 
-    // Don't update URL to prevent page redirect
-    // The variant is handled by the form submission
-
-    // Update variant input values
+    // Update variant input value
     const variantInput = this.container.querySelector('input[name="id"]');
-    if (variantInput) variantInput.value = variant.id;
+    if (variantInput) {
+      variantInput.value = variant.id;
+    }
+
+    // Update hidden select for Globo and other apps
+    const variantSelect = this.container.querySelector('select[name="id"], [data-product-select]');
+    if (variantSelect) {
+      variantSelect.value = variant.id;
+      // Trigger change event for Globo Preorder/Back-in-Stock app
+      variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Update form data attributes for Globo
+    const form = this.container.querySelector('form[data-product-form]');
+    if (form) {
+      form.setAttribute('data-product-variant-id', variant.id);
+    }
+
+    // Trigger Globo Back-in-Stock events with a slight delay
+    // This ensures all DOM updates are complete before Globo processes
+    setTimeout(() => this.triggerGloboEvents(variant), 50);
 
     // Update availability
     this.updateVariantAvailability(variant);
@@ -340,6 +407,73 @@ class ModernProductPage {
     const pickup = this.container.querySelector('pickup-availability');
     if (pickup) {
       pickup.fetchAvailability(variant.id);
+    }
+  }
+
+  // Trigger events for Globo Preorder/Back-in-Stock app
+  triggerGloboEvents(variant) {
+    // Trigger the specific Globo event that the custom script listens for
+    document.dispatchEvent(new CustomEvent('globo.preorder.variant.changed', {
+      detail: { variant: variant }
+    }));
+
+    // Trigger on document level
+    document.dispatchEvent(new CustomEvent('globoVariantChanged', {
+      detail: { variant: variant }
+    }));
+
+    // Trigger on section level
+    this.section.dispatchEvent(new CustomEvent('variantChange', {
+      detail: { variant: variant }
+    }));
+
+    // Also trigger standard Shopify-style events
+    const event = new CustomEvent('variant:change', {
+      detail: { variant: variant }
+    });
+    document.dispatchEvent(event);
+    this.section.dispatchEvent(event);
+
+    // Try to find and click any hidden variant selector that Globo might use
+    const hiddenVariantSelect = this.container.querySelector('select[name="id"], [data-product-select]');
+    if (hiddenVariantSelect) {
+      hiddenVariantSelect.value = variant.id;
+      hiddenVariantSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Also trigger click event on swatch for Globo's listener
+    const clickedSwatch = this.variantSelects.querySelector('.modern-variant-swatch.is-selected');
+    if (clickedSwatch) {
+      // Trigger click event that Globo might be listening for
+      clickedSwatch.dispatchEvent(new Event('click', { bubbles: true }));
+    }
+
+    // Check if Globo.Preorder is available and call its methods
+    if (typeof window.Globo !== 'undefined' && window.Globo.Preorder) {
+      // Try various methods that might exist
+      const methods = ['initPreorder', 'render', 'renderProductForm', 'renderProductByForm', 'init', 'load'];
+      methods.forEach(method => {
+        if (typeof window.Globo.Preorder[method] === 'function') {
+          try {
+            // Call with appropriate arguments
+            if (method === 'renderProductForm') {
+              const form = this.container.querySelector('form.singleProductPreOrderForm');
+              if (form && window.GloboPreorderParams?.product) {
+                window.Globo.Preorder[method](window.GloboPreorderParams.product);
+              }
+            } else if (method === 'renderProductByForm') {
+              const form = this.container.querySelector('form.singleProductPreOrderForm');
+              if (form) {
+                window.Globo.Preorder[method](form);
+              }
+            } else {
+              window.Globo.Preorder[method]();
+            }
+          } catch (e) {
+            // Silently ignore errors for methods that don't match the expected signature
+          }
+        }
+      });
     }
   }
 
@@ -353,22 +487,25 @@ class ModernProductPage {
       swatches.forEach(swatch => {
         const value = swatch.dataset.optionValue;
 
-        // Check if this option is available in any variant
-        // Check if this option is available in any variant
-        const isAvailable = this.productJSON.variants.some(v => {
-          if (!v.available) return false;
-
+        // Check if this specific option combination is sold out
+        // Find the variant that matches ALL selected options with this swatch's value
+        const matchingVariant = this.productJSON.variants.find(v => {
           // Check match for all options
-          // If verifying current row (index), match 'value'.
-          // Else match current variant's selection.
           if (v.options[0] !== (index === 0 ? value : variant.options[0])) return false;
           if (v.options.length > 1 && v.options[1] !== (index === 1 ? value : variant.options[1])) return false;
           if (v.options.length > 2 && v.options[2] !== (index === 2 ? value : variant.options[2])) return false;
-
           return true;
         });
 
-        swatch.classList.toggle('is-disabled', !isAvailable);
+        // Add sold-out styling if variant exists but is not available
+        const isSoldOut = matchingVariant && !matchingVariant.available;
+        swatch.classList.toggle('is-disabled', isSoldOut);
+
+        // Update sold-out cross display
+        const soldOutCross = swatch.querySelector('.modern-variant-sold-out-cross');
+        if (soldOutCross) {
+          soldOutCross.style.display = isSoldOut ? 'block' : 'none';
+        }
       });
     });
   }

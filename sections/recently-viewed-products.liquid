@@ -5,11 +5,12 @@
 {%- endcapture -%}
 
 <section
-  class="section"
+  class="section recently-viewed-section"
   data-section-id="{{ section.id }}"
   data-section-type="recently-viewed-products"
   data-section-settings="{{ section_settings | escape_once }}"
   data-current-product-id="{{ product.id }}"
+  style="display: none;"
 >
   <div class="container">
     {%- if section.settings.title != blank -%}
@@ -19,29 +20,46 @@
     {%- endif -%}
 
     {%- if request.page_type == 'search' and search.results_count > 0 -%}
-      <div class="recently-viewed-grid">
-        {%- assign parsed_terms = search.terms | split: ' OR ' -%}
+      <div class="recently-viewed-products-wrapper">
+        <!-- Mobile slider container -->
+        <div class="recently-viewed-slider">
+          <div class="recently-viewed-slider-track">
+            {%- assign parsed_terms = search.terms | split: ' OR ' -%}
+            {%- for parsed_term in parsed_terms -%}
+              {%- assign id = parsed_term | split: 'id:' | last | times: 1 -%}
+              {%- for product in search.results -%}
+                {%- if product.id == id -%}
+                  <div class="recently-viewed-grid__item">
+                    {%- render 'product-card',
+                      product: product,
+                      block: block
+                    -%}
+                  </div>
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          </div>
+        </div>
 
-        {%- for parsed_term in parsed_terms -%}
-          {%- assign id = parsed_term | split: 'id:' | last | times: 1 -%}
-
-          {%- for product in search.results -%}
-            {%- if product.id == id -%}
-              <div class="recently-viewed-grid__item">
-                {%- render 'product-card-item',
-                  product: product,
-                  section_id: section.id,
-                  section_settings: {
-                    wishlist_fill: '#ffffff'
-                  },
-                  show_badge: product.tags contains 'best-seller',
-                  badge_text: 'Best Seller'
-                -%}
-              </div>
-              {%- break -%}
-            {%- endif -%}
+        <!-- Desktop grid container -->
+        <div class="recently-viewed-grid">
+          {%- assign parsed_terms = search.terms | split: ' OR ' -%}
+          {%- for parsed_term in parsed_terms -%}
+            {%- assign id = parsed_term | split: 'id:' | last | times: 1 -%}
+            {%- for product in search.results -%}
+              {%- if product.id == id -%}
+                <div class="recently-viewed-grid__item">
+                  {%- render 'product-card',
+                    product: product,
+                    block: block
+                  -%}
+                </div>
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
           {%- endfor -%}
-        {%- endfor -%}
+        </div>
       </div>
     {%- else -%}
       <div class="recently-viewed-products-placeholder" aria-hidden="true">
@@ -75,190 +93,81 @@
 </section>
 
 {% style %}
+  /* Container max-width */
+  #shopify-section-{{ section.id }} .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Grid layout */
   #shopify-section-{{ section.id }} .recently-viewed-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 24px;
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   #shopify-section-{{ section.id }} .recently-viewed-grid__item {
     height: 100%;
   }
 
-  #shopify-section-{{ section.id }} .product-card-{{ section.id }} {
-    background-color: #ffffff;
-    border: 1px solid #f0f0f0;
-    border-radius: 16px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    min-height: 460px;
-  }
+  /* Mobile slider styles */
+  @media (max-width: 767px) {
+    #shopify-section-{{ section.id }} .container {
+      padding: 0 16px;
+      max-width: 100%;
+    }
 
-  #shopify-section-{{ section.id }} .product-card-{{ section.id }}:hover {
-    box-shadow: 0 10px 20px rgba(17, 24, 39, 0.1);
-    transform: translateY(-4px);
-  }
-
-  #shopify-section-{{ section.id }} .product-card-top-{{ section.id }} {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-badge-{{ section.id }} {
-    background: #ffffff;
-    color: #111;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-  }
-
-  #shopify-section-{{ section.id }} .product-card-wishlist-{{ section.id }} {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-image-wrapper-{{ section.id }} {
-    position: relative;
-    margin-bottom: 12px;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #f8fafc;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-slider-wrapper-{{ section.id }} {
-    overflow: hidden;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-slider-container-{{ section.id }} {
-    display: flex;
-    transition: transform 0.3s ease;
-    width: 100%;
-    cursor: grab;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-image-{{ section.id }} {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    flex-shrink: 0;
-    background: #fff;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-arrow-{{ section.id }} {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-    cursor: pointer;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-arrow-prev-{{ section.id }} {
-    left: 8px;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-arrow-next-{{ section.id }} {
-    right: 8px;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-dots-{{ section.id }} {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-dot-{{ section.id }} {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.2);
-  }
-
-  #shopify-section-{{ section.id }} .product-card-dot-{{ section.id }}.active {
-    background: #40c4ff;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-content-{{ section.id }} {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-title-{{ section.id }} {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-    color: #0f172a;
-    min-height: 48px;
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-title-{{ section.id }} a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-price-{{ section.id }} {
-    margin: 0;
-    font-weight: 600;
-    color: #0f172a;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-price-{{ section.id }} .compare-price {
-    margin-left: 8px;
-    opacity: 0.5;
-    text-decoration: line-through;
-  }
-
-  #shopify-section-{{ section.id }} .product-card-buy-form-{{ section.id }} {
-    margin-top: auto;
-  }
-
-  /* Button styling moved to product-card-item snippet to match main product cards */
-
-  @media (max-width: 1024px) {
     #shopify-section-{{ section.id }} .recently-viewed-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: none !important;
+    }
+
+    #shopify-section-{{ section.id }} .recently-viewed-slider {
+      display: block;
+      position: relative;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    #shopify-section-{{ section.id }} .recently-viewed-slider-track {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 4px;
+      max-width: 100%;
+    }
+
+    #shopify-section-{{ section.id }} .recently-viewed-slider-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    #shopify-section-{{ section.id }} .recently-viewed-grid__item {
+      flex: 0 0 85%;
+      scroll-snap-align: start;
+      max-width: 85%;
     }
   }
 
-  @media (max-width: 768px) {
+  /* Hide slider on desktop */
+  @media (min-width: 768px) {
+    #shopify-section-{{ section.id }} .recently-viewed-slider {
+      display: none !important;
+    }
+
     #shopify-section-{{ section.id }} .recently-viewed-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      display: grid !important;
     }
   }
 
-  @media (max-width: 600px) {
-    #shopify-section-{{ section.id }} .product-card-{{ section.id }} {
-      padding: 12px;
+  @media (max-width: 1024px) and (min-width: 768px) {
+    #shopify-section-{{ section.id }} .recently-viewed-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     }
   }
 {% endstyle %}

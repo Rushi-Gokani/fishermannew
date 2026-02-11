@@ -93,15 +93,10 @@ class CartItemsComponent extends Component {
 
     // Add class to the row to trigger the animation
     rowsToRemove.forEach((row) => {
-      const remove = () => row.remove();
-
-      if (prefersReducedMotion()) return remove();
+      if (prefersReducedMotion()) return;
 
       row.style.setProperty('--row-height', `${row.clientHeight}px`);
       row.classList.add('removing');
-
-      // Remove the row after the animation ends
-      onAnimationEnd(row, remove);
     });
   }
 
@@ -115,9 +110,9 @@ class CartItemsComponent extends Component {
   updateQuantity(config) {
     const cartPerformaceUpdateMarker = cartPerformance.createStartingMarker(`${config.action}:user-action`);
 
-    this.#disableCartItems();
-
     const { line, quantity } = config;
+    this.#disableCartItem(line);
+
     const { cartTotal } = this.refs;
 
     const cartItemsComponents = document.querySelectorAll('cart-items-component');
@@ -179,7 +174,7 @@ class CartItemsComponent extends Component {
         console.error(error);
       })
       .finally(() => {
-        this.#enableCartItems();
+        this.#enableCartItem(line);
         cartPerformance.measureFromMarker(cartPerformaceUpdateMarker);
       });
   }
@@ -240,17 +235,21 @@ class CartItemsComponent extends Component {
   };
 
   /**
-   * Disables the cart items.
+   * Disables a specific cart item row.
+   * @param {number} line - The line item index.
    */
-  #disableCartItems() {
-    this.classList.add('cart-items-disabled');
+  #disableCartItem(line) {
+    const row = this.refs.cartItemRows?.[line - 1];
+    row?.classList.add('cart-item-disabled');
   }
 
   /**
-   * Enables the cart items.
+   * Enables a specific cart item row.
+   * @param {number} line - The line item index.
    */
-  #enableCartItems() {
-    this.classList.remove('cart-items-disabled');
+  #enableCartItem(line) {
+    const row = this.refs.cartItemRows?.[line - 1];
+    row?.classList.remove('cart-item-disabled');
   }
 
   /**

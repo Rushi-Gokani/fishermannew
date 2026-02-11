@@ -359,8 +359,9 @@
     width: 100%;
   }
 
-  .cart-items-disabled {
+  .cart-item-disabled {
     pointer-events: none;
+    opacity: 0.5;
   }
 
   .cart-items__table {
@@ -399,8 +400,7 @@
 
   .cart-items__table-row.removing {
     overflow: hidden;
-    animation: removeRow calc(var(--animation-speed) * 2) var(--animation-easing) forwards;
-    animation-delay: var(--animation-speed);
+    animation: removeRow var(--animation-speed) var(--animation-easing) forwards;
   }
 
   @keyframes removeRow {

@@ -58,7 +58,8 @@
 
     {%- if recommendations.performed or section.settings.product == blank -%}
       {% liquid
-        if section.settings.product == blank
+        assign current_product = section.settings.product | default: product
+        if section.settings.product == blank and product == blank
           assign products = null
           # Onboarding mode: Show placeholder products
           for i in (1..section.settings.max_products)
@@ -68,7 +69,10 @@
         elsif recommendations.performed and recommendations.products_count == 0
           # No recommendations found, pull from catalog
           if section.settings.recommendation_type == 'related'
-            assign products = collections.all.products | reject: 'id', section.settings.product.id
+            assign products = collections.all.products | where_exp: "item", "item.id != current_product.id"
+            if products == blank or products.size == 0
+               assign products = collections.all.products
+            endif
           elsif section.settings.recommendation_type == 'complementary'
             # Do not recommend the All collection as complementary products
             assign products = null
@@ -182,9 +186,9 @@
     }
   }
 
-  product-recommendations:has([data-has-recommendations='false']) {
+  /* product-recommendations:has([data-has-recommendations='false']) {
     display: none;
-  }
+  } */
 {% endstylesheet %}
 
 {% schema %}

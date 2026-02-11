@@ -147,60 +147,74 @@
 
       <!-- Thumbnails -->
       {% if product.media.size > 1 %}
-        <div class="modern-gallery__thumbnails">
-          {% for media in product.media %}
-            <button
-              type="button"
-              class="modern-gallery__thumbnail {% if forloop.first %}is-active{% endif %}"
-              data-media-id="{{ media.id }}"
-              data-index="{{ forloop.index0 }}"
-              aria-label="Go to slide {{ forloop.index }}"
-              aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
-            >
-              {% if media.media_type == 'image' %}
-                {{
-                  media
-                  | image_url: width: 200
-                  | image_tag:
-                    loading: 'lazy',
-                    class: 'modern-gallery__thumbnail-img',
-                    alt: media.alt,
-                    width: nil,
-                    height: nil
-                }}
-              {% else %}
-                <span class="modern-gallery__thumbnail-badge">
-                  {% case media.media_type %}
-                    {% when 'video' %}
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    {% when 'external_video' %}
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M21.58 7.17a2.001 2.001 0 0 0-1.42-1.42C18.55 5 12 5 12 5s-6.55 0-8.16.75c-.7.33-1.09 1.42-1.42 1.42C2 18.45 2 12 2 12s0-6.55.75-8.16c.33-.7 1.42-1.09 1.42-1.42C5.45 2 12 2 12 2s6.55 0 8.16.75c.7.33 1.09 1.42 1.42 1.42C22 5.55 22 12 22 12s0 6.55-.75 8.16c-.33.7-1.42 1.09-1.42 1.42C18.55 22 12 22 12 22s-6.55 0-8.16-.75c-.7-.33-1.09-1.42-1.42-1.42C2 18.45 2 12 2 12z"/>
-                        <polygon points="10 8 16 12 10 16 10 8"/>
-                      </svg>
-                    {% when 'model' %}
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path d="M2 17l10 5 10-5"/>
-                        <path d="M2 12l10 5 10-5"/>
-                      </svg>
-                  {% endcase %}
-                </span>
-                {{
-                  media
-                  | image_url: width: 200
-                  | image_tag:
-                    loading: 'lazy',
-                    class: 'modern-gallery__thumbnail-img',
-                    alt: media.alt,
-                    width: nil,
-                    height: nil
-                }}
-              {% endif %}
-            </button>
-          {% endfor %}
+        <div class="modern-gallery__thumbnails-wrapper">
+          <button type="button" class="modern-gallery__thumbnails-nav modern-gallery__thumbnails-nav--prev" aria-label="Previous thumbnails" data-thumbnails-nav="prev">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+
+          <div class="modern-gallery__thumbnails" data-thumbnails-scroller>
+            {% for media in product.media %}
+              <button
+                type="button"
+                class="modern-gallery__thumbnail {% if forloop.first %}is-active{% endif %}"
+                data-media-id="{{ media.id }}"
+                data-index="{{ forloop.index0 }}"
+                aria-label="Go to slide {{ forloop.index }}"
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+              >
+                {% if media.media_type == 'image' %}
+                  {{
+                    media
+                    | image_url: width: 200
+                    | image_tag:
+                      loading: 'lazy',
+                      class: 'modern-gallery__thumbnail-img',
+                      alt: media.alt,
+                      width: nil,
+                      height: nil
+                  }}
+                {% else %}
+                  <span class="modern-gallery__thumbnail-badge">
+                    {% case media.media_type %}
+                      {% when 'video' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      {% when 'external_video' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M21.58 7.17a2.001 2.001 0 0 0-1.42-1.42C18.55 5 12 5 12 5s-6.55 0-8.16.75c-.7.33-1.09 1.42-1.42 1.42C2 18.45 2 12 2 12s0-6.55.75-8.16c.33-.7 1.42-1.09 1.42-1.42C5.45 2 12 2 12 2s6.55 0 8.16.75c.7.33 1.09 1.42 1.42 1.42C22 5.55 22 12 22 12s0 6.55-.75 8.16c-.33.7-1.42 1.09-1.42 1.42C18.55 22 12 22 12 22s-6.55 0-8.16-.75c-.7-.33-1.09-1.42-1.42-1.42C2 18.45 2 12 2 12z"/>
+                          <polygon points="10 8 16 12 10 16 10 8"/>
+                        </svg>
+                      {% when 'model' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                          <path d="M2 17l10 5 10-5"/>
+                          <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    {% endcase %}
+                  </span>
+                  {{
+                    media
+                    | image_url: width: 200
+                    | image_tag:
+                      loading: 'lazy',
+                      class: 'modern-gallery__thumbnail-img',
+                      alt: media.alt,
+                      width: nil,
+                      height: nil
+                  }}
+                {% endif %}
+              </button>
+            {% endfor %}
+          </div>
+
+          <button type="button" class="modern-gallery__thumbnails-nav modern-gallery__thumbnails-nav--next" aria-label="Next thumbnails" data-thumbnails-nav="next">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
         </div>
       {% endif %}
 
@@ -295,15 +309,15 @@
                     </legend>
 
                     <div class="modern-variant-options" data-option-index="{{ forloop.index0 }}">
-                      {%- assign available_option_markup = '' -%}
-                      {%- assign sold_out_option_markup = '' -%}
                       {%- for value in option.values -%}
                         {%- liquid
-                          assign option_disabled = true
+                          assign option_disabled = false
                           assign option_swatch_img = null
                           assign variant_with_image = null
                           assign variant_for_value = null
                           assign has_variant_sale = false
+                          assign variant_is_sold_out = false
+
                           for variant in product.variants
                             assign matches_value = false
                             if option.position == 1 and variant.option1 == value
@@ -315,9 +329,6 @@
                             endif
                             if matches_value
                               assign variant_for_value = variant
-                              if variant.available
-                                assign option_disabled = false
-                              endif
                               if variant.featured_media
                                 assign option_swatch_img = variant.featured_media
                                 assign variant_with_image = variant
@@ -326,8 +337,11 @@
                               if variant_compare == nil or variant_compare == blank or variant_compare == 0
                                 assign variant_compare = product.compare_at_price
                               endif
-                              if variant.available and variant_compare != nil and variant_compare > variant.price
+                              if variant_compare != nil and variant_compare > variant.price
                                 assign has_variant_sale = true
+                              endif
+                              if variant.available == false
+                                assign variant_is_sold_out = true
                               endif
                             endif
                           endfor
@@ -347,19 +361,20 @@
                             value="{{ value | escape }}"
                             form="{{ product_form_id }}"
                             {% if option.selected_value == value %}checked{% endif %}
-                            {% if option_disabled %}disabled{% endif %}
                             class="modern-variant-input visually-hidden"
                             data-variant-option
                             {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-available="{{ variant_for_value.available }}"{% endif %}
                           >
 
                           <label
                             for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                            class="modern-variant-swatch {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option_disabled %}is-disabled modern-variant-swatch--sold-out{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                            class="modern-variant-swatch swatch-anchor globo-swatch-list {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if variant_is_sold_out %}modern-variant-swatch--sold-out{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
                             data-variant-swatch
                             data-option-value="{{ value | escape }}"
                             {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
-                            {% if variant_for_value %}data-variant-full-id="{{ variant_for_value.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-available="{{ variant_for_value.available }}"{% endif %}
                             tabindex="0"
                           >
                             {%- if use_image_swatch and option_swatch_img -%}
@@ -376,29 +391,23 @@
                             {%- else -%}
                               <span class="modern-variant-swatch-label">{{ value }}</span>
                             {%- endif -%}
-                            
-                            {%- if has_variant_sale and option_disabled == false -%}
+
+                            {%- if has_variant_sale -%}
                               <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
                             {%- endif -%}
-                            {% if option_disabled %}
+                            {% if variant_is_sold_out %}
                               <span class="modern-variant-sold-out-cross" aria-hidden="true"></span>
                             {% endif %}
                           </label>
                         {%- endcapture -%}
 
-                        {% if option_disabled %}
-                          {% assign sold_out_option_markup = sold_out_option_markup | append: variant_option_markup %}
-                        {% else %}
-                          {% assign available_option_markup = available_option_markup | append: variant_option_markup %}
-                        {% endif %}
+                        {{ variant_option_markup }}
                       {%- endfor -%}
-                      {{ available_option_markup }}{{ sold_out_option_markup }}
                     </div>
                   </fieldset>
                 {%- endfor -%}
               </div>
             {%- endunless -%}
-            <input type="hidden" name="id" value="{{ current_variant.id }}" form="{{ product_form_id }}">
 
           {%- when 'quantity_selector' -%}
             <!-- Quantity selector logic moved to buy_buttons block -->
@@ -407,6 +416,21 @@
             <div {{ block.shopify_attributes }}>
               <product-form class="modern-product-form" data-section-id="{{ section.id }}" data-product-id="{{ product.id }}">
                 {% form 'product', product, id: product_form_id, class: 'product-form modern-product-form__form singleProductPreOrderForm', data-product-form: '', data-product-id: product.id, data-product-variant-id: current_variant.id %}
+
+                  {%- comment -%} Hidden select for Globo and other third-party apps {%- endcomment -%}
+                  <select name="id" class="visually-hidden" data-globo-variant-select data-product-select>
+                    {% for variant in product.variants %}
+                      <option
+                        value="{{ variant.id }}"
+                        {% if variant.id == current_variant.id %}selected="selected"{% endif %}
+                        data-available="{{ variant.available }}"
+                        data-price="{{ variant.price }}"
+                        data-compare-price="{{ variant.compare_at_price }}"
+                      >
+                        {{ variant.title }} - {% if variant.available %}Available{% else %}Sold out{% endif %}
+                      </option>
+                    {% endfor %}
+                  </select>
 
                   {%- comment -%} Globo Preorder Product Data - Must be inside form {%- endcomment -%}
                   <script type="application/json" data-globo-preorder-product>
@@ -919,15 +943,36 @@
     50% { transform: scale(1.03); }
   }
 
-  /* Thumbnails - Rounded */
-  .modern-gallery__thumbnails {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
+  /* Thumbnails Slider - Rounded */
+  .modern-gallery__thumbnails-wrapper {
+    position: relative;
     margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modern-gallery__thumbnails {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 12px;
+    padding: 4px 2px;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide for Firefox */
+    flex: 1;
+  }
+
+  .modern-gallery__thumbnails::-webkit-scrollbar {
+    display: none; /* Hide for Chrome/Safari */
   }
 
   .modern-gallery__thumbnail {
+    flex: 0 0 80px;
+    width: 80px;
     position: relative;
     aspect-ratio: 1;
     border-radius: 10px;
@@ -936,6 +981,34 @@
     background: rgb(var(--color-foreground-rgb) / 0.03);
     cursor: pointer;
     transition: all 0.2s ease;
+    scroll-snap-align: start;
+  }
+
+  .modern-gallery__thumbnails-nav {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    color: currentColor;
+    padding: 0;
+  }
+
+  .modern-gallery__thumbnails-nav:hover {
+    background: rgb(var(--color-foreground-rgb) / 0.1);
+    transform: scale(1.1);
+  }
+
+  .modern-gallery__thumbnails-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
   }
 
   .modern-gallery__thumbnail:hover {
@@ -1734,11 +1807,6 @@
 
   .modern-variant-swatch--image.is-disabled {
     opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .modern-variant-swatch--image.is-disabled::after {
-    display: none;
   }
 
   .modern-variant-swatch--image.modern-variant-swatch--sold-out {
@@ -1788,14 +1856,22 @@
 
   .modern-variant-swatch--pill.is-disabled {
     opacity: 0.4;
-    cursor: not-allowed;
     text-decoration: line-through;
   }
 
   .modern-variant-swatch--sold-out .modern-variant-swatch-img,
-  .modern-variant-swatch--sold-out .modern-variant-swatch-label {
+  .modern-variant-swatch--sold-out .modern-variant-swatch-label,
+  .modern-variant-swatch.is-disabled .modern-variant-swatch-img,
+  .modern-variant-swatch.is-disabled .modern-variant-swatch-label {
     opacity: 0.45;
     filter: grayscale(1);
+  }
+
+  /* Ensure disabled swatches are still clickable */
+  .modern-variant-swatch.is-disabled,
+  .modern-variant-swatch--sold-out {
+    pointer-events: auto !important;
+    cursor: pointer !important;
   }
 
   .modern-variant-sold-out-cross {

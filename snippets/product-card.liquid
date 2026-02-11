@@ -509,17 +509,15 @@
       </button>
 
     {% endif %} {% endcomment %}
-     <form method="post" action="/cart/add" onsubmit="event.stopPropagation();" class="gPreorderCollectionForm product-card-buy-form-{{ card_id }}" style="margin: 0;">
-        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-        <input type="hidden" name="return_to" value="/checkout">
+     <div class="product-card-buy-form-{{ card_id }}">
         {% if sold_out %}
           <button class="product-card-buy-btn-{{ card_id }} disabled" disabled>{{ 'products.product.sold_out' | t | default: 'Sold Out' }}</button>
         {% else %}
-            <button type="submit" class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ card_id }}" onclick="event.stopPropagation();">
-              {{ 'Buy It Now' }}
+            <button type="button" class="collectionPreorderAddToCartBtn product-card-buy-btn-{{ card_id }}" onclick="handleAddToCart(event, {{ product.selected_or_first_available_variant.id }})">
+              {{ 'Add to Cart' }}
             </button>
         {% endif %}
-      </form>
+      </div>
   </div>
 </card-slider>
 
@@ -589,6 +587,18 @@
           bubbles: true, 
           detail: eventDetail 
       }));
+
+      // Dispatch additional event for drawer auto-open
+      document.dispatchEvent(new CustomEvent('ajaxProduct:added', {
+          bubbles: true,
+          detail: eventDetail
+      }));
+
+      // Directly open the cart drawer for better UX
+      const cartDrawer = document.querySelector('cart-drawer-component');
+      if (cartDrawer && typeof cartDrawer.open === 'function') {
+          cartDrawer.open();
+      }
       
       button.textContent = 'Added';
       setTimeout(() => {

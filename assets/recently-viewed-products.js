@@ -44,6 +44,9 @@ function renderSectionFromMarkup(section, markup) {
 
   section.innerHTML = freshSection.innerHTML;
   section.dataset.hydrated = 'true';
+
+  // Show the section after products are loaded
+  section.style.display = 'block';
 }
 
 export const RecentlyViewed = {
