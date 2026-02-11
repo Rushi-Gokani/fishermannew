@@ -688,6 +688,32 @@
   .predictive-search-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
   .predictive-search-item__title { font-weight: 600; font-size: 14px; display: block; color: #0f172a; }
   .predictive-search-item__price { font-size: 13px; color: #64748b; }
+
+  /* Sticky Header Animation */
+  .custom-header-section.header-sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .custom-header-section.header-hidden {
+    transform: translateY(-100%);
+  }
+
+  /* Force header visible when any drawer/modal is open inside it */
+  .custom-header-section:has(cart-drawer-component.active),
+  .custom-header-section:has(.cart-drawer.active),
+  .custom-header-section:has(dialog[open]),
+  .custom-header-section:has(.search-modal.active),
+  .custom-header-section:has(.mobile-drawer.active) {
+    transform: none !important;
+    opacity: 1 !important;
+    top: 0 !important;
+  }
 </style>
 
 {% capture header_logo_markup %}
@@ -1328,6 +1354,86 @@
           }
         });
       });
+    }
+    
+    // Sticky Header Logic
+    const headerSection = document.querySelector('.custom-header-section');
+    if (headerSection) {
+        // Create placeholder to prevent layout jump
+        const placeholder = document.createElement('div');
+        placeholder.style.height = headerSection.offsetHeight + 'px';
+        placeholder.style.display = 'none'; 
+        headerSection.parentNode.insertBefore(placeholder, headerSection);
+
+        let lastScrollTop = 0;
+        // Threshold to start sticking
+        const offset = 300; 
+
+        window.addEventListener('scroll', function() {
+            // Check if cart drawer or any modal is open
+            const isDrawerOpen = document.body.classList.contains('overflow-hidden') || 
+                                 document.querySelector('cart-drawer-component.active') ||
+                                 document.querySelector('.cart-drawer.active') ||
+                                 (document.querySelector('cart-drawer-component dialog') && document.querySelector('cart-drawer-component dialog').hasAttribute('open'));
+
+            if (isDrawerOpen) {
+                headerSection.classList.remove('header-hidden');
+                headerSection.classList.add('header-sticky'); // Ensure it stays fixed if already down
+                return;
+            }
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > offset) {
+                // Deep scroll
+                placeholder.style.display = 'block';
+                headerSection.classList.add('header-sticky');
+                
+                if (scrollTop > lastScrollTop) {
+                    // Down
+                    headerSection.classList.add('header-hidden');
+                } else {
+                    // Up
+                    headerSection.classList.remove('header-hidden');
+                }
+            } else {
+                // Top
+                headerSection.classList.remove('header-sticky');
+                headerSection.classList.remove('header-hidden');
+                placeholder.style.display = 'none';
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, { passive: true });
+
+        // MutationObserver to watch for drawer opening and force header show
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                const isDrawerOpen = document.body.classList.contains('overflow-hidden') || 
+                                     document.querySelector('cart-drawer-component.active') ||
+                                     document.querySelector('.cart-drawer.active') ||
+                                     (document.querySelector('cart-drawer-component dialog') && document.querySelector('cart-drawer-component dialog').hasAttribute('open')) ||
+                                     document.querySelector('.mobile-drawer.active') ||
+                                     document.querySelector('.search-modal.active');
+                
+                if (isDrawerOpen) {
+                     headerSection.classList.remove('header-hidden');
+                     headerSection.classList.add('header-sticky');
+                }
+            });
+        });
+
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        
+        // Observe all potential drawer containers
+        const potentialDrawers = document.querySelectorAll('cart-drawer-component, .mobile-drawer, .search-modal, dialog');
+        potentialDrawers.forEach(drawer => {
+             observer.observe(drawer, { attributes: true, attributeFilter: ['class', 'open'] });
+        });
+
+        // Update placeholder on resize
+        window.addEventListener('resize', function() {
+           placeholder.style.height = headerSection.offsetHeight + 'px';
+        });
     }
   });
 </script>
