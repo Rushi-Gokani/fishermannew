@@ -282,6 +282,15 @@
     letter-spacing: -0.01em;
   }
 
+  /* Sticky Wrapper */
+  .header-sticky-wrapper {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+  }
+
   /* Top Bar */
   .custom-top-bar {
     background: #0f172a;
@@ -708,6 +717,7 @@
   ></script>
 {% endif %}
 
+<div class="header-sticky-wrapper">
 {% if section.settings.show_top_bar %}
 <div class="custom-top-bar">
   <div class="top-bar-left">
@@ -966,7 +976,7 @@
     </div>
   </div>
 </div>
-
+</div>
 
 <!-- Mobile Menu Drawer -->
 <div class="mobile-drawer" id="mobileDrawer">
