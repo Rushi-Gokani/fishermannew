@@ -608,88 +608,89 @@ form.product-form button.gPreorderBtn,
 }
 </style> {% endcomment %}
 <script>
+    window.GloboPreorderParams = window.GloboPreorderParams || {};
+    window.GloboPreorderParams.selectors = window.GloboPreorderParams.selectors || {};
+    window.GloboPreorderParams.selectors.productPositionLimitMessage = '.modern-product-actions-wrapper';
+    window.GloboPreorderParams.selectors.productPositionMessage = '.modern-product-actions-wrapper';
+    window.GloboPreorderParams.selectors.productPositionPaymentOption = '.modern-product-actions-wrapper';
+    window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis';
+    window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis';
+    window.GloboPreorderParams.selectors.productVariantActivator += ", .swatch-anchor, .globo-swatch-list label, .globo-swatch-list select";
+    window.GloboPreorderParams.selectors.collectionProductForms = ".product-item form.product-item__action-list, .gPreorderCollectionForm";
+    window.GloboPreorderParams.selectors.quickViewActivator = ".product-item__action-button";
+    window.GloboPreorderParams.selectors.quickViewProductForm = ".modal[aria-hidden=false] form.product-form";
+    window.GloboPreorderParams.selectors.collectionFilterSelector += ", .collection__filter-checkbox label, .pagination__nav-item";
+    window.GloboPreorderParams.selectors.collectionAddToCartBtn = ".product-item__action-button, .collectionPreorderAddToCartBtn";
+
+    document.addEventListener('globo.preorder.variant.changed', () => {
+        app.appSetInterval(() => {
+            const gSingleProductForm = document.querySelector('form.singleProductPreOrderForm');
+            if (gSingleProductForm && window?.GloboPreorderParams?.page === 'product') {
+                app.renderProductForm(gSingleProductForm, window.GloboPreorderParams.product);
+            }
+        }, 600, 2);
+    });
+
+    document.addEventListener('globo.preorder.show.bis', function (e) {
+        const { form, type } = e.detail;
+        if (type === '#Globo-Back-In-Stock') {
+            form.querySelector('.magic-buy-btn__parent')?.classList.add('gPreorderHidden');
+        }
+
+        form.classList.add('gBisShowing');
+        if (form.classList.contains('gridProductPreOrderForm')) {
+            const disabledBtn = form.querySelector('.product-item__action-button[disabled]');
+            if (!disabledBtn) {
+                form.querySelector('#Globo-Back-In-Stock')?.classList.add('gPreorderHidden');
+            }
+        }
+    });
+
+    document.addEventListener('globo.preorder.show.addtocart', function (e) {
+        const { form } = e.detail;
+        form.classList.remove('gBisShowing');
+    });
+
+    window.addEventListener('load', () => {
+        app.handleVariantChange();
+        if (window?.Globo?.Preorder) {
+            window.Globo.Preorder.initPreorder();
+        }
+    });
+
+    document.addEventListener('globo.preorder.show.naMessage', e => {
+        const { form, profile } = e.detail;
+        window.Globo.Preorder.appSetInterval(() => {
+            if (form.classList.contains('singleProductPreOrderForm')) {
+                const stickyBtn = document.querySelector('.zrx-sticky-atc-main-button');
+                if (stickyBtn) {
+                    stickyBtn.classList.add('gSoldout');
+                    stickyBtn.innerHTML = profile.message.soldoutText;
+                }
+            }
+        }, 600, 2);
+    })
+
+    window.onscroll = app.debounce(() => {
+        if(window?.GloboPreorderParams?.page == 'index'){
+            window?.Globo?.Preorder && window.Globo.Preorder.initPreorder()
+        }
+    }, 1500)
+
+
     const preorderCustom = {
         render: function(){
             this.initSelectors()
             this.handleEvents()
         },
         initSelectors: function(){
-            window.GloboPreorderParams = window.GloboPreorderParams || {};
-            window.GloboPreorderParams.selectors = window.GloboPreorderParams.selectors || {};
-            window.GloboPreorderParams.selectors.productPositionLimitMessage = '.modern-product-actions-wrapper';
-            window.GloboPreorderParams.selectors.productPositionMessage = '.modern-product-actions-wrapper';
-            window.GloboPreorderParams.selectors.productPositionPaymentOption = '.modern-product-actions-wrapper';
-            window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis';
-            window.GloboPreorderParams.selectors.productPositionBis = '.gPositionBis';
-            window.GloboPreorderParams.selectors.productVariantActivator += ", .swatch-anchor, .globo-swatch-list label, .globo-swatch-list select";
-            window.GloboPreorderParams.selectors.collectionProductForms = ".product-item form.product-item__action-list, .gPreorderCollectionForm";
-            window.GloboPreorderParams.selectors.quickViewActivator = ".product-item__action-button";
-            window.GloboPreorderParams.selectors.quickViewProductForm = ".modal[aria-hidden=false] form.product-form";
-            window.GloboPreorderParams.selectors.collectionFilterSelector += ", .collection__filter-checkbox label, .pagination__nav-item";
-            window.GloboPreorderParams.selectors.collectionAddToCartBtn = ".product-item__action-button, .collectionPreorderAddToCartBtn";
+            
         },
         handleEvents: function(){
             const app = this;
-
-            document.addEventListener('globo.preorder.variant.changed', () => {
-                    app.appSetInterval(() => {
-                        let gSingleProductForm = $('form.singleProductPreOrderForm')
-                        if(gSingleProductForm.length && window?.GloboPreorderParams?.page == 'product'){
-                            app.renderProductForm(gSingleProductForm, window.GloboPreorderParams.product)
-                        }
-                    }, 600, 2)
-            })
-            
-            document.addEventListener('globo.preorder.show.bis', function (e) {
-                const {form, type} = e.detail;
-                if(type === '#Globo-Back-In-Stock'){
-                    form.find('.magic-buy-btn__parent')?.addClass('gPreorderHidden');
-                }
-                form.addClass('gBisShowing')
-                if(form.hasClass('gridProductPreOrderForm')){
-                    // form.find('.product-item__action-button[disabled]').addClass('gPreorderHidden')
-                    if(form.find('.product-item__action-button[disabled]').length == 0){
-                    form.find('#Globo-Back-In-Stock').addClass('gPreorderHidden')
-                    }
-                }
-            });
-
-            document.addEventListener('globo.preorder.show.addtocart', function (e) {
-                const {form, type} = e.detail;
-                form.removeClass('gBisShowing')
-            });
-
-            window.addEventListener('load', () => {
-                app.handleVariantChange()
-
-                // app.handleFilterChange()
-                window?.Globo?.Preorder && window.Globo.Preorder.initPreorder()
-            })
-
             app.showPreorderButton()
             app.showAddToCartButton()
             app.handleUpdateCart()
-
-            document.addEventListener('globo.preorder.show.naMessage', e => {
-                const { form, profile } = e.detail;
-
-                window.Globo.Preorder.appSetInterval(() => {
-                    if(form.hasClass('singleProductPreOrderForm')){
-                        let stickyBtn = $('.zrx-sticky-atc-main-button')
-        
-                        if(stickyBtn.length){
-                            stickyBtn.addClass('gSoldout')
-                            stickyBtn.html(profile.message.soldoutText);
-                        }
-                    }
-                }, 600, 2)
-            })
-
-            window.onscroll = app.debounce(() => {
-                if(window?.GloboPreorderParams?.page == 'index'){
-                    window?.Globo?.Preorder && window.Globo.Preorder.initPreorder()
-                }
-            }, 1500)
         },
         handleFilterChange: function(){
             const app = this;
