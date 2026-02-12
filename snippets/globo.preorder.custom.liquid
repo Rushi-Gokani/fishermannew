@@ -74,7 +74,7 @@ const preorderCustom = {
             if(type === '#Globo-Back-In-Stock'){
                 // Hide the regular add to cart button when BIS is shown
                 const addToCartBtn = form.find('[data-add-to-cart]');
-                if(addToCartBtn) addToCartBtn.style.display = 'none';
+                if(addToCartBtn) addToCartBtn[0].style.display = 'none';
             }
         });
 
@@ -82,7 +82,7 @@ const preorderCustom = {
         document.addEventListener('globo.preorder.show.addtocart', function (e) {
             const {form, type} = e.detail;
             const addToCartBtn = form.find('[data-add-to-cart]');
-            if(addToCartBtn) addToCartBtn.style.display = '';
+            if(addToCartBtn) addToCartBtn[0].style.display = '';
         });
 
         // Initialize on page load
