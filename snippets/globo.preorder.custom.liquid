@@ -78,11 +78,11 @@ const preorderCustom = {
         });
 
         // Handle Add to Cart button showing (revert from pre-order state)
-        document.addEventListener('globo.preorder.show.addtocart', function (e) {
+        {% comment %} document.addEventListener('globo.preorder.show.addtocart', function (e) {
             const {form, type} = e.detail;
             const addToCartBtn = form.querySelector ? form.querySelector('[data-add-to-cart]') : form.find('[data-add-to-cart]');
             if(addToCartBtn) addToCartBtn.style.display = '';
-        });
+        }); {% endcomment %}
 
         // Initialize on page load
         window.addEventListener('load', () => {
