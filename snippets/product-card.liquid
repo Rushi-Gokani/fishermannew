@@ -51,7 +51,6 @@
     flex-direction: column;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     height: 100%;
-    min-height: 480px;
   }
 
   .product-card-{{ card_id }}:hover {
@@ -64,7 +63,6 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 8px;
     flex-shrink: 0;
   }
 
@@ -77,38 +75,12 @@
     border-radius: 10px;
   }
 
-  .product-card-wishlist-{{ card_id }} {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-    flex-shrink: 0;
-  }
 
-  .product-card-wishlist-{{ card_id }}:hover {
-    transform: scale(1.1);
-  }
-
-  .product-card-wishlist-{{ card_id }} svg {
-    width: 24px;
-    height: 24px;
-    color: #FF0000;
-    fill: none;
-    transition: fill 0.2s ease;
-  }
-
-  .product-card-wishlist-{{ card_id }}.active svg {
-    fill: #FF0000;
-  }
 
   /* Image section with swipeable slider */
   .product-card-image-wrapper-{{ card_id }} {
     position: relative;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     flex-shrink: 0;
     border-radius: 10px;
     overflow: hidden;
@@ -222,7 +194,7 @@
   .product-card-content-{{ card_id }} {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     flex: 1;
     min-height: 0;
   }
@@ -251,7 +223,6 @@
     margin: 0;
     line-height: 1.3;
     flex: 1;
-    min-height: 42px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -304,8 +275,19 @@
     padding: 6px 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    z-index: 2;
+    z-index: 11;
     border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-card-discount-badge-{{ card_id }} {
+      top: 6px;
+      right: 6px;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
   }
 
   /* Buy Now button */
@@ -320,7 +302,7 @@
     padding: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: auto;
+    margin-top: 8px;
     flex-shrink: 0;
   }
 
@@ -336,12 +318,10 @@
 
   @media screen and (max-width: 749px) {
     .product-card-{{ card_id }} {
-      min-height: 420px;
     }
 
     .product-card-title-{{ card_id }} {
       font-size: 14px;
-      min-height: 38px;
     }
 
     .product-card-buy-btn-{{ card_id }} {
@@ -352,22 +332,12 @@
 {% endstyle %}
 
 <card-slider class="product-card-{{ card_id }}" data-total-slides="{{ product.media.size | default: 1 | at_most: 3 }}">
-  <!-- Top Section: Badge and Heart -->
-  <div class="product-card-top-{{ card_id }}">
-    {% if show_badge %}
+  <!-- Top Section: Badge -->
+  {% if show_badge %}
+    <div class="product-card-top-{{ card_id }}" style="margin-bottom: 4px;">
       <span class="product-card-badge-{{ card_id }}">Best Seller</span>
-    {% endif %}
-    <button
-      class="product-card-wishlist-{{ card_id }}"
-      aria-label="Add to wishlist"
-      data-product-handle="{{ product.handle }}"
-      onclick="toggleWishlist(this, '{{ product.handle }}')"
-    >
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-      </svg>
-    </button>
-  </div>
+    </div>
+  {% endif %}
 
   <!-- Image Section with Swipeable Slider -->
   <div class="product-card-image-wrapper-{{ card_id }}">
@@ -522,16 +492,6 @@
 </card-slider>
 
 <script>
-  // Wishlist toggle (global function)
-  function toggleWishlist(button, productHandle) {
-    button.classList.toggle('active');
-    const isActive = button.classList.contains('active');
-    if (isActive) {
-      console.log('Added to wishlist:', productHandle);
-    } else {
-      console.log('Removed from wishlist:', productHandle);
-    }
-  }
 
   function handleAddToCart(event, variantId) {
     event.preventDefault();

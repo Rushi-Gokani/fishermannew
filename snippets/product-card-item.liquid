@@ -85,19 +85,12 @@
   endif
 -%}
 
-<div class="product-card-{{ section_id }}">
-  <!-- Top Section: Badge and Heart -->
-  <div class="product-card-top-{{ section_id }}">
-    <button
-      class="product-card-wishlist-{{ section_id }}"
-      aria-label="Add to wishlist"
-      data-product-handle="{{ product.handle }}"
-    >
-      <svg viewBox="0 0 24 24" fill="{{ section_settings.wishlist_fill }}" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-      </svg>
-    </button>
-  </div>
+<div class="product-card-{{ section_id }}" style="padding-top: 16px;">
+  {% if show_badge %}
+    <div class="product-card-top-{{ section_id }}">
+      <span class="product-card-badge-{{ section_id }}">{{ badge_text }}</span>
+    </div>
+  {% endif %}
 
   <!-- Image Section -->
   <div class="product-card-image-wrapper-{{ section_id }}">

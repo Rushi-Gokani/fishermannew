@@ -1,6 +1,7 @@
 {% schema %}
 {
   "name": "Custom Header",
+  "class": "header-section",
   "enabled_on": {
     "groups": ["header"]
   },
@@ -275,6 +276,10 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
+  .header-section {
+    z-index: 5001 !important;
+  }
+
   .custom-top-bar,
   .custom-header-section,
   .mobile-drawer {
@@ -282,14 +287,6 @@
     letter-spacing: -0.01em;
   }
 
-  /* Sticky Wrapper */
-  .header-sticky-wrapper {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    width: 100%;
-  }
 
   /* Top Bar */
   .custom-top-bar {
@@ -717,7 +714,7 @@
   ></script>
 {% endif %}
 
-<div class="header-sticky-wrapper">
+<header-component id="header-component" sticky="always">
 {% if section.settings.show_top_bar %}
 <div class="custom-top-bar">
   <div class="top-bar-left">
@@ -743,7 +740,7 @@
 </div>
 {% endif %}
 
-<div class="custom-header-section">
+<div class="custom-header-section" ref="headerRowTop">
   <div class="custom-header-container">
     <!-- Desktop Layout -->
     <div class="header-layout">
@@ -757,7 +754,7 @@
         </a>
       </div>
 
-      <div class="nav-cluster">
+      <div class="nav-cluster" ref="headerMenu">
         <div class="categories-wrapper">
           <button class="categories-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
@@ -976,10 +973,15 @@
     </div>
   </div>
 </div>
-</div>
+</header-component>
+
+<script
+  src="{{ 'header.js' | asset_url }}"
+  type="module"
+></script>
 
 <!-- Mobile Menu Drawer -->
-<div class="mobile-drawer" id="mobileDrawer">
+<div class="mobile-drawer" id="mobileDrawer" ref="headerDrawerContainer">
   <div class="mobile-drawer__header">
     <span class="header-logo-text" style="font-size: 20px;">{{ shop.name }}</span>
     <button class="mobile-drawer__close" aria-label="Close menu">
