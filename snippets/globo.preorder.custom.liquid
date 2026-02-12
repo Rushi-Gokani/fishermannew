@@ -694,7 +694,6 @@ form.product-form button.gPreorderBtn,
         },
         handleFilterChange: function(){
             const app = this;
-
             let productNotLoadeds = document.querySelectorAll('.product-item:not([preorder-product-element])')
 
             if(productNotLoadeds.length && window?.Globo?.Preorder){
@@ -972,21 +971,21 @@ form.product-form button.gPreorderBtn,
             }
         },
         showAddToCartButton: function(){
-            document.addEventListener('globo.preorder.show.addtocart', e => {
-                const { form, profile } = e.detail;
-
+           document.addEventListener('globo.preorder.show.addtocart', (e) => {
+                const { form } = e.detail;
                 window.Globo.Preorder.appSetInterval(() => {
-                    if(form.hasClass('singleProductPreOrderForm')){
-                        let stickyBtn = $('.zrx-sticky-atc-main-button.gPreorderBtn')
-        
-                        if(stickyBtn.length){
-                            stickyBtn.removeClass('gPreorderBtn')
-                            stickyBtn.html("Add To Cart")
-                            stickyBtn.removeClass('gSoldout')
+                    const safeForm = form instanceof HTMLElement ? form : form?.[0];
+                    if (!safeForm) return;
+                    if (safeForm.classList.contains('singleProductPreOrderForm')) {
+                        const stickyBtn = document.querySelector('.zrx-sticky-atc-main-button.gPreorderBtn');
+                        if (stickyBtn) {
+                            stickyBtn.classList.remove('gPreorderBtn');
+                            stickyBtn.innerHTML = "Add To Cart";
+                            stickyBtn.classList.remove('gSoldout');
                         }
                     }
-                }, 600, 2)
-            })
+                }, 600, 2);
+            });
         },
         debounce: function(func, timeout = 300){
             let timer;
