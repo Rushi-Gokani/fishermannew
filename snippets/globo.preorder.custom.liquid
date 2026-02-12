@@ -26,21 +26,10 @@ const preorderCustom = {
         window.GloboPreorderParams.selectors.productForm = ["form.product-form, form[data-product-form], .modern-product-form__form"];
         
         // Add to cart button selectors - must match your button
-        window.GloboPreorderParams.selectors.productAddToCartBtn = window.GloboPreorderParams.selectors.productAddToCartBtn || [];
-        if(Array.isArray(window.GloboPreorderParams.selectors.productAddToCartBtn)) {
-            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('[data-action="add-to-cart"]')) {
-                window.GloboPreorderParams.selectors.productAddToCartBtn.push('[data-action="add-to-cart"]');
-            }
-            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('.product-form__add-button')) {
-                window.GloboPreorderParams.selectors.productAddToCartBtn.push('.product-form__add-button');
-            }
-            if(!window.GloboPreorderParams.selectors.productAddToCartBtn.includes('.modern-add-to-cart')) {
-                window.GloboPreorderParams.selectors.productAddToCartBtn.push('.modern-add-to-cart');
-            }
-        }
+        window.GloboPreorderParams.selectors.productAddToCartBtn = [
+            '[data-action="add-to-cart"]', '.product-form__add-button', '.modern-add-to-cart'
+        ];
         
-        // Payment container
-        {% comment %} window.GloboPreorderParams.selectors.productPaymentContainer = ".product-form__payment-container, .modern-atc-wrapper"; {% endcomment %}
         
         // Quantity selector
         window.GloboPreorderParams.selectors.productQuantitySelector = ".quantity-selector__value, .modern-quantity-input, input[name='quantity']";
