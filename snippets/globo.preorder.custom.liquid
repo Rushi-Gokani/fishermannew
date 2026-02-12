@@ -953,19 +953,27 @@ form.product-form button.gPreorderBtn,
             })
         },
         handleValidateLimitStock: function(form, profile){
-            if(form.hasClass('singleProductPreOrderForm')){
-                let preorderLimit = form.find('[preorder-limit]')
-
-
-                if(preorderLimit.length){
-                    let quantityActions = form.find(".quantity-selector__value, .quantity-selector__button")
-                    if(quantityActions.length){
-                        quantityActions.on('change blur', () => {
-                                if(parseInt(preorderLimit.value) > parseInt(preorderLimit.getAttribute('preorder-limit'))){
-                                    alert(`There are still ${preorderLimit.attr('preorder-limit')} pre-order items that can be added to the cart.`)
-                                    preorderLimit.value = preorderLimit.attr('preorder-limit');
-                                }
-                        })
+            const safeForm = form instanceof HTMLElement ? form : form?.[0];
+            if (!safeForm) return;
+            if (safeForm.classList.contains('singleProductPreOrderForm')) {
+                const preorderLimit = safeForm.querySelector('[preorder-limit]');
+                if (preorderLimit) {
+                    const quantityActions = safeForm.querySelectorAll(
+                        '.quantity-selector__value, .quantity-selector__button'
+                    );
+                    if (quantityActions.length) {
+                        const handleCheck = () => {
+                            const limit = parseInt(preorderLimit.getAttribute('preorder-limit'));
+                            const value = parseInt(preorderLimit.value);
+                            if (value > limit) {
+                                alert(`There are still ${limit} pre-order items that can be added to the cart.`);
+                                preorderLimit.value = limit;
+                            }
+                        };
+                        quantityActions.forEach(el => {
+                            el.addEventListener('change', handleCheck);
+                            el.addEventListener('blur', handleCheck);
+                        });
                     }
                 }
             }
