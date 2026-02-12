@@ -23,7 +23,7 @@ const preorderCustom = {
         }
         
         // Product form selectors - multiple patterns to ensure detection
-        window.GloboPreorderParams.selectors.productForm = "form.product-form, form[data-product-form], .modern-product-form__form";
+        window.GloboPreorderParams.selectors.productForm = ["form.product-form, form[data-product-form], .modern-product-form__form"];
         
         // Add to cart button selectors - must match your button
         window.GloboPreorderParams.selectors.productAddToCartBtn = window.GloboPreorderParams.selectors.productAddToCartBtn || [];
