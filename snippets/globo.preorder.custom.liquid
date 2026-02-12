@@ -70,6 +70,7 @@ const preorderCustom = {
         // Handle Back in Stock button showing
         document.addEventListener('globo.preorder.show.bis', function (e) {
             const {form, type} = e.detail;
+            console.log(form, type)
             if(type === '#Globo-Back-In-Stock'){
                 // Hide the regular add to cart button when BIS is shown
                 const addToCartBtn = form.find('[data-add-to-cart]');
@@ -80,6 +81,7 @@ const preorderCustom = {
         // Handle Add to Cart button showing (revert from pre-order state)
         document.addEventListener('globo.preorder.show.addtocart', function (e) {
             const {form, type} = e.detail;
+            console.log(form, type)
             const addToCartBtn = form.find('[data-add-to-cart]');
             if(addToCartBtn) addToCartBtn.style.display = '';
         });
