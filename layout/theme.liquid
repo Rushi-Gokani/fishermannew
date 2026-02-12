@@ -174,7 +174,7 @@
       {% sections 'header-group' %}
     </div>
 
-    {% comment %} <script>
+    <script>
       // Inline header height calculation to prevent layout shift
       // Note: Updates in calculateHeaderGroupHeight() and updateTransparentHeaderOffset()utilities.js should be kept in sync with this function
       (function setHeaderHeighCustomProperties() {
@@ -223,7 +223,7 @@
         const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
         document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
       })();
-    </script> {% endcomment %}
+    </script>
 
     <main
       id="MainContent"
@@ -240,7 +240,7 @@
 
     {% render 'search-modal' %}
 
-    {% comment %} {% render 'globo.preorder.custom' %} {% endcomment %}
+    {% render 'globo.preorder.custom' %}
 
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
