@@ -262,22 +262,29 @@
             })
         },
         handleValidateLimitStock: function(form, profile){
-            if(form.hasClass('singleProductPreOrderForm')){
-                let preorderLimit = form.find('[preorder-limit]')
-
-
-                if(preorderLimit.length){
-                    let quantityActions = form.find(".quantity-selector__value, .quantity-selector__button")
-                    if(quantityActions.length){
-                        quantityActions.on('change blur', () => {
-                                if(parseInt(preorderLimit.value) > parseInt(preorderLimit.getAttribute('preorder-limit'))){
-                                    alert(`There are still ${preorderLimit.attr('preorder-limit')} pre-order items that can be added to the cart.`)
-                                    preorderLimit.value = preorderLimit.attr('preorder-limit');
-                                }
-                        })
+            if (form.classList.contains('singleProductPreOrderForm')) {
+                const preorderLimit = form.querySelector('[preorder-limit]');
+                if (preorderLimit) {
+                    const quantityActions = form.querySelectorAll(
+                        '.quantity-selector__value, .quantity-selector__button'
+                    );
+                    if (quantityActions.length) {
+                        const maxLimit = parseInt(preorderLimit.getAttribute('preorder-limit'), 10);
+                        const handleChange = () => {
+                            const currentValue = parseInt(preorderLimit.value, 10);
+                            if (currentValue > maxLimit) {
+                                alert(`There are still ${maxLimit} pre-order items that can be added to the cart.`);
+                                preorderLimit.value = maxLimit;
+                            }
+                        };
+                        quantityActions.forEach(el => {
+                            el.addEventListener('change', handleChange);
+                            el.addEventListener('blur', handleChange);
+                        });
                     }
                 }
             }
+
         },
         showAddToCartButton: function(){
             document.addEventListener('globo.preorder.show.addtocart', (e) => {
