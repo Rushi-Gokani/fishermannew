@@ -39,12 +39,11 @@
 
             document.addEventListener('globo.preorder.show.addtocart', function (e) {
                 const {form, type} = e.detail;
-                form.removeClass('gBisShowing')
+                form.classList.remove('gBisShowing')
             });
 
             window.addEventListener('load', () => {
                 app.handleVariantChange()
-
                 // app.handleFilterChange()
                 window?.Globo?.Preorder && window.Globo.Preorder.initPreorder()
             })
