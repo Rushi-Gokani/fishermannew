@@ -274,37 +274,54 @@
         handlePaymentOptionChange: function(form, paymentElement){
             const app = this;
 
-            let paymentElements = form.find('.gPreorderPartialPaymentChoices li')
+            const paymentElements = form.querySelectorAll('.gPreorderPartialPaymentChoices li');
+            const preorderPrice = form.querySelector('.gPreorderPrice');
+            const fullPaymentLabel = preorderPrice?.querySelector('.gFullPaymentLabel');
+            const hasCheckedInput = form.querySelector(
+                '.gPreorderPartialPaymentChoices li input:checked'
+            );
 
-            if(form.find('.gPreorderPrice').find('.gFullPaymentLabel').length == 0 && paymentElement.find('input:checked').length){
-                form.find('.gPreorderPrice').append(`<span class="gFullPaymentLabel">against full advance payment</span>`)
-            }else{
-                form.find('.gPreorderPrice span.gFullPaymentLabel').remove()
+            if (!fullPaymentLabel && hasCheckedInput) {
+                const span = document.createElement('span');
+                span.className = 'gFullPaymentLabel';
+                span.textContent = 'against full advance payment';
+                preorderPrice?.appendChild(span);
+            } else if (fullPaymentLabel) {
+                fullPaymentLabel.remove();
             }
+
         },
         handleAddPreorder: function(form, profile, stickyBtn){
-                stickyBtn.click(async e => {
-                    e.preventDefault()
-                    e.stopPropagation()
+            stickyBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
 
-                    var data = {
+                const data = {
                     properties: {
-                        _is_preorder: form.find(".gPreorderProperty").val(),
-                        _preorder_locale: form.find('.gPreorderLocale').val()
+                        _is_preorder: form.querySelector(".gPreorderProperty")?.value,
+                        _preorder_locale: form.querySelector(".gPreorderLocale")?.value
                     },
-                    preorder_id: form.find(".gPreorderId").val(),
-                    product_id: form.find(".gPreorderProductId").val(),
+                    preorder_id: form.querySelector(".gPreorderId")?.value,
+                    product_id: form.querySelector(".gPreorderProductId")?.value,
                     id: profile.variant.id.toString(),
-                    quantity: form.find('.quantity-selector__value').val(),
-                    _preorder_partial_payment: form.find("." + window.Globo.Preorder.settings.classes.partialPayment + "Input:checked").val(),
+                    quantity: form.querySelector('.quantity-selector__value')?.value,
+                    _preorder_partial_payment: form.querySelector(
+                        "." + window.Globo.Preorder.settings.classes.partialPayment + "Input:checked"
+                    )?.value,
                     shop: window.Globo.Preorder.settings.shop,
-                    customer: window.Globo.Preorder.settings.customer ? Globo.Preorder.settings.customer : null,
+                    customer: window.Globo.Preorder.settings.customer 
+                        ? window.Globo.Preorder.settings.customer 
+                        : null,
                     locale: window.Globo.Preorder.settings.shop
-                }
+                };
 
-                    let invoice = await window.Globo.Preorder.createDraftOrder(data);               
+                try {
+                    const invoice = await window.Globo.Preorder.createDraftOrder(data);
                     window.Globo.Preorder.createDraftOrderCallBack(invoice);
-            })
+                } catch (error) {
+                    console.error("Error creating draft order:", error);
+                }
+            });
         },
         handleValidateLimitStock: function(form, profile){
             if (form.classList.contains('singleProductPreOrderForm')) {
