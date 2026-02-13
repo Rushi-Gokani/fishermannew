@@ -170,7 +170,6 @@
                     document.querySelectorAll('[name="_preorder_partial_payment"]').length &&
                         document.querySelectorAll('[name="_preorder_partial_payment"]').forEach(el => {
                         el.addEventListener('change', function(){
-                           
                             if(el.value == 'full'){
                             form.removeClass("gPreorderPartialPaymentForm")
                             if(profile.discountPayment.enable && parseFloat(profile.discountPayment.discountValue) > 0){
