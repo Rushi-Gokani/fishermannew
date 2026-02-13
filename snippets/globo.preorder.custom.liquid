@@ -190,40 +190,85 @@
             const fullPaymentDicount = parseInt(fullPayment.discountValue) >= 10 ? fullPayment.discountValue : fullPayment.discountValue.toString().replace('0', '');
             const partialPaymentDicount = parseInt(partialPayment.discountValue) >= 10 ? partialPayment.discountValue : partialPayment.discountValue.toString().replace('0', '');
             const partialPaymentValue = parseInt(partialPayment.value) >= 10 ? partialPayment.value : partialPayment.value.toString().replace('0', '');
-            {% comment %} if(fullPayment.enable && partialPayment.enable){
+            if (fullPayment.enable && partialPayment.enable) {
                 form.querySelector('.gPreorderPrice')?.classList.add('gPreorderHidden');
-            
-                if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0){
-                    form.querySelector('.gFullPaymentDiscountPrice') &&
-                    form.querySelector('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
-                    form.find('.gFullPaymentDiscount').length == 0 &&
-                    form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
+                // ===== FULL PAYMENT DISCOUNT =====
+                if (
+                    fullPayment.discountType === 'percentage' &&
+                    parseInt(fullPayment.discountValue, 10) > 0
+                ) {
+                    const firstLi = form.querySelector('.gPreorderPartialPaymentChoices li:first-child');
+                    const label = firstLi?.querySelector('.gPreorderPartialPaymentLabel');
+                    const priceHtml = form.querySelector('.gPreorderPriceHtml')?.textContent || '';
+                    // Thêm giá discount nếu chưa tồn tại
+                    if (!form.querySelector('.gFullPaymentDiscountPrice') && label) {
+                        const span = document.createElement('span');
+                        span.className = 'gFullPaymentDiscountPrice';
+                        span.textContent = priceHtml;
+                        label.appendChild(span);
+                    }
+                    // Thêm % discount nếu chưa tồn tại
+                    if (!form.querySelector('.gFullPaymentDiscount') && label) {
+                        const span = document.createElement('span');
+                        span.className = 'gFullPaymentDiscount';
+                        span.textContent = `${fullPaymentDicount}% Discount`;
+                        label.appendChild(span);
+                    }
                 }
-
-                form.find('.gPartialPaymentValue').length == 0 &&
-                    form.find('.gPreorderPartialPaymentChoices li').last().find('.gPreorderPartialPaymentLabel').append(`<span class="gPartialPaymentValue">${partialPaymentValue}% of Full Price</span>`)
-
-                
-                }else if(!fullPayment.enable && partialPayment.enable){
-                form.find('.gPartialPaymentValue').length == 0 &&
-                    form.find('.gPreorderPartialPaymentChoices li').last().find('.gPreorderPartialPaymentLabel').append(`<span class="gPartialPaymentValue">${partialPaymentValue}% of Full Price</span>`)
-                
-                }else if(fullPayment.enable && !partialPayment.enable){
-                
-                if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0 && form.find('.gPreorderPriceDiscount').length == 0){
-                    if(form.find('.gFullPaymentDiscount').length == 0)
-                    form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
-                    else
-                    form.find('.gFullPaymentDiscountPrice').text(`${form.find('.gPreorderPriceHtml').text()}`);
-
-                    if(form.find('.gFullPaymentDiscount').length == 0)
-                    form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
-                    else
-                    form.find('.gFullPaymentDiscount').text(`(${fullPaymentDicount}% Discount)`);
-                } 
-
-            
-            }{% endcomment %}
+                // ===== PARTIAL PAYMENT VALUE =====
+                if (!form.querySelector('.gPartialPaymentValue')) {
+                    const lastLi = form.querySelector('.gPreorderPartialPaymentChoices li:last-child');
+                    const label = lastLi?.querySelector('.gPreorderPartialPaymentLabel');
+                    if (label) {
+                        const span = document.createElement('span');
+                        span.className = 'gPartialPaymentValue';
+                        span.textContent = `${partialPaymentValue}% of Full Price`;
+                        label.appendChild(span);
+                    }
+                }
+            } else if (!fullPayment.enable && partialPayment.enable) {
+                if (!form.querySelector('.gPartialPaymentValue')) {
+                    const lastLi = form.querySelector('.gPreorderPartialPaymentChoices li:last-child');
+                    const label = lastLi?.querySelector('.gPreorderPartialPaymentLabel');
+                    if (label) {
+                        const span = document.createElement('span');
+                        span.className = 'gPartialPaymentValue';
+                        span.textContent = `${partialPaymentValue}% of Full Price`;
+                        label.appendChild(span);
+                    }
+                }
+            } else if (fullPayment.enable && !partialPayment.enable) {
+                if (
+                    fullPayment.discountType === 'percentage' &&
+                    parseInt(fullPayment.discountValue, 10) > 0 &&
+                    !form.querySelector('.gPreorderPriceDiscount')
+                ) {
+                    const firstLi = form.querySelector('.gPreorderPartialPaymentChoices li:first-child');
+                    const label = firstLi?.querySelector('.gPreorderPartialPaymentLabel');
+                    const priceHtml = form.querySelector('.gPreorderPriceHtml')?.textContent || '';
+                    if (!label) return;
+                    let discountPriceEl = form.querySelector('.gFullPaymentDiscountPrice');
+                    let discountEl = form.querySelector('.gFullPaymentDiscount');
+                    // PRICE
+                    if (!discountPriceEl) {
+                        const span = document.createElement('span');
+                        span.className = 'gFullPaymentDiscountPrice';
+                        span.textContent = priceHtml;
+                        label.appendChild(span);
+                    } else {
+                        discountPriceEl.textContent = priceHtml;
+                    }
+                    // % DISCOUNT
+                    if (!discountEl) {
+                        const span = document.createElement('span');
+                        span.className = 'gFullPaymentDiscount';
+                        span.textContent = `${fullPaymentDicount}% Discount`;
+                        label.appendChild(span);
+                    } else {
+                        discountEl.textContent = `(${fullPaymentDicount}% Discount)`;
+                    }
+                }
+            }
         },
        
         handlePaymentOptionChange: function(form, paymentElement){
