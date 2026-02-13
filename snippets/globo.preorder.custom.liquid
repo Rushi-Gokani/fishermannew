@@ -30,10 +30,9 @@
                     form.querySelector('.magic-buy-btn__parent')?.classList.add('gPreorderHidden');
                 }
                 form.classList.add('gBisShowing')
-                if(form.hasClass('gridProductPreOrderForm')){
-                    // form.find('.product-item__action-button[disabled]').addClass('gPreorderHidden')
-                    if(form.find('.product-item__action-button[disabled]').length == 0){
-                    form.find('#Globo-Back-In-Stock').addClass('gPreorderHidden')
+                if(form.classList.contains('gridProductPreOrderForm')){
+                    if(form.querySelectorAll('.product-item__action-button[disabled]').length == 0){
+                        form.querySelector('#Globo-Back-In-Stock').addClass('gPreorderHidden')
                     }
                 }
             });
