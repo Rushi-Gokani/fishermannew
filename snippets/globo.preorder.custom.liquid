@@ -27,9 +27,9 @@
             document.addEventListener('globo.preorder.show.bis', function (e) {
                 const {form, type} = e.detail;
                 if(type === '#Globo-Back-In-Stock'){
-                    form.find('.magic-buy-btn__parent')?.addClass('gPreorderHidden');
+                    form.querySelector('.magic-buy-btn__parent')?.classList.add('gPreorderHidden');
                 }
-                form.addClass('gBisShowing')
+                form.classList.add('gBisShowing')
                 if(form.hasClass('gridProductPreOrderForm')){
                     // form.find('.product-item__action-button[disabled]').addClass('gPreorderHidden')
                     if(form.find('.product-item__action-button[disabled]').length == 0){
