@@ -133,7 +133,7 @@
             const productAddToCartTextElement = app.settings.selectors.productAddToCartTextElement;
             const paymentButton = app.settings.selectors.paymentButton;     
             
-            var n = app.settings.selectors.productAddToCartBtn.find((function(t) { return form.find(t).length }));
+            var n = app.settings.selectors.productAddToCartBtn.find((function(t) { return form.querySelectorAll(t).length }));
             app.renderProductForm(product, form, productVariantActivator, productVariantSelector, productQuantitySelector, n, productAddToCartTextElement, paymentButton)
             app.renderBisForm(product, form, productVariantActivator, productVariantSelector)
         },
