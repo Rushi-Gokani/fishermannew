@@ -171,13 +171,13 @@
                         document.querySelectorAll('[name="_preorder_partial_payment"]').forEach(el => {
                         el.addEventListener('change', function(){
                             if(el.value == 'full'){
-                            form.removeClass("gPreorderPartialPaymentForm")
+                            form.classList.add("gPreorderPartialPaymentForm")
                             if(profile.discountPayment.enable && parseFloat(profile.discountPayment.discountValue) > 0){
                                 form.addClass("gPreorderDiscountForm")
                             }
                             } else if(el.value == 'part'){
-                            form.addClass("gPreorderPartialPaymentForm")
-                            form.removeClass("gPreorderDiscountForm")
+                            form.classList.add("gPreorderPartialPaymentForm")
+                            form.classList.remove("gPreorderDiscountForm")
                             }
                         })
                         })
