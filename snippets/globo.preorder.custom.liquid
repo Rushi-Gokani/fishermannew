@@ -280,21 +280,20 @@
             }
         },
         showAddToCartButton: function(){
-            document.addEventListener('globo.preorder.show.addtocart', e => {
+            document.addEventListener('globo.preorder.show.addtocart', (e) => {
                 const { form, profile } = e.detail;
-
                 window.Globo.Preorder.appSetInterval(() => {
-                    if(form.hasClass('singleProductPreOrderForm')){
-                        let stickyBtn = $('.zrx-sticky-atc-main-button.gPreorderBtn')
-        
-                        if(stickyBtn.length){
-                            stickyBtn.removeClass('gPreorderBtn')
-                            stickyBtn.html("Add To Cart")
-                            stickyBtn.removeClass('gSoldout')
+                    if (form.classList.contains('singleProductPreOrderForm')) {
+                        const stickyBtn = document.querySelector('.zrx-sticky-atc-main-button.gPreorderBtn');
+                        if (stickyBtn) {
+                            stickyBtn.classList.remove('gPreorderBtn');
+                            stickyBtn.textContent = "Add To Cart";
+                            stickyBtn.classList.remove('gSoldout');
                         }
                     }
-                }, 600, 2)
-            })
+                }, 600, 2);
+            });
+
         },
         debounce: function(func, timeout = 300){
             let timer;
