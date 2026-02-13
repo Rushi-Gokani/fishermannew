@@ -190,112 +190,42 @@
             const fullPaymentDicount = parseInt(fullPayment.discountValue) >= 10 ? fullPayment.discountValue : fullPayment.discountValue.toString().replace('0', '');
             const partialPaymentDicount = parseInt(partialPayment.discountValue) >= 10 ? partialPayment.discountValue : partialPayment.discountValue.toString().replace('0', '');
             const partialPaymentValue = parseInt(partialPayment.value) >= 10 ? partialPayment.value : partialPayment.value.toString().replace('0', '');
-            if(fullPayment.enable && partialPayment.enable){
-            form.find('.gPreorderPrice').addClass('gPreorderHidden');
+            {% comment %} if(fullPayment.enable && partialPayment.enable){
+                form.querySelector('.gPreorderPrice')?.classList.add('gPreorderHidden');
             
-            if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0){
-                form.find('.gFullPaymentDiscountPrice').length == 0 &&
-                form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
-                form.find('.gFullPaymentDiscount').length == 0 &&
-                form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
-            }
-
-            form.find('.gPartialPaymentValue').length == 0 &&
-                form.find('.gPreorderPartialPaymentChoices li').last().find('.gPreorderPartialPaymentLabel').append(`<span class="gPartialPaymentValue">${partialPaymentValue}% of Full Price</span>`)
-
-            // form.find('.gPreorderPartialPaymentInput').on('change', function(e){
-                
-                // if(e.target.value == 'full'){
-                
-                // form.find('.gFullPaymentDiscountPrice').remove()
-                // form.find('.gFullPaymentDiscount').remove()
-                // if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0){
-                //   if(form.find('.gFullPaymentDiscount').length == 0)
-                //     form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
-                //   else
-                //     form.find('.gFullPaymentDiscountPrice').text(`${form.find('.gPreorderPriceHtml').text()}`);
-
-                //   if(form.find('.gFullPaymentDiscount').length == 0)
-                //     form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
-                //   else
-                //     form.find('.gFullPaymentDiscount').text(`(${fullPaymentDicount}% Discount)`);
-                // }else{
-                //   form.find('.gFullPaymentDiscountPrice').remove()
-                //   form.find('.gFullPaymentDiscount').remove()
-                // }
-                
-                // }else if(e.target.value == 'part'){
-                
-                // form.find('.gFullPaymentDiscountPrice').remove()
-                // form.find('.gFullPaymentDiscount').remove()
-                // if(partialPayment.discountType == 'percentage' && parseInt(partialPayment.discountValue) > 0){
-                //   if(form.find('.gFullPaymentDiscountPrice').length == 0)
-                //     form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
-                //   else
-                //     form.find('.gFullPaymentDiscountPrice').text(`${form.find('.gPreorderPriceHtml').text()}`);
-
-                //   if(form.find('.gFullPaymentDiscount').length == 0)
-                //     form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${partialPaymentDicount}% Discount</span>`)
-                //   else
-                //     form.find('.gFullPaymentDiscount').text(`(${partialPaymentDicount}% Discount)`);
-                // }else{
-                //   form.find('.gFullPaymentDiscountPrice').remove()
-                //   if(form.find('.gFullPaymentDiscountPrice').length == 0)
-                //     form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.price-list').html()}`)
-                //   else
-                //     form.find('.gFullPaymentDiscountPrice').html(`${form.find('.price-list').html()}`);
-                //   form.find('.gFullPaymentDiscount').remove()
-                // }
-                
-            //   }
-            // })
-            
-            }else if(!fullPayment.enable && partialPayment.enable){
-            form.find('.gPartialPaymentValue').length == 0 &&
-                form.find('.gPreorderPartialPaymentChoices li').last().find('.gPreorderPartialPaymentLabel').append(`<span class="gPartialPaymentValue">${partialPaymentValue}% of Full Price</span>`)
-            
-            }else if(fullPayment.enable && !partialPayment.enable){
-            
-            if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0 && form.find('.gPreorderPriceDiscount').length == 0){
-                if(form.find('.gFullPaymentDiscount').length == 0)
-                form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
-                else
-                form.find('.gFullPaymentDiscountPrice').text(`${form.find('.gPreorderPriceHtml').text()}`);
-
-                if(form.find('.gFullPaymentDiscount').length == 0)
-                form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
-                else
-                form.find('.gFullPaymentDiscount').text(`(${fullPaymentDicount}% Discount)`);
-            }
-
-            
-            }
-        },
-        showDiscountFullPayment: function(form, profile){
-            const app = this;
-            const { fullPayment, partialPayment } = profile.discountPayment;
-            const price = profile.variant.price / 100;
-
-            if(fullPayment.enable && fullPayment.discountValue != '0'){
-                let paymentElement = form.find('.gPreorderPartialPaymentChoices li').first()
-
-                if(paymentElement.length){
-                    let discountPrice = price;
-
-                    if(fullPayment.discountType == 'percentage'){
-                        discountPrice = price * (parseInt(fullPayment.discountValue) / 100);
-                        let newPrice = Globo.moneyFormat.replace(`{` + `{amount}` + '}', discountPrice)
-
-                        if(paymentElement.find('.gPreorderPartialPaymentLabel span').length == 0){
-                            paymentElement.find('.gPreorderPartialPaymentLabel').append(`<span>${newPrice}</span>`)
-                        }
-
-                        
-                        app.handlePaymentOptionChange(form, paymentElement)
-                    }
+                if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0){
+                    form.querySelector('.gFullPaymentDiscountPrice') &&
+                    form.querySelector('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
+                    form.find('.gFullPaymentDiscount').length == 0 &&
+                    form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
                 }
-            }
+
+                form.find('.gPartialPaymentValue').length == 0 &&
+                    form.find('.gPreorderPartialPaymentChoices li').last().find('.gPreorderPartialPaymentLabel').append(`<span class="gPartialPaymentValue">${partialPaymentValue}% of Full Price</span>`)
+
+                
+                }else if(!fullPayment.enable && partialPayment.enable){
+                form.find('.gPartialPaymentValue').length == 0 &&
+                    form.find('.gPreorderPartialPaymentChoices li').last().find('.gPreorderPartialPaymentLabel').append(`<span class="gPartialPaymentValue">${partialPaymentValue}% of Full Price</span>`)
+                
+                }else if(fullPayment.enable && !partialPayment.enable){
+                
+                if(fullPayment.discountType == 'percentage' && parseInt(fullPayment.discountValue) > 0 && form.find('.gPreorderPriceDiscount').length == 0){
+                    if(form.find('.gFullPaymentDiscount').length == 0)
+                    form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscountPrice">${form.find('.gPreorderPriceHtml').text()}`)
+                    else
+                    form.find('.gFullPaymentDiscountPrice').text(`${form.find('.gPreorderPriceHtml').text()}`);
+
+                    if(form.find('.gFullPaymentDiscount').length == 0)
+                    form.find('.gPreorderPartialPaymentChoices li').first().find('.gPreorderPartialPaymentLabel').append(`<span class="gFullPaymentDiscount">${fullPaymentDicount}% Discount</span>`)
+                    else
+                    form.find('.gFullPaymentDiscount').text(`(${fullPaymentDicount}% Discount)`);
+                } 
+
+            
+            }{% endcomment %}
         },
+       
         handlePaymentOptionChange: function(form, paymentElement){
             const app = this;
 
