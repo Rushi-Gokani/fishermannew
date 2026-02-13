@@ -115,8 +115,8 @@
                     ['click', 'change'].forEach(action => {
                         productVariantActivator.addEventListener(action, () => {
                             app.appSetInterval(() => {
-                                let gSingleProductForm = $('form.singleProductPreOrderForm')
-                                if(gSingleProductForm.length && window?.GloboPreorderParams?.page == 'product'){
+                                let gSingleProductForm = document.querySelector('form.singleProductPreOrderForm')
+                                if(gSingleProductForm && window?.GloboPreorderParams?.page == 'product'){
                                     app.renderProductForm(gSingleProductForm, window.GloboPreorderParams.product)
                                 }
                             }, 600, 2)
