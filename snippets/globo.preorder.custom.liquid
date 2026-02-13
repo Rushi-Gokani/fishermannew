@@ -100,7 +100,6 @@
             document.addEventListener('globo.preorder.update.cart', async () => {
                 const response = await fetch("".concat(window.location.origin, "/cart.js"));
                     const jsonData = await response.json();
-
                     if(window?.GloboPreorderParams?.cart && window?.Globo?.Preorder){
                         window.GloboPreorderParams.cart = jsonData;
                         window.Globo.Preorder.initPreorder()
@@ -111,7 +110,6 @@
         handleVariantChange: function(){
             const app = this;
             let productVariantActivators = document.querySelectorAll(window.GloboPreorderParams.selectors.productVariantActivator)
-
             if(productVariantActivators.length){
                 productVariantActivators.forEach(productVariantActivator => {
                     ['click', 'change'].forEach(action => {
