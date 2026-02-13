@@ -56,11 +56,11 @@
                 const { form, profile } = e.detail;
 
                 window.Globo.Preorder.appSetInterval(() => {
-                    if(form.hasClass('singleProductPreOrderForm')){
-                        let stickyBtn = $('.zrx-sticky-atc-main-button')
+                    if(form.classList.contains('singleProductPreOrderForm')){
+                        let stickyBtn = document.querySelector('.zrx-sticky-atc-main-button');
         
-                        if(stickyBtn.length){
-                            stickyBtn.addClass('gSoldout')
+                        if(stickyBtn){
+                            stickyBtn.classList.add('gSoldout')
                             stickyBtn.html(profile.message.soldoutText);
                         }
                     }
