@@ -398,7 +398,11 @@ class ModernProductPage {
 
     // Trigger Globo Back-in-Stock events with a slight delay
     // This ensures all DOM updates are complete before Globo processes
-    setTimeout(() => this.triggerGloboEvents(variant), 50);
+    // setTimeout(() => this.triggerGloboEvents(variant), 50);
+    
+    if(typeof Globo != 'undefined' && typeof Globo.Preorder != 'undefined'){
+      Globo.Preorder.initPreorder();
+    }
 
     // Update availability
     this.updateVariantAvailability(variant);
