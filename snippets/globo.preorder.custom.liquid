@@ -155,9 +155,9 @@
                         let stickyBtn = document.querySelector('.zrx-sticky-atc-main-button')
         
                         if(stickyBtn.length){
-                            stickyBtn.addClass('gPreorderBtn')
-                            stickyBtn.html(profile.message.preorderText);
-                            stickyBtn.removeClass('gSoldout')
+                            stickyBtn.classList.add('gPreorderBtn')
+                            stickyBtn.innerHTML(profile.message.preorderText);
+                            stickyBtn.classList.remove('gSoldout')
 
                             if(profile.discountPayment.partialPayment.enable && !profile.discountPayment.fullPayment.enable){
                                 app.handleAddPreorder(form, profile, stickyBtn)
@@ -170,7 +170,7 @@
                     document.querySelectorAll('[name="_preorder_partial_payment"]').length &&
                         document.querySelectorAll('[name="_preorder_partial_payment"]').forEach(el => {
                         el.addEventListener('change', function(){
-                            console.log('changee', el)
+                           
                             if(el.value == 'full'){
                             form.removeClass("gPreorderPartialPaymentForm")
                             if(profile.discountPayment.enable && parseFloat(profile.discountPayment.discountValue) > 0){
