@@ -32,7 +32,7 @@
                 form.classList.add('gBisShowing')
                 if(form.classList.contains('gridProductPreOrderForm')){
                     if(form.querySelectorAll('.product-item__action-button[disabled]').length == 0){
-                        form.querySelector('#Globo-Back-In-Stock').addClass('gPreorderHidden')
+                        form.querySelector('#Globo-Back-In-Stock').add('gPreorderHidden')
                     }
                 }
             });
