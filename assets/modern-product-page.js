@@ -299,12 +299,24 @@ class ModernProductPage {
 
     if (variant) {
       this.updateVariantState(variant);
+    } else {
+      // Variant not found (e.g. invalid combination)
+      // Create a dummy variant object with the selected options so we can still update availability visuals
+      const dummyVariant = {
+        id: null,
+        available: false,
+        options: selectedOptions,
+        price: 0,
+        compare_at_price: null
+      };
+
+      this.updateVariantState(dummyVariant);
     }
   }
 
   updateVariantState(variant) {
     // Update image if variant has a featured media
-    if (variant.featured_media) {
+    if (variant.id && variant.featured_media) {
       const mediaId = variant.featured_media.id.toString();
       const targetSlide = this.container.querySelector('.modern-gallery__slide[data-media-id="' + mediaId + '"]');
 
@@ -314,9 +326,10 @@ class ModernProductPage {
       }
     }
 
-    // Update price
+    // Update price (only for real variants)
     const priceWrapper = this.container.querySelector('.modern-product__price-wrapper');
-    if (priceWrapper && variant) {
+    if (priceWrapper && variant.id) {
+
       const priceEl = priceWrapper.querySelector('[data-product-price]');
       const compareEl = priceWrapper.querySelector('[data-compare-price]');
       const saveBadge = priceWrapper.querySelector('[data-save-badge]');
@@ -365,26 +378,34 @@ class ModernProductPage {
     if (addToCart) {
       const btnText = addToCart.querySelector('.modern-add-to-cart__default');
       if (btnText) {
-        btnText.textContent = variant.available
-          ? (window.theme?.strings?.addToCart || 'Add to cart')
-          : (window.theme?.strings?.soldOut || 'Sold out');
+        if (!variant.id) {
+           btnText.textContent = 'Unavailable';
+        } else {
+           btnText.textContent = variant.available
+            ? (window.theme?.strings?.addToCart || 'Add to cart')
+            : (window.theme?.strings?.soldOut || 'Sold out');
+        }
       }
       addToCart.disabled = !variant.available;
 
       // Update data attributes for Globo
-      addToCart.setAttribute('data-variant-id', variant.id);
+      if (variant.id) {
+        addToCart.setAttribute('data-variant-id', variant.id);
+      } else {
+        addToCart.removeAttribute('data-variant-id');
+      }
       addToCart.setAttribute('data-product-available', variant.available);
     }
 
     // Update variant input value
     const variantInput = this.container.querySelector('input[name="id"]');
-    if (variantInput) {
+    if (variantInput && variant.id) {
       variantInput.value = variant.id;
     }
 
     // Update hidden select for Globo and other apps
     const variantSelect = this.container.querySelector('select[name="id"], [data-product-select]');
-    if (variantSelect) {
+    if (variantSelect && variant.id) {
       variantSelect.value = variant.id;
       // Trigger change event for Globo Preorder/Back-in-Stock app
       variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
@@ -392,7 +413,7 @@ class ModernProductPage {
 
     // Update form data attributes for Globo
     const form = this.container.querySelector('form[data-product-form]');
-    if (form) {
+    if (form && variant.id) {
       form.setAttribute('data-product-variant-id', variant.id);
     }
 
@@ -410,7 +431,7 @@ class ModernProductPage {
 
     // Update pickup availability
     const pickup = this.container.querySelector('pickup-availability');
-    if (pickup) {
+    if (pickup && variant.id) {
       pickup.fetchAvailability(variant.id);
     }
   }
@@ -505,6 +526,7 @@ class ModernProductPage {
         // Mark as unavailable if variant doesn't exist OR is not available
         const isUnavailable = !matchingVariant || !matchingVariant.available;
         swatch.classList.toggle('is-disabled', isUnavailable);
+        swatch.classList.toggle('modern-variant-swatch--sold-out', isUnavailable);
 
         // Update sold-out cross display
         const soldOutCross = swatch.querySelector('.modern-variant-sold-out-cross');
