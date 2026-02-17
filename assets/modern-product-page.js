@@ -502,14 +502,14 @@ class ModernProductPage {
           return true;
         });
 
-        // Add sold-out styling if variant exists but is not available
-        const isSoldOut = matchingVariant && !matchingVariant.available;
-        swatch.classList.toggle('is-disabled', isSoldOut);
+        // Mark as unavailable if variant doesn't exist OR is not available
+        const isUnavailable = !matchingVariant || !matchingVariant.available;
+        swatch.classList.toggle('is-disabled', isUnavailable);
 
         // Update sold-out cross display
         const soldOutCross = swatch.querySelector('.modern-variant-sold-out-cross');
         if (soldOutCross) {
-          soldOutCross.style.display = isSoldOut ? 'block' : 'none';
+          soldOutCross.style.display = isUnavailable ? 'block' : 'none';
         }
       });
     });

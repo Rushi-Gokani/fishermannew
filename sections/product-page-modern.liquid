@@ -309,6 +309,7 @@
                     </legend>
 
                     <div class="modern-variant-options" data-option-index="{{ forloop.index0 }}">
+                      {%- comment -%} Pass 1: Render AVAILABLE variants first {%- endcomment -%}
                       {%- for value in option.values -%}
                         {%- liquid
                           assign option_disabled = false
@@ -319,14 +320,19 @@
                           assign variant_is_sold_out = false
 
                           for variant in product.variants
-                            assign matches_value = false
-                            if option.position == 1 and variant.option1 == value
-                              assign matches_value = true
-                            elsif option.position == 2 and variant.option2 == value
-                              assign matches_value = true
-                            elsif option.position == 3 and variant.option3 == value
-                              assign matches_value = true
-                            endif
+                            assign matches_value = true
+                            for opt in product.options_with_values
+                              assign opt_key = 'option' | append: opt.position
+                              if opt.position == option.position
+                                unless variant[opt_key] == value
+                                  assign matches_value = false
+                                endunless
+                              else
+                                unless variant[opt_key] == opt.selected_value
+                                  assign matches_value = false
+                                endunless
+                              endif
+                            endfor
                             if matches_value
                               assign variant_for_value = variant
                               if variant.featured_media
@@ -353,7 +359,7 @@
                           endif
                         -%}
 
-                        {%- capture variant_option_markup -%}
+                        {%- unless variant_is_sold_out or variant_for_value == nil -%}
                           <input
                             type="radio"
                             id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
@@ -369,7 +375,7 @@
 
                           <label
                             for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                            class="modern-variant-swatch swatch-anchor globo-swatch-list {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if variant_is_sold_out %}modern-variant-swatch--sold-out{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
+                            class="modern-variant-swatch swatch-anchor globo-swatch-list {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} {% if option.selected_value == value %}is-selected{% endif %}"
                             data-variant-swatch
                             data-option-value="{{ value | escape }}"
                             {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
@@ -395,13 +401,104 @@
                             {%- if has_variant_sale -%}
                               <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
                             {%- endif -%}
-                            {% if variant_is_sold_out %}
-                              <span class="modern-variant-sold-out-cross" aria-hidden="true"></span>
-                            {% endif %}
                           </label>
-                        {%- endcapture -%}
+                        {%- endunless -%}
+                      {%- endfor -%}
 
-                        {{ variant_option_markup }}
+                      {%- comment -%} Pass 2: Render SOLD OUT / unavailable variants last {%- endcomment -%}
+                      {%- for value in option.values -%}
+                        {%- liquid
+                          assign option_swatch_img = null
+                          assign variant_with_image = null
+                          assign variant_for_value = null
+                          assign has_variant_sale = false
+                          assign variant_is_sold_out = false
+
+                          for variant in product.variants
+                            assign matches_value = true
+                            for opt in product.options_with_values
+                              assign opt_key = 'option' | append: opt.position
+                              if opt.position == option.position
+                                unless variant[opt_key] == value
+                                  assign matches_value = false
+                                endunless
+                              else
+                                unless variant[opt_key] == opt.selected_value
+                                  assign matches_value = false
+                                endunless
+                              endif
+                            endfor
+                            if matches_value
+                              assign variant_for_value = variant
+                              if variant.featured_media
+                                assign option_swatch_img = variant.featured_media
+                                assign variant_with_image = variant
+                              endif
+                              assign variant_compare = variant.compare_at_price
+                              if variant_compare == nil or variant_compare == blank or variant_compare == 0
+                                assign variant_compare = product.compare_at_price
+                              endif
+                              if variant_compare != nil and variant_compare > variant.price
+                                assign has_variant_sale = true
+                              endif
+                              if variant.available == false
+                                assign variant_is_sold_out = true
+                              endif
+                            endif
+                          endfor
+
+                          assign option_name_downcase = option.name | downcase
+                          assign use_image_swatch = false
+                          if option_name_downcase contains 'color' or option_name_downcase contains 'colour'
+                            assign use_image_swatch = true
+                          endif
+                        -%}
+
+                        {%- if variant_is_sold_out or variant_for_value == nil -%}
+                          <input
+                            type="radio"
+                            id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                            name="option{{ option.position }}"
+                            value="{{ value | escape }}"
+                            form="{{ product_form_id }}"
+                            {% if option.selected_value == value %}checked{% endif %}
+                            class="modern-variant-input visually-hidden"
+                            data-variant-option
+                            {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-available="{{ variant_for_value.available }}"{% endif %}
+                          >
+
+                          <label
+                            for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                            class="modern-variant-swatch swatch-anchor globo-swatch-list {% if use_image_swatch and option_swatch_img %}modern-variant-swatch--image{% else %}modern-variant-swatch--pill{% endif %} modern-variant-swatch--sold-out {% if option.selected_value == value %}is-selected{% endif %}"
+                            data-variant-swatch
+                            data-option-value="{{ value | escape }}"
+                            {% if variant_for_value and variant_for_value.featured_media %}data-variant-image="{{ variant_for_value.featured_media.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-id="{{ variant_for_value.id }}"{% endif %}
+                            {% if variant_for_value %}data-variant-available="{{ variant_for_value.available }}"{% endif %}
+                            tabindex="0"
+                          >
+                            {%- if use_image_swatch and option_swatch_img -%}
+                              {{
+                                option_swatch_img
+                                | image_url: width: 100
+                                | image_tag:
+                                  loading: 'lazy',
+                                  class: 'modern-variant-swatch-img',
+                                  alt: value,
+                                  width: nil,
+                                  height: nil
+                              }}
+                            {%- else -%}
+                              <span class="modern-variant-swatch-label">{{ value }}</span>
+                            {%- endif -%}
+
+                            {%- if has_variant_sale -%}
+                              <span class="modern-variant-sale-dot" title="On Sale">SALE</span>
+                            {%- endif -%}
+                            <span class="modern-variant-sold-out-cross" aria-hidden="true"></span>
+                          </label>
+                        {%- endif -%}
                       {%- endfor -%}
                     </div>
                   </fieldset>
