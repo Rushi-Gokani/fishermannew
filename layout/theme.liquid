@@ -38,7 +38,7 @@
     {% endif %}
 
     
-    <script>
+    {% comment %} <script>
         function handleFloCheckoutBtn() {
             if (window.shopflo && window.shopflo.checkout) {
                 window.shopflo.checkout();
@@ -165,7 +165,7 @@
                 }, 200);
             }
         }
-    </script>
+    </script> {% endcomment %}
 
     {{ content_for_header }}
   </head>
