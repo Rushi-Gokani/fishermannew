@@ -291,6 +291,12 @@ class ModernProductPage {
       .filter(input => input.checked)
       .map(input => input.value);
 
+    // Update selected option labels
+    selectedOptions.forEach((value, index) => {
+      const label = this.container.querySelector(`.modern-variant-selected-value[data-option-index="${index}"]`);
+      if (label) label.textContent = value;
+    });
+
     const variant = this.productJSON.variants.find(v => {
       return selectedOptions.every((option, index) => {
         return v.options[index] === option;
