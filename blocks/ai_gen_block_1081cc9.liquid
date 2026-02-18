@@ -31,6 +31,8 @@
     align-items: center;
     justify-content: center;
     background-color: {{ block.settings.background_color }};
+    text-decoration: none;
+    color: inherit;
   }
 
   .ai-hero-slider__image-wrapper-{{ ai_gen_id }} {
@@ -238,7 +240,11 @@
         %}
 
         {% if current_image != blank or forloop.first %}
-          <div class="ai-hero-slider__slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
+          {% if current_button_link != blank %}
+            <a href="{{ current_button_link }}" class="ai-hero-slider__slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
+          {% else %}
+            <div class="ai-hero-slider__slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
+          {% endif %}
             <div class="ai-hero-slider__image-wrapper-{{ ai_gen_id }}">
               {% liquid
                 assign mobile_image_key = 'mobile_image_' | append: i
@@ -285,14 +291,14 @@
                   <p class="ai-hero-slider__subheading-{{ ai_gen_id }}">{{ current_subheading }}</p>
                 {% endif %}
 
-                {% if current_button_text != blank and current_button_link != blank %}
-                  <a href="{{ current_button_link }}" class="ai-hero-slider__button-{{ ai_gen_id }}">
-                    {{ current_button_text }}
-                  </a>
-                {% endif %}
+
               </div>
             {% endif %}
-          </div>
+          {% if current_button_link != blank %}
+            </a>
+          {% else %}
+            </div>
+          {% endif %}
         {% endif %}
       {% endfor %}
     </div>
