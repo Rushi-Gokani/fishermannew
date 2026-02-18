@@ -698,6 +698,19 @@
   }
 {% endstylesheet %}
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.mega-menu__link').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        // Force redirect if it's a valid link
+        if (link.href && link.href !== '#' && !link.href.includes('javascript:')) {
+            window.location.href = link.href;
+        }
+      });
+    });
+  });
+</script>
+
 {% schema %}
 {
   "name": "t:names.menu",
